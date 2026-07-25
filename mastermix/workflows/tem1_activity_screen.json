@@ -16,10 +16,10 @@
     { "name": "platereader", "type": "object", "is_array": false, "description": "Plate reader used for A490 readout.", "defaultValue": "plate_reader" },
     { "name": "plate_home", "type": "object", "is_array": false, "description": "Home fixture/holder to return the assay plate to after reading.", "defaultValue": "wellplate_holder_tags" },
 
-    { "name": "enzyme_anchor", "type": "string", "description": "Cold-block hole containing purified or CFPS-derived TEM-1 enzyme prep.", "defaultValue": "hole_6" },
-    { "name": "no_enzyme_anchor", "type": "string", "description": "Cold-block hole containing no-enzyme prep or BLB for negative controls.", "defaultValue": "hole_4" },
-    { "name": "vehicle_anchor", "type": "string", "description": "Cold-block hole containing DMSO-matched vehicle or BLB.", "defaultValue": "hole_5" },
-    { "name": "nitrocefin_anchor", "type": "string", "description": "Cold-block hole containing freshly prepared 2x nitrocefin working solution.", "defaultValue": "hole_7" },
+    { "name": "enzyme_anchor", "type": "string", "description": "Cold-block hole containing CFPS-derived TEM-1 sample prep. Defaults to cfps_mastermix sample_mm_hole.", "defaultValue": "hole_8" },
+    { "name": "no_enzyme_anchor", "type": "string", "description": "Cold-block hole containing no-template/no-enzyme prep. Defaults to cfps_mastermix neg_mm_hole.", "defaultValue": "hole_7" },
+    { "name": "vehicle_anchor", "type": "string", "description": "Cold-block hole containing DMSO-matched vehicle or BLB. Defaults to cfps_mastermix water_hole.", "defaultValue": "hole_5" },
+    { "name": "nitrocefin_anchor", "type": "string", "description": "Cold-block hole containing freshly prepared 2x nitrocefin working solution.", "defaultValue": "hole_10" },
 
     { "name": "positive_source_plate", "type": "object", "is_array": false, "description": "Source plate containing positive-control inhibitor, default clavulanic acid T19860.", "defaultValue": "wellplate_pcr_parts_1" },
     { "name": "positive_source_well", "type": "string", "description": "Source well for positive-control inhibitor.", "defaultValue": "H7" },

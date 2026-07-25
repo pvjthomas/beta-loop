@@ -78,10 +78,10 @@ export default function Tem1ActivityScreen() {
   const [plateReader, setPlateReader] = useState(String(initial("platereader", firstName(["plate_reader"], "plate_reader"))));
   const [plateHome, setPlateHome] = useState(String(initial("plate_home", firstName(["wellplate_holder_tags", "wellplate_holder_fixture_plate", "plate_stand_holder"], "wellplate_holder_tags"))));
 
-  const [enzymeAnchor, setEnzymeAnchor] = useState(String(initial("enzyme_anchor", "hole_6")));
-  const [noEnzymeAnchor, setNoEnzymeAnchor] = useState(String(initial("no_enzyme_anchor", "hole_4")));
+  const [enzymeAnchor, setEnzymeAnchor] = useState(String(initial("enzyme_anchor", "hole_8")));
+  const [noEnzymeAnchor, setNoEnzymeAnchor] = useState(String(initial("no_enzyme_anchor", "hole_7")));
   const [vehicleAnchor, setVehicleAnchor] = useState(String(initial("vehicle_anchor", "hole_5")));
-  const [nitrocefinAnchor, setNitrocefinAnchor] = useState(String(initial("nitrocefin_anchor", "hole_7")));
+  const [nitrocefinAnchor, setNitrocefinAnchor] = useState(String(initial("nitrocefin_anchor", "hole_10")));
   const [waitMin, setWaitMin] = useState(Number(initial("preincubation_minutes", 10)));
   const [runName, setRunName] = useState(String(initial("run_name", "tem1_activity_screen")));
 
