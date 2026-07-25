@@ -2,7 +2,9 @@
 
 Quick reference for TEM-1 β-lactamase inhibitor screen (Track A). Share with Rob/Chang for `workflows/screen.json`.
 
-**Related:** [COMPOUND_SELECTION.md](COMPOUND_SELECTION.md) · [PLAN.md](../PLAN.md) · [`data/compounds.csv`](../data/compounds.csv)
+**Related:** [COMPOUND_SELECTION.md](COMPOUND_SELECTION.md) (classification taxonomy) · [PLAN.md](../PLAN.md) · [`data/compounds.csv`](../data/compounds.csv)
+
+> **Plate controls, library classes, and functional mapping:** see [COMPOUND_SELECTION.md § Compound & plate classification](COMPOUND_SELECTION.md#compound--plate-classification-reference).
 
 ---
 

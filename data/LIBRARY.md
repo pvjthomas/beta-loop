@@ -14,7 +14,8 @@
 | `concentration_mM` | 10 mM stock in DMSO |
 | `volume_ul` | 50 µL |
 | `smiles` | From TargetMol sheet |
-| `scaffold_class` | `inhibitor` \| `antibiotic_substrate` \| `exclude` \| `other_β_lactam` |
+| `scaffold_class` | `inhibitor` \| `antibiotic_substrate` \| `exclude` \| `other_β_lactam` \| `artifact_suspect` (_stub_) |
+| `functional_class` | _stub_ — see [COMPOUND_SELECTION.md § Suggested mapping](../pvjthomas/COMPOUND_SELECTION.md#suggested-mapping--unified-functional-classes) |
 | `tier` | 1 = known inhibitor, 3 = substrate control, blank = TBD |
 | `exclude` | `true` for nitrocefin (T19709) only |
 
