@@ -43,6 +43,8 @@ DEFAULT_DIVERSE_PICKS = [
     "T124492",
 ]
 
+REPLICATES_PER_COMPOUND = 3
+
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -124,40 +126,65 @@ def merge_tier_assignments() -> dict[str, Any]:
     return {"status": "ok", "selection_state": path, "tiers": merge_payload}
 
 
-def generate_round1_plate_draft() -> dict[str, Any]:
-    """Build data/selection/plate_map_r1_draft.json from merged tiers (requires human sign-off to promote)."""
-    merge_result = merge_tier_assignments()
-    tiers = merge_result["tiers"]
+def _add_control_wells(wells: dict[str, Any]) -> None:
+    wells.update(
+        {
+            "A1": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
+            "A2": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
+            "A3": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
+            "A4": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
+            "A5": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
+            "A6": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
+            "A7": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
+            "A8": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
+            "A9": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
+            "A10": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control", "bucket": "control"},
+            "A11": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control", "bucket": "control"},
+            "A12": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control", "bucket": "control"},
+        }
+    )
 
-    wells: dict[str, Any] = {
-        "A1": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
-        "A2": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
-        "A3": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
-        "A4": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
-        "A5": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
-        "A6": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
-        "A7": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
-        "A8": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
-        "A9": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
-        "A10": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
-        "A11": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control", "bucket": "control"},
-        "A12": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control", "bucket": "control"},
-    }
 
-    def _add_row(row: str, ids: list[str], bucket: str, functional: str):
-        for col, cid in enumerate(ids, start=1):
-            wells[f"{row}{col}"] = {
+def _add_triplicate_block(
+    wells: dict[str, Any],
+    start_row: str,
+    compound_ids: list[str],
+    bucket: str,
+    functional: str,
+) -> None:
+    """Place each compound in REPLICATES_PER_COMPOUND adjacent columns; wrap at column 12."""
+    row_idx = ord(start_row)
+    col = 1
+    for cid in compound_ids:
+        for rep in range(1, REPLICATES_PER_COMPOUND + 1):
+            if col > 12:
+                row_idx += 1
+                col = 1
+            wells[f"{chr(row_idx)}{col}"] = {
                 "compound_id": cid,
                 "concentration_uM": 50,
                 "role": "sample",
                 "bucket": bucket,
                 "functional_class": functional,
+                "replicate": rep,
             }
+            col += 1
 
-    _add_row("B", tiers["tier1_inhibitors"], "tier1_inhibitor", "positive")
-    _add_row("C", tiers["tier2_analogs"], "inhibitor_analog", "positive")
-    _add_row("D", tiers["tier4_substrate_controls"], "substrate_control", "negative")
-    _add_row("E", tiers["tier3_docking_or_diverse"], "diverse_pick", "unknown")
+
+def generate_round1_plate_draft() -> dict[str, Any]:
+    """Build data/selection/plate_map_r1_draft.json from merged tiers (requires human sign-off to promote)."""
+    merge_result = merge_tier_assignments()
+    tiers = merge_result["tiers"]
+
+    wells: dict[str, Any] = {}
+    _add_control_wells(wells)
+    _add_triplicate_block(wells, "B", tiers["tier1_inhibitors"], "tier1_inhibitor", "positive")
+    _add_triplicate_block(wells, "C", tiers["tier2_analogs"], "inhibitor_analog", "positive")
+    _add_triplicate_block(wells, "D", tiers["tier4_substrate_controls"], "substrate_control", "negative")
+    _add_triplicate_block(wells, "F", tiers["tier3_docking_or_diverse"], "diverse_pick", "unknown")
+
+    sample_wells = [w for w in wells.values() if w.get("role") == "sample"]
+    unique_compounds = len({w["compound_id"] for w in sample_wells})
 
     plate = {
         "run": 1,
@@ -169,9 +196,14 @@ def generate_round1_plate_draft() -> dict[str, Any]:
         "compound_concentration_uM": 50,
         "working_solution_uM": 500,
         "compound_volume_ul": 5,
+        "replicates_per_compound": REPLICATES_PER_COMPOUND,
         "exclude_compound_ids": ["T19709"],
         "rationale_doc": "pvjthomas/selection_rationale.md",
-        "layout_notes": "ADK-generated draft — requires pvjthomas sign-off before replacing data/plate_map_r1.json",
+        "layout_notes": (
+            f"96-well flat bottom: row A = 12 plate controls; rows B–G = {unique_compounds} test compounds "
+            f"× {REPLICATES_PER_COMPOUND} triplicate ({len(sample_wells)} sample wells). "
+            "Row H empty/reserved. ADK-generated draft — requires pvjthomas sign-off before replacing data/plate_map_r1.json."
+        ),
         "wells": wells,
     }
 
@@ -182,12 +214,13 @@ def generate_round1_plate_draft() -> dict[str, Any]:
     state["merge"]["plate_draft"] = str(SELECTION_DRAFT_PLATE_JSON)
     path = _save_selection_state(state)
 
-    sample_wells = len([w for w in wells.values() if w.get("role") == "sample"])
     return {
         "status": "ok",
         "selection_state": path,
         "draft_plate_path": str(SELECTION_DRAFT_PLATE_JSON),
-        "sample_compound_wells": sample_wells,
+        "unique_compounds": unique_compounds,
+        "sample_compound_wells": len(sample_wells),
+        "replicates_per_compound": REPLICATES_PER_COMPOUND,
         "note": "Draft only — do not run on robot until promoted.",
     }
 
