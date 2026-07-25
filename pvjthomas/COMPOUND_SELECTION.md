@@ -46,6 +46,118 @@ Compound transfers use **plate + row + col** from `data/compounds.csv` (columns 
 
 ---
 
+## Clavulanate vs antibiotics (read this first)
+
+### What is clavulanate?
+
+**Clavulanic acid (clavulanate)** is a β-lactamase **inhibitor**, not a standalone antibiotic. It binds/inactivates TEM-1 so penicillins can work (e.g. Augmentin = amoxicillin + clavulanate). In our library: **T19860**, **T14979**.
+
+### Are antibiotics in the library?
+
+**Yes — ~97 of 105 compounds are β-lactam antibiotics** (penicillins, cephalosporins, carbapenems). TEM-1 **hydrolyzes** them as **substrates**; they usually do **not** inhibit nitrocefin cleavage.
+
+### Do we need antibiotics to prove the assay works?
+
+**No.**
+
+| To validate assay | Required? | Wells |
+|-------------------|-----------|-------|
+| TEM-1 + nitrocefin + vehicle | **Yes** | Max activity |
+| No-enzyme control | **Yes** | Background |
+| Clavulanate positive | **Yes** | Inhibition works |
+| Antibiotic (e.g. ampicillin) | **No** | Optional demo only |
+
+Run the **minimal validation plate** (below) before Round 1. Antibiotics enter at **Round 1 selection** as substrate controls, not for assay QC.
+
+---
+
+## Minimal validation plate (before Round 1)
+
+Philip sign-off required before Chang runs discovery screen. See also [NITROCEFIN_ASSAY.md](NITROCEFIN_ASSAY.md).
+
+| Well(s) | Role | compound_id | Pass if… |
+|---------|------|-------------|----------|
+| 4× | Vehicle | — | Strong A490 slope |
+| 2× | No-enzyme | — | Flat / background |
+| 2× | Positive | T19860 @ 50 µM | ≥50% inhibition vs vehicle |
+| 2× | Optional substrate demo | T1005 Ampicillin @ 50 µM | Low inhibition (not required to pass) |
+
+**If clavulanate fails but vehicle works → fix assay (DMSO, conc, pre-incubation), not compound selection.**
+
+---
+
+## Compound & plate classification (reference)
+
+Canonical vocabulary for plate design, `data/compounds.csv`, and `plate_map_r*.json`.  
+**Status:** stubs — fill as selection and R1 data land.
+
+### Plate controls
+
+Wells that are **not library compounds** (or are library compounds used only as fixed controls).  
+Maps to `plate_map` field: `role`.
+
+| `role` | Enzyme? | Compound | Expected A490 slope | # wells (typical) | Purpose | Notes |
+|--------|---------|----------|---------------------|-------------------|---------|-------|
+| `vehicle` | ✓ | DMSO matched | **Max** | 4–6 | Normalization reference | _TBD: exact DMSO %_ |
+| `no_enzyme` | ✗ | DMSO or sample matched | **Min** | 2–4 | Background / non-enzymatic | _TBD_ |
+| `positive_control` | ✓ | Clavulanate T19860 @ 50 µM | **Low** | 1–2 | Prove inhibition detectable | _TBD: backup positive (sulbactam?)_ |
+| `validation_substrate` | ✓ | e.g. Ampicillin T1005 @ 50 µM | **High** (like vehicle) | 0–2 | Optional substrate demo | Validation plate only |
+| _stub_ | | | | | | |
+
+**Minimal validation plate** uses: `vehicle`, `no_enzyme`, `positive_control`, optional `validation_substrate`.  
+**Round 1 / R2** require: `vehicle`, `no_enzyme`, `positive_control` on every screen plate.
+
+---
+
+### Library compound classes
+
+Classification of **test compounds** from the TargetMol library.  
+Maps to `data/compounds.csv` field: `scaffold_class`.
+
+| `scaffold_class` | Count (approx) | Mechanism vs TEM-1 | Expected @ 50 µM | Selection tier | Example IDs | Notes |
+|------------------|----------------|--------------------|------------------|----------------|-------------|-------|
+| `inhibitor` | 7 | Blocks β-lactamase | **≥50% inhibition** | Tier 1 | T19860, T1262, T6685, … | _TBD: refine sultamicillin_ |
+| `antibiotic_substrate` | ~97 | Hydrolyzed as substrate | **<20% inhibition** | Tier 4 | T1005, T1008, T0224, … | Intentional negatives in R1 |
+| `exclude` | 1 | Assay substrate | Do not test | — | T19709 | Nitrocefin |
+| `other_β_lactam` | _TBD_ | _TBD_ | _TBD_ | Tier 3? | _TBD_ | e.g. 7-ACA, intermediates |
+| `artifact_suspect` | _TBD_ | Assay interferer | _TBD_ | Filter out | _TBD_ | PAINS, quenchers — _stub list_ |
+| _stub_ | | | | | | |
+
+**TODO:** RDKit SMARTS pass to validate/refine tags · manual review of edge cases · merge into `compounds.csv`.
+
+---
+
+### Suggested mapping — unified functional classes
+
+Single vocabulary linking **biology → selection → expected outcome → R2 action**.  
+Maps to optional field: `functional_class` (add to `compounds.csv` / `plate_map` when ready).
+
+| `functional_class` | Maps from | Expected R1 result | Round 1 use | Round 2 action | Examples |
+|----------------------|-----------|--------------------|--------------|--------------------|----------|
+| **positive** | `inhibitor`, Tier 1–2 | Hit (≥50% @ 50 µM) | Must test | 8-point dose-response | Clavulanate, tazobactam |
+| **negative** | `antibiotic_substrate`, Tier 4 | No hit (<20%) | Substrate controls | Drop unless surprise | Ampicillin, cephalexin |
+| **unknown** | Tier 3, `other_β_lactam` | Uncertain | Explore / dock picks | Retest if borderline | _TBD compound list_ |
+| **exclude** | `exclude`, nitrocefin | N/A | Never plate | — | T19709 |
+| **neutral** | — (not a library class) | Max activity | **Plate control only** (`vehicle`) | — | DMSO, no compound |
+| **borderline** | _from R1 data_ | 20–50% @ 50 µM | _TBD_ | Retest or DR | _TBD after R1_ |
+| **artifact** | `artifact_suspect`, failed QC | Uninterpretable | Drop | Drop | _TBD_ |
+| _stub_ | | | | | |
+
+**Outcome after R1** (post-hoc labels — _stub_):
+
+| Post-R1 label | Criteria | Next step |
+|---------------|----------|-----------|
+| `confirmed_hit` | ≥50% + inhibitor class or DR confirms | IC50 in R2 |
+| `confirmed_substrate` | <20% + antibiotic class | Document; drop |
+| `surprise_hit` | ≥50% + antibiotic class | _TBD: investigate_ |
+| `surprise_miss` | <20% + inhibitor class | Assay debug |
+| `failed_well` | Bad kinetics / outlier | Exclude from analysis |
+| _stub_ | | |
+
+**TODO:** Philip + ML agree on field names · encode in `plate_map_r*.json` · agent uses `functional_class` in rationale.
+
+---
+
 ## Goal
 
 Build a **defensible Round 1 plate (~24 compounds)** and **rules for Round 2** such that:

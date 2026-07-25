@@ -4,11 +4,24 @@
 
 **Compound selection plan:** **[COMPOUND_SELECTION.md](COMPOUND_SELECTION.md)** — forward (literature → library), reverse (library → literature), Tanimoto bridge, tiers → Round 1 plate.
 
-Personal workspace for scripts, notes, and artifacts you own. Shared deliverables still land in `data/`, `agent/`, and `workflows/` at repo root.
+**ML implements your selection rules** in `data/plate_map_r*.json` and the ADK agent — see [ml/CLOSED_LOOP.md](../ml/CLOSED_LOOP.md).
+
+**Assay cheat sheet:** **[NITROCEFIN_ASSAY.md](NITROCEFIN_ASSAY.md)** — what to mix, order, controls, DMSO rule, scoring.
+
+Personal workspace for scripts, notes, and artifacts you own. Shared deliverables still land in `data/` and `workflows/` at repo root; ML ships the team agent under `agent/` when ready.
+
+### Experimental agent (pvjthomas only)
+
+| Path | Purpose |
+|------|---------|
+| [`agent/`](agent/) | ADK closed-loop sandbox (`adk run pvjthomas/agent`) |
+| [`analysis/`](analysis/) | Kinetics + plate helpers used by the sandbox |
+| [`.claude/skills/paperclip/`](.claude/skills/paperclip/SKILL.md) | Paperclip skill stub for Claude Code |
 
 ## Your lead tasks
 
-| **Compound selection pipeline** (see [COMPOUND_SELECTION.md](COMPOUND_SELECTION.md)) — library in [`data/compounds.csv`](../data/compounds.csv) |
+- [ ] **Compound selection** — see [COMPOUND_SELECTION.md](COMPOUND_SELECTION.md); library in [`data/compounds.csv`](../data/compounds.csv)
+- [ ] Sign off **minimal validation plate** before Round 1
 - [ ] Kickoff organizer questions
 - [ ] GFP / activity gate thresholds
 - [ ] Demo narrative & pitch

@@ -1,11 +1,14 @@
 # β-Loop — Python dependencies
-# Install: python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+# Install:
+#   python -m venv .venv && source .venv/bin/activate
+#   pip install -r requirements.txt
+#   bash scripts/install-paperclip.sh
 
 # Agent
 google-adk
 
-# Literature search (GXL Paperclip)
-gxl-paperclip
+# Literature search (Paperclip — https://paperclip.gxl.ai/)
+# gxl-paperclip==0.7.11 — not on PyPI; use scripts/install-paperclip.sh
 
 # Analysis
 numpy
