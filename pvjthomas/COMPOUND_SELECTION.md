@@ -1,7 +1,9 @@
 # Compound selection plan — Philip
 
 **Owner:** Philip (pvjthomas) · **Task 2:** Compound screening (prioritization + closed-loop design)  
-**Outputs:** `data/compounds.csv`, `data/literature_summary.json`, `data/plate_map_r1.json`, agent priors for R2
+**Outputs:** `data/compounds.csv`, `data/literature_summary.json`, `data/plate_map_r1.json`, `data/selection/*`, agent priors for R2
+
+**Implementation:** Phase A (inventory) done · Phase B ADK pipeline in [`agent/`](agent/README.md) · Active robot plate is **validation v2** (not full discovery)
 
 This library is unusual: **105 β-lactam** compounds from TargetMol — mostly **antibiotics (TEM-1 substrates)** plus a few **true β-lactamase inhibitors**. Selection is not “dock everything and hope”; it is **find inhibitors, confirm substrates as controls, and bridge gaps with similarity when literature and library don’t overlap**.
 
@@ -123,7 +125,7 @@ Maps to `data/compounds.csv` field: `scaffold_class`.
 | `artifact_suspect` | _TBD_ | Assay interferer | _TBD_ | Filter out | _TBD_ | PAINS, quenchers — _stub list_ |
 | _stub_ | | | | | | |
 
-**TODO:** RDKit SMARTS pass to validate/refine tags · manual review of edge cases · merge into `compounds.csv`.
+**TODO:** Phase B RDKit pass done in pipeline · manual edge-case review · merge `dock_score` when GNINA runs.
 
 ---
 
@@ -437,34 +439,55 @@ Shows the selection plan **worked**, even if total hits are few.
 
 - **Boltz-2 / affinity** on top 10 — compare to GNINA
 - **3D similarity** (shape) if 2D Tanimoto ambiguous
-- **ADK tool** `prioritize_compounds()` wrapping this pipeline as deterministic code + LLM rationale layer
+- ~~**ADK tool** `prioritize_compounds()` wrapping this pipeline~~ → **Done:** `run_compound_selection_pipeline()` in [`agent/tools/selection.py`](agent/tools/selection.py)
+
+---
+
+## Phase B — ADK implementation (done)
+
+The forward / reverse / bridge strategy above is implemented as deterministic tools + sub-agents:
+
+| Sub-agent | Tools | Output |
+|-----------|-------|--------|
+| `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library` | `reference_inhibitors.csv`, `literature/refs/*.json` |
+| `reverse_agent` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score` | `selection/state.json` |
+| `bridge_agent` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` | `similarity/neighbors.json` |
+| `selection_merger` | `merge_tier_assignments`, `generate_round1_plate_draft` | `selection/plate_map_r1_draft.json` |
+
+**Run offline:** see [`agent/README.md`](agent/README.md).  
+**Promotion:** draft plate does not overwrite active `data/plate_map_r1.json` without Philip sign-off.
 
 ---
 
 ## Deliverables checklist
 
-| File | Description |
-|------|-------------|
-| `data/compounds.csv` | Full library + tags, tiers, scores |
-| `data/reference_inhibitors.csv` | Literature / ChEMBL gold set |
-| `data/literature/*.txt` | Raw Paperclip outputs |
-| `data/literature_summary.json` | Structured priors for agent |
-| `data/plate_map_r1.json` | 24 compounds + controls |
-| `pvjthomas/selection_rationale.md` | 1-page human-readable: why each well (for demo) |
+| File | Description | Status |
+|------|-------------|--------|
+| `data/compounds.csv` | Full library + tags, tiers | ✓ Phase A |
+| `data/compound_dossiers.json` | Per-compound summaries | ✓ |
+| `data/reference_inhibitors.csv` | Literature / ChEMBL gold set | ✓ seeded |
+| `data/literature/refs/*.json` | Per-compound Paperclip curation | Partial (T19860, T1262, T6685, T14979) |
+| `data/literature/*.txt` | Raw Paperclip batch outputs | Optional |
+| `data/literature_summary.json` | Structured priors for agent | ✓ |
+| `data/selection/plate_map_r1_draft.json` | Agent-generated 24-compound layout | ✓ draft |
+| `data/plate_map_r1.json` | **Active** robot plate | ✓ v2 validation (8 wells) |
+| `data/runs/1/v1/` | Archived v1 discovery + rationale | ✓ superseded |
+| `pvjthomas/runs/1/v1/selection_rationale.md` | Human-readable well picks | ✓ v1 |
 
 ---
 
-## Execution order (Philip — tonight / Sat AM)
+## Execution order (Philip)
 
-1. [x] Parse library SMILES → `data/compounds.csv`
-2. [ ] Forward: Paperclip searches + `reference_inhibitors.csv`
-3. [ ] Match literature → library (exact + Tanimoto 0.85)
-4. [ ] Reverse: RDKit scaffold tags + GNINA dock
-5. [ ] Bridge: Tanimoto neighbors for literature-only structures
-6. [ ] Apply interference filters; assign tiers
-7. [ ] Pick 24 for R1 → `plate_map_r1.json`
-8. [ ] Write `selection_rationale.md` + `literature_summary.json`
-9. [ ] Share with Chang for screen workflow validation; sign-off before hardware
+1. [x] Parse library SMILES → `data/compounds.csv` (Phase A)
+2. [x] Forward: seed `reference_inhibitors.csv` + match literature → library
+3. [x] Match literature → library (exact + Tanimoto; T19860 curated via Paperclip)
+4. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
+5. [ ] Reverse: GNINA dock → `dock_score` column (stub only)
+6. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
+7. [x] Merge tiers → `data/selection/plate_map_r1_draft.json` (24 compounds)
+8. [x] Validation plate v2 → active `data/plate_map_r1.json`
+9. [ ] Promote discovery draft after validation passes + Philip sign-off
+10. [ ] Share full discovery plate with Chang for screen workflow
 
 ---
 
@@ -478,6 +501,7 @@ Shows the selection plan **worked**, even if total hits are few.
 
 ## Related docs
 
-- [PLAN.md](../PLAN.md) — plate layouts, two-round loop
+- [PLAN.md](../PLAN.md) — progress snapshot, Phase A→B, plate layouts, two-round loop
+- [agent/README.md](agent/README.md) — ADK pipeline usage
 - [REQUIREMENTS.md](../REQUIREMENTS.md) — Paperclip, RDKit, GNINA setup
 - [ROLES.md](../ROLES.md) — Philip sign-off on R2 plate map

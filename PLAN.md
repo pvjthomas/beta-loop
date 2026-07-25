@@ -5,6 +5,23 @@
 **Team size:** 3  
 **Submit:** Sunday 2:30 PM · **Demo/Pitch:** Sunday 4:30 PM
 
+**Teammate index:** [`data/README.md`](data/README.md) · **Storage policy:** [`data/STORAGE.md`](data/STORAGE.md)
+
+---
+
+## Contents
+
+| Section | What it covers |
+|---------|----------------|
+| [Progress snapshot](#progress-snapshot-sat-1446) | Done / in progress / blocked |
+| [Two main tasks](#two-main-tasks) | Robotics vs compound screening |
+| [Compound list generation](#compound-list-generation-phase-a--phase-b) | Phase A inventory + Phase B ADK pipeline |
+| [File contract](#file-contract-freeze-before-hackathon) | Schemas all layers share |
+| [Assay validation](#assay-validation--prove-it-works-before-round-1) | Minimal plate before discovery |
+| [Plate designs](#plate-designs) | R1 discovery vs R2 dose-response |
+| [Phases 0–4](#phase-0-pre-hackathon-tonight-34-hours) | Hour-by-hour schedule |
+| [Next actions](#next-actions-sat-1446) | Who does what now |
+
 ---
 
 ## Team
@@ -33,29 +50,54 @@ By demo time we show a real **data → decision → better result** story:
 
 ---
 
-## Progress snapshot (Sat ~13:45)
+## Progress snapshot (Sat ~14:46)
 
-| Area | Status | Notes |
-|------|--------|-------|
-| Repo scaffold | ✓ Done | PLAN, ROLES, REQUIREMENTS, team folders |
-| File contract / schemas | ✓ Done | Frozen in this doc; classification stubs added |
-| `data/compounds.csv` | ✓ Done | 105 compounds, tier/scaffold tags, nitrocefin excluded |
-| `data/LIBRARY.md` | ✓ Done | Library format + re-export instructions |
-| Philip selection plan | ✓ Done | [pvjthomas/COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md) |
-| Assay docs | ✓ Done | [pvjthomas/NITROCEFIN_ASSAY.md](pvjthomas/NITROCEFIN_ASSAY.md) |
-| Automation split | ✓ Draft | [learsch/](learsch/), [changhu/](changhu/) — Rob/Chang to agree |
-| ML workspace + plan | ✓ Done | [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md) |
-| Paperclip install | ✓ Done | CLI + SDK in venv, auth working; searches not run |
-| Python env (`.venv`) | ✓ Done | Full `requirements.txt` + paperclip — see [REQUIREMENTS.md](REQUIREMENTS.md#installed-versions) |
-| `.env.example` | ✓ Done | Vertex AI + Paperclip template |
-| `data/literature/` | ✗ Empty | Paperclip searches pending |
-| `data/literature_summary.json` | ✓ Done | Hardcoded priors; refine after Paperclip searches |
-| `data/plate_map_r1.json` | ✓ Done | Run 1 v1 — see [`data/runs/1/v1/`](data/runs/1/v1/) |
-| `agent/`, `analysis/` | ✗ Missing | ML |
-| `workflows/` | ✗ Missing | Rob + Chang |
-| GNINA docking | ✗ Not started | Optional |
+### Planning & docs
 
-**Current phase:** Phase 1 Sat AM — CFPS on hardware, GFP gate imminent (~14:30), Round 1 target ~15:00.
+| Item | Status |
+|------|--------|
+| Repo scaffold (PLAN, ROLES, REQUIREMENTS, team folders) | ✓ |
+| [`data/README.md`](data/README.md) — rounds vs versions, teammate index | ✓ |
+| [`data/STORAGE.md`](data/STORAGE.md) — git vs local policy | ✓ |
+| [`ASSAY_WORKFLOW.md`](ASSAY_WORKFLOW.md) — CFPS → GFP → screen pipeline | ✓ |
+| Philip selection plan | ✓ [COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md) |
+| Assay cheat sheet | ✓ [NITROCEFIN_ASSAY.md](pvjthomas/NITROCEFIN_ASSAY.md) |
+| Automation split (Rob/Chang) | Draft — [learsch/](learsch/), [changhu/](changhu/) |
+
+### Compound library & selection (Task 2)
+
+| Item | Status |
+|------|--------|
+| **Phase A** — parse TargetMol → [`data/compounds.csv`](data/compounds.csv) (105 compounds) | ✓ |
+| Phase A — heuristic tags (7 inhibitors, 97 substrates, T19709 exclude) | ✓ |
+| [`data/compound_dossiers.json`](data/compound_dossiers.json) — 105 summaries | ✓ |
+| **Phase B** — ADK forward / reverse / bridge pipeline | ✓ scaffold in [`pvjthomas/agent/`](pvjthomas/agent/) |
+| [`data/reference_inhibitors.csv`](data/reference_inhibitors.csv) | ✓ seeded |
+| [`data/selection/state.json`](data/selection/state.json) + draft plate | ✓ offline run |
+| Forward Paperclip batch searches | Partial — T19860 curated; batch optional |
+| GNINA docking + `dock_score` column | ✗ stub only |
+| Promote draft → active `plate_map_r1.json` for discovery | ✗ needs sign-off |
+
+### Plates & literature (Round 1)
+
+| Item | Status |
+|------|--------|
+| **Active robot plate** — [`data/plate_map_r1.json`](data/plate_map_r1.json) | ✓ **v2 validation** (clavulanic + DMSO @ 50 µM) |
+| Superseded discovery layout | [`data/runs/1/v1/`](data/runs/1/v1/) — 24-compound design (history) |
+| T19860 literature + assay priors | ✓ [literature/refs/T19860.json](data/literature/refs/T19860.json) |
+| [`data/literature_summary.json`](data/literature_summary.json) | ✓ priors + forward match metadata |
+
+### Agent, analysis & robotics
+
+| Item | Status |
+|------|--------|
+| Philip ADK sandbox | ✓ [`pvjthomas/agent/`](pvjthomas/agent/) — coordinator + 4 Phase B sub-agents |
+| Philip analysis helpers | ✓ [`pvjthomas/analysis/`](pvjthomas/analysis/) — kinetics + plate DR |
+| Team `agent/` + `analysis/` at repo root | ✗ ML to ship when ready |
+| Python env + Paperclip | ✓ `.venv`, CLI + SDK |
+| Zeon workflows (`workflows/` or `mastermix/`) | In progress — Rob + Chang |
+
+**Current phase:** Phase 1 Sat PM — **validation plate v2 active** on robot; full 24-compound discovery deferred until assay QC passes.
 
 ---
 
@@ -74,9 +116,9 @@ Zeon provides a **skills library** — pre-built robotic primitives (e.g. `plate
 | # | Task | Status | Owner | Deliverable |
 |---|------|--------|-------|-------------|
 | **1** | **Program the assay on robotics** | In progress (Sat AM) | Rob + Chang (+ pvjthomas QC) | Three Zeon workflows: CFPS → GFP gate → nitrocefin screen |
-| **2** | **Compound screening (closed loop)** | In progress — env done, artifacts pending | ML (+ pvjthomas sign-off) | ADK agent: prioritize → R1 → analyze → R2 plate design |
+| **2** | **Compound screening (closed loop)** | In progress — Phase A + B scaffold done | Philip (+ ML sign-off) | ADK: forward/reverse/bridge → plate → R1 → analyze → R2 |
 
-**ML plan:** [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)
+**Plans:** [COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md) · [pvjthomas/agent/README.md](pvjthomas/agent/README.md) · [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)
 
 ### Task 1 — Program the assay on robotics
 
@@ -98,7 +140,7 @@ Build the agent layer that decides **what to test** and learns from results:
 2. **After Round 1** — normalize kinetics, rank hits, agent designs Round 2 (dose-response + follow-ups)
 3. **After Round 2** — IC50 on best inhibitors; demo the R1 → R2 pivot
 
-Code lives in `agent/` and `analysis/` (shared). File contract in [File contract](#file-contract-freeze-before-hackathon).
+Code lives in [`pvjthomas/agent/`](pvjthomas/agent/) and [`pvjthomas/analysis/`](pvjthomas/analysis/) (Philip sandbox); team copies to root `agent/` / `analysis/` when ML is ready. File contract in [File contract](#file-contract-freeze-before-hackathon).
 
 ### How the two tasks connect
 
@@ -116,6 +158,53 @@ Screen workflow◄─┘                         │
 ```
 
 Neither task stands alone for the hackathon score — judges want **both** a working robot assay **and** a visible closed loop on compound selection.
+
+---
+
+## Compound list generation (Phase A → Phase B)
+
+How we built the library index and how the agent will refresh picks going forward.
+
+### Phase A — library inventory (done)
+
+One Python pass over the [TargetMol sheet](https://docs.google.com/spreadsheets/d/1b7UuzXu_auqoq2hFT81X3UuRutxxWxZW/edit?gid=372192752#gid=372192752):
+
+1. Export CSV → [`data/compounds.csv`](data/compounds.csv) (105 rows, SMILES, plate/well)
+2. Classify with rule stack: hard-coded 7 inhibitor IDs · exclude T19709 · else TargetMol `Receptor`/`Target` → `antibiotic_substrate`
+3. Emit [`data/compound_dossiers.json`](data/compound_dossiers.json) with `functional_class` derived from tags
+
+Manual v1 discovery plate (24 compounds + 12 controls) documented in [`data/runs/1/v1/`](data/runs/1/v1/) — **superseded** by validation-first approach.
+
+### Phase B — ADK pipeline (scaffold done)
+
+Three deterministic passes orchestrated by sub-agents in [`pvjthomas/agent/`](pvjthomas/agent/):
+
+```mermaid
+flowchart LR
+  F[forward_agent<br/>literature → library] --> M[selection_merger]
+  R[reverse_agent<br/>RDKit tags + GNINA rank] --> M
+  B[bridge_agent<br/>Tanimoto + cluster] --> M
+  M --> D[data/selection/plate_map_r1_draft.json]
+```
+
+| Pass | Agent | Key tools | Writes |
+|------|-------|-----------|--------|
+| **Forward** | `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library`, Paperclip | `reference_inhibitors.csv`, `literature/refs/{id}.json` |
+| **Reverse** | `reverse_agent` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score` | `selection/state.json`, optional CSV patch |
+| **Bridge** | `bridge_agent` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` | `similarity/neighbors.json` |
+| **Merge** | `selection_merger` | `merge_tier_assignments`, `generate_round1_plate_draft` | `selection/plate_map_r1_draft.json` |
+
+**Run offline:** `run_compound_selection_pipeline()` — see [agent README](pvjthomas/agent/README.md).
+
+**Promotion rule:** drafts under `data/selection/` require Philip sign-off before overwriting [`data/plate_map_r1.json`](data/plate_map_r1.json).
+
+### Plate strategy (current)
+
+| Stage | Round 1 version | Wells | Purpose |
+|-------|-----------------|-------|---------|
+| **Now (active)** | v2 `r1-validation-v2` | 8 | Clavulanic @ 50 µM + DMSO vehicle — assay QC |
+| **Next** | v3+ or rediscover v1 | 36 | Full 24-compound discovery after validation passes |
+| **Later** | R2 | DR layout | Agent-designed dose-response on R1 hits |
 
 ---
 
@@ -148,15 +237,22 @@ All cross-layer data uses fixed schemas. **Do not change field names after Phase
 
 | File | Direction | Owner | Purpose |
 |------|-----------|-------|---------|
-| `data/compounds.csv` | — | ML | Full library metadata |
-| `data/plate_map_r1.json` | out → robot | ML | Round 1 well assignments |
-| `data/plate_map_r2.json` | out → robot | ML (agent) | Round 2 well assignments |
-| `data/kinetics_r1.csv` | robot → ML | Robotics | Raw A490 time course |
-| `data/kinetics_r2.csv` | robot → ML | Robotics | Raw A490 time course |
-| `data/round_summary_r1.json` | ML → agent | ML | Ranked hits + rationale |
-| `data/round_summary_r2.json` | ML → demo | ML | IC50 + final ranking |
-| `data/literature/*.txt` | Paperclip → agent | ML | Saved search/map outputs (Phase 0) |
-| `data/literature_summary.json` | ML → agent | ML | Structured priors from Paperclip (IC50 ranges, assay tips) |
+| `data/compounds.csv` | — | Philip | Full library metadata (Phase A) |
+| `data/compound_dossiers.json` | — | Philip | Per-compound summaries for agent |
+| `data/reference_inhibitors.csv` | — | Philip | Literature / ChEMBL gold set (Phase B forward) |
+| `data/literature/refs/{id}.json` | Paperclip → agent | Philip | Curated per-compound literature |
+| `data/literature_summary.json` | Philip → agent | Philip | Structured priors + forward match metadata |
+| `data/selection/state.json` | internal | Philip | Tier assignments from Phase B pipeline |
+| `data/selection/plate_map_r1_draft.json` | draft → sign-off | Philip | Agent-generated R1 layout (not robot-active) |
+| `data/similarity/neighbors.json` | internal | Philip | Tanimoto neighbors (Phase B bridge) |
+| `data/plate_map_r1.json` | out → robot | Philip | **Active** Round 1 plate (currently v2 validation) |
+| `data/runs/{round}/{version}/` | archive | Philip | Superseded plate designs + rationale |
+| `data/plate_map_r2.json` | out → robot | Agent | Round 2 well assignments |
+| `data/kinetics_r1.csv` | robot → agent | Robotics | Raw A490 time course |
+| `data/kinetics_r2.csv` | robot → agent | Robotics | Raw A490 time course |
+| `data/round_summary_r1.json` | agent | Philip/ML | Ranked hits + rationale |
+| `data/round_summary_r2.json` | agent → demo | Philip/ML | IC50 + final ranking |
+| `data/literature/*.txt` | Paperclip → agent | Philip | Raw batch search outputs (optional) |
 
 ### `compounds.csv` columns
 
@@ -263,8 +359,8 @@ Full setup details: `REQUIREMENTS.md`
 
 | When | Who | Action |
 |------|-----|--------|
-| **Phase 0 (tonight)** | ML | Batch literature searches → `data/literature/` |
-| **Phase 0 (tonight)** | ML | Summarize into `data/literature_summary.json` |
+| **Phase 0 (tonight)** | Philip | Batch literature searches → `data/literature/` (optional; per-compound refs partially done) |
+| **Phase 0 (tonight)** | Philip | Summarize into `data/literature_summary.json` | ✓ |
 | **Before Round 1** | ADK agent | `search_literature()` tool — confirm inhibitor scaffolds, assay pitfalls |
 | **After Round 1** | ADK agent | Optional: lookup analogs / IC50 priors for R2 dose-response design |
 | **Demo / pitch** | You | Cite one Paperclip finding that shaped Round 1 plate (e.g. "known inhibitors at 50 µM") |
@@ -353,7 +449,9 @@ Use before committing a full Round 1 plate. Can be a corner of the same 96-well 
 | 2× | **Positive control** | T19860 Clavulanic Acid @ 50 µM | Strong inhibition |
 | 2× | *optional* | T1005 Ampicillin @ 50 µM | Low inhibition (substrate demo — **not required for pass**) |
 
-**Pass gate:** Philip signs off → Chang may run Round 1.
+**Pass gate:** Philip signs off → Chang may run full Round 1 discovery.
+
+**Active on robot:** [`data/plate_map_r1.json`](data/plate_map_r1.json) — Round 1 **v2** (`r1-validation-v2`, 8 wells: clavulanic @ 50 µM + DMSO). Full 24-compound discovery layout archived at [`data/runs/1/v1/`](data/runs/1/v1/).
 
 ---
 
@@ -417,7 +515,7 @@ Maps to `data/compounds.csv` field: `scaffold_class`.
 | `artifact_suspect` | _TBD_ | Assay interferer | _TBD_ | Filter out | _TBD_ | PAINS, quenchers — _stub list_ |
 | _stub_ | | | | | | |
 
-**TODO:** RDKit SMARTS pass · manual edge-case review · merge into `compounds.csv`.
+**TODO:** Phase B RDKit pass in pipeline · manual edge-case review · merge `dock_score` when GNINA runs.
 
 ### Suggested mapping — unified functional classes
 
@@ -452,14 +550,26 @@ Maps to optional field: `functional_class` (add to `compounds.csv` / `plate_map`
 
 ## Plate designs
 
-### Round 1 — Discovery (single-point @ 50 µM)
+### Round 1 — Validation (active: v2)
+
+| Wells | Content | Notes |
+|-------|---------|-------|
+| 4 | Vehicle (DMSO) | Normalization |
+| 2 | No-enzyme | Background |
+| 2 | Clavulanic acid T19860 @ 50 µM | Positive control |
+
+**File:** [`data/plate_map_r1.json`](data/plate_map_r1.json) · **Literature:** [T19860.json](data/literature/refs/T19860.json) (Ki 0.85 µM → 50 µM screen conc)
+
+### Round 1 — Discovery (deferred until validation passes)
+
+Superseded v1 design: [`data/runs/1/v1/plate_map.json`](data/runs/1/v1/plate_map.json) · Draft from Phase B pipeline: [`data/selection/plate_map_r1_draft.json`](data/selection/plate_map_r1_draft.json)
 
 | Wells | Content |
 |-------|---------|
 | 6 | Vehicle (DMSO-matched) |
 | 4 | No-enzyme |
 | 2 | Clavulanic acid @ 50 µM (on-plate positive) |
-| 24 | Agent/ML-selected compounds @ 50 µM |
+| 24 | Agent-selected compounds @ 50 µM |
 | *remaining* | Empty or reserved |
 
 **Round 1 compound selection (24 wells):**
@@ -515,17 +625,28 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 
 ## Phase 0: Pre-hackathon (tonight, ~3–4 hours)
 
-### ML
-- [x] **Paperclip:** install CLI + SDK (see [Paperclip section](#paperclip--literature-search))
-- [ ] **Paperclip:** run 3 Phase 0 searches → `data/literature/`
-- [ ] **Paperclip:** write `data/literature_summary.json` from search results (hardcoded v1 shipped)
-- [x] Install deps: `pip install -r requirements.txt` (google-adk 2.5.0, numpy, pandas, scipy, rdkit)
-- [ ] ADK agent code: `LlmAgent` + `LoopAgent` in `agent/` (package installed; skeleton pending)
-- [x] Parse compound library → `data/compounds.csv` (team; ML consumes)
-- [ ] GNINA batch dock all compounds → merge `dock_score`
-- [ ] Implement `analyze_kinetics()` on synthetic CSV
-- [x] Generate hardcoded `data/plate_map_r1.json` (run 1 v1 — see `data/runs/1/v1/`)
-- [ ] Wrap tools as ADK function tools (include `search_literature` via Paperclip SDK)
+### Philip (compound selection + agent)
+
+- [x] Parse compound library → `data/compounds.csv` + heuristic tags
+- [x] `data/compound_dossiers.json` — 105 summaries
+- [x] `data/literature_summary.json` — hardcoded priors + forward metadata
+- [x] T19860 Paperclip curation → `data/literature/refs/T19860.json`
+- [x] Phase B ADK scaffold → `pvjthomas/agent/` (forward / reverse / bridge / merger)
+- [x] Offline pipeline run → `data/selection/state.json`, draft plate, `similarity/neighbors.json`
+- [x] `data/reference_inhibitors.csv` seeded
+- [x] Validation plate v2 → active `data/plate_map_r1.json`
+- [x] Discovery v1 archived → `data/runs/1/v1/`
+- [ ] Paperclip batch searches → `data/literature/*.txt` (optional; per-compound refs partially done)
+- [ ] GNINA batch dock → merge `dock_score` into `compounds.csv`
+- [ ] Promote `selection/plate_map_r1_draft.json` → active plate after validation + sign-off
+- [x] Analysis helpers → `pvjthomas/analysis/` (kinetics + plate DR)
+- [ ] Copy agent/analysis to repo root when ML integrates
+
+### ML (when joining)
+
+- [ ] ADK `LoopAgent` wrapper at repo root `agent/`
+- [ ] `analyze_kinetics()` on synthetic CSV → `round_summary_r1.json`
+- [ ] Wrap Philip tools as shared ADK function tools
 - [x] ML workspace + closed-loop plan → [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)
 
 ### Robotics
@@ -546,7 +667,8 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 
 ### All (15-min sync)
 - [x] Agree file schemas above (documented; encode in JSON as artifacts land)
-- [x] Lock Round 1 compound list (`plate_map_r1.json` run 1 v1)
+- [x] Validation plate v2 active on robot (`plate_map_r1.json`)
+- [x] Full discovery list drafted (v1 archived; Phase B draft available)
 - [ ] Assign Phase 1 booking priorities
 
 ---
@@ -557,15 +679,13 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 |------|----------|-----|-----|
 | 11:00–11:15 | — | — | **Kickoff sync:** booking plan + organizer Qs |
 | 11:15–11:45 | Hardware tour, sim env | Finalize ADK + schemas; confirm `literature_summary.json` loaded | Confirm GFP reader, nitrocefin conc, CFPS incubation time |
-| 11:45–12:30 | Build CFPS workflow in sim | **Ship `plate_map_r1.json` + `literature_summary.json`** | Book CFPS + screen blocks |
+| 11:45–12:30 | Build CFPS workflow in sim | Phase B pipeline + validation plate shipped | Book CFPS + screen blocks |
 | 12:30–13:30 | **Run CFPS on hardware** | `analyze_kinetics()` on synthetic CSV | QC plate layout, seal, start incubator |
-| 13:30–14:30 | Build GFP read workflow | ADK tools live; Paperclip → `data/literature/` | Monitor CFPS (~30 min signal?) |
-| 14:30–15:00 | **GFP gate read** | **Continue agent/analysis work — do not block on gate** | **Go/no-go for screen** |
+| 13:30–14:30 | Build GFP read workflow | ADK sub-agents live; optional Paperclip batch | Monitor CFPS (~30 min signal?) |
+| 14:30–15:00 | **GFP gate read** | Continue agent/analysis — do not block on gate | **Go/no-go for validation screen** |
 
 **Critical path (robotics):** No screen slot until GFP gate passes.  
-**Critical path (ML):** `plate_map_r1.json` ready before Round 1 (~15:00). See [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md).
-
-**ML assumption:** GFP gate and minimal validation plate are pvjthomas + Rob/Chang — ML ships R1 plate map and analysis code in parallel.
+**Critical path (selection):** Validation v2 must pass before promoting 24-compound discovery plate. See [Compound list generation](#compound-list-generation-phase-a--phase-b).
 
 ---
 
@@ -647,10 +767,10 @@ ML and you do not need separate hardware blocks except to observe.
 - [ ] Paperclip literature summary used in Round 1 compound selection
 
 ### Stretch
-- [ ] Agent generates R1 plate map (not hardcoded)
+- [x] Agent generates R1 plate map (draft — `data/selection/plate_map_r1_draft.json`)
 - [ ] Live agent loop during demo
 - [ ] GNINA pose visualization
-- [ ] Substrate vs inhibitor auto-classification in agent output
+- [x] Substrate vs inhibitor auto-classification (Phase A rules + Phase B RDKit tags)
 
 ---
 
@@ -676,7 +796,7 @@ ML and you do not need separate hardware blocks except to observe.
 | 60-min block too tight | Medium | Pre-sim everything; no new params on hardware | Robotics |
 | File format drift | Low | Freeze schemas Phase 0 | ML |
 | Nitrocefin in compound list | Low | Exclude T19709 in `compounds.csv` | ML |
-| Paperclip auth fails on-site | Low | Pre-run searches tonight; ship `literature_summary.json` | ML |
+| Paperclip auth fails on-site | Low | Per-compound refs + hardcoded priors already shipped | Philip |
 
 ---
 
@@ -688,56 +808,52 @@ ML and you do not need separate hardware blocks except to observe.
 
 ---
 
-## Repo structure (target)
+## Repo structure (current)
 
 ```
 zeon_hack/
-├── PLAN.md                 ← this file
-├── REQUIREMENTS.md         ← install guide (Paperclip, ADK, deps)
-├── requirements.txt
+├── PLAN.md                     ← this file
+├── REQUIREMENTS.md
 ├── data/
-│   ├── compounds.csv
-│   ├── literature/         ← Paperclip search outputs (Phase 0)
+│   ├── README.md               ← rounds vs versions index
+│   ├── STORAGE.md              ← git vs local policy
+│   ├── compounds.csv           ← Phase A library (105 compounds)
+│   ├── compound_dossiers.json
+│   ├── reference_inhibitors.csv
 │   ├── literature_summary.json
-│   ├── plate_map_r1.json
-│   ├── plate_map_r2.json
-│   ├── kinetics_r1.csv     ← generated on hardware
-│   ├── kinetics_r2.csv
-│   ├── round_summary_r1.json
-│   └── round_summary_r2.json
-├── agent/
-│   ├── main.py             ← ADK LoopAgent entry point
-│   ├── tools/
-│   │   ├── prioritize.py
-│   │   ├── analyze.py
-│   │   ├── design_plate.py
-│   │   └── literature.py      ← Paperclip search_literature tool
-│   └── prompts/
-│       └── decision.md
-├── analysis/
-│   ├── kinetics.py         ← slope extraction, normalization
-│   └── ic50.py             ← dose-response fitting
-├── workflows/              ← Zeon robot workflows (from GitHub + ours)
-│   ├── cfps.json
-│   ├── gfp_read.json
-│   └── screen.json
-└── demo/
-    └── dashboard/          ← optional R1/R2 heatmaps
+│   ├── literature/refs/        ← per-compound Paperclip curation
+│   ├── selection/              ← Phase B pipeline outputs (drafts)
+│   ├── similarity/neighbors.json
+│   ├── plate_map_r1.json       ← ACTIVE: v2 validation (8 wells)
+│   ├── runs/1/v1/              ← archived discovery layout (24 compounds)
+│   └── plate_map_r2.json       ← (pending R1 results)
+├── pvjthomas/
+│   ├── agent/                  ← ADK coordinator + Phase B sub-agents
+│   │   ├── tools/              ← forward, reverse, bridge, selection, chem
+│   │   └── README.md
+│   ├── analysis/               ← kinetics + dose-response helpers
+│   └── COMPOUND_SELECTION.md
+├── agent/                      ← (pending) team copy when ML integrates
+├── analysis/                   ← (pending)
+├── workflows/                  ← Zeon robot workflows (Rob + Chang)
+└── ml/CLOSED_LOOP.md
 ```
 
 ---
 
-## Tonight's immediate actions → **Next actions (Sat ~13:45)**
+## Next actions (Sat ~14:46)
 
 | Who | Task | Status |
 |-----|------|--------|
-| ML | **`plate_map_r1.json` + `literature_summary.json`** | **Done** (run 1 v1; hardcoded priors) |
-| ML | ADK skeleton + `analyze_kinetics()` | Env ready; code not started |
-| ML | Paperclip searches → `data/literature/` | CLI ready, searches pending |
-| Rob + Chang | CFPS on hardware + GFP gate + screen workflow | In progress (Sat AM) |
-| pvjthomas | GFP/validation sign-off, kickoff answers, demo outline | In progress |
-| All | Lock R1 compound list when `plate_map_r1.json` lands | Done (run 1 v1) |
+| Rob + Chang | CFPS on hardware + GFP gate | In progress |
+| Rob + Chang | Run **validation v2** screen when gate passes | Blocked on GFP |
+| Philip | Validation sign-off after clavulanate inhibits | Waiting on data |
+| Philip | Optional: Paperclip batch → `data/literature/*.txt` | Partial (T19860 done) |
+| Philip | GNINA batch dock → `dock_score` column | Stub only |
+| Philip | Promote discovery draft after validation passes | Draft ready in `data/selection/` |
+| Philip | Demo outline + kickoff answers | In progress |
+| ML | Integrate `pvjthomas/agent/` → root `agent/` + LoopAgent | When available |
 
 ---
 
-*Last updated: 2026-07-25 ~14:06 PT*
+*Last updated: 2026-07-25 ~14:46 PT*
