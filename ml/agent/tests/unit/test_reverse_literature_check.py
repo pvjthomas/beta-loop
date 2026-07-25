@@ -10,11 +10,15 @@ import pytest
 from agent.tools.reverse import (
     MAX_REVERSE_LITERATURE_COMPOUNDS,
     MAX_REVERSE_MAP_PER_RUN,
+    REVERSE_SEARCH_VERSION,
     _assay_recommendations_from_entry,
+    _build_reverse_query,
+    _load_literature_search_cache,
     _max_assay_conc_uM,
     _normalize_tier,
     _parse_activity_entry,
     _recommend_screen_conc_uM,
+    _run_reverse_search,
     _select_literature_targets,
     reverse_literature_check,
 )
@@ -33,6 +37,20 @@ def test_select_literature_targets_default_tier1(compounds_clavulanate: list[dic
     assert "T1262" in ids
     assert "T19709" not in ids
     assert len(ids) == 6
+
+
+def test_select_literature_targets_all_library(compounds_clavulanate: list[dict]) -> None:
+    targets = _select_literature_targets(compounds_clavulanate, None, None, all_library=True)
+    ids = {c["compound_id"] for c in targets}
+    assert "T1262" in ids
+    assert "T19709" not in ids
+    assert len(ids) == 6
+
+
+def test_build_reverse_query_tier_aware() -> None:
+    assert "Ki IC50" in _build_reverse_query("Tazobactam", "inhibitor")
+    assert "hydrolysis substrate" in _build_reverse_query("Ampicillin", "antibiotic_substrate")
+    assert "nitrocefin" in _build_reverse_query("7-ACA", "other_β_lactam")
 
 
 def test_parse_activity_entry_extracts_ki_and_pmid() -> None:
@@ -103,6 +121,47 @@ def test_max_assay_conc_from_library_stock(compounds_clavulanate: list[dict]) ->
     assert _max_assay_conc_uM(compound) == 1000
 
 
+@patch("agent.tools.reverse.search_literature")
+def test_run_reverse_search_uses_cache(
+    mock_search,
+    clavulanate_workspace: dict,
+) -> None:
+    mock_search.return_value = {
+        "status": "ok",
+        "query": "q",
+        "result_id": "s_cached",
+        "output": "paper hit",
+    }
+    cache = _load_literature_search_cache()
+
+    first = _run_reverse_search(
+        "TEM-1 tazobactam nitrocefin",
+        source="pmc",
+        limit=30,
+        save_raw=False,
+        compound_id="T1262",
+        cache=cache,
+        use_cache=True,
+        search_version=REVERSE_SEARCH_VERSION,
+    )
+    assert first["cache_hit"] is False
+    assert mock_search.call_count == 1
+
+    second = _run_reverse_search(
+        "TEM-1 tazobactam nitrocefin",
+        source="pmc",
+        limit=30,
+        save_raw=False,
+        compound_id="T1262",
+        cache=cache,
+        use_cache=True,
+        search_version=REVERSE_SEARCH_VERSION,
+    )
+    assert second["cache_hit"] is True
+    assert second["result_id"] == "s_cached"
+    assert mock_search.call_count == 1
+
+
 @patch("agent.tools.reverse.map_literature_results")
 @patch("agent.tools.reverse.search_literature")
 def test_reverse_literature_check_default_finds_tier1(
@@ -123,7 +182,12 @@ def test_reverse_literature_check_default_finds_tier1(
         "elapsed_ms": 100,
     }
 
-    outcome = reverse_literature_check(write_refs=True, save_raw=False, skip_curated=False)
+    outcome = reverse_literature_check(
+        write_refs=True,
+        save_raw=False,
+        skip_curated=False,
+        sources=["pmc"],
+    )
 
     assert outcome["status"] == "ok"
     assert outcome["checked"] == 6
@@ -135,9 +199,10 @@ def test_reverse_literature_check_default_finds_tier1(
     lit = state["reverse"]["literature_checks"]
     assert lit["search_count"] == 6
     assert lit["caps"]["max_compounds"] == MAX_REVERSE_LITERATURE_COMPOUNDS
+    assert lit["search_version"] == REVERSE_SEARCH_VERSION
     for row in lit["results"]:
-        assert row["search"]["elapsed_ms"] >= 0
-        assert row["search"]["result_id"] == "s_test"
+        assert row["searches"][0]["elapsed_ms"] >= 0
+        assert row["searches"][0]["result_id"] == "s_test"
 
     t1262_ref = clavulanate_workspace["LITERATURE_REFS_DIR"] / "T1262.json"
     assert t1262_ref.exists()
@@ -159,7 +224,12 @@ def test_reverse_literature_check_skips_curated_ref(
     mock_search.return_value = {"status": "ok", "result_id": "s_x", "output": "hit"}
     mock_map.return_value = {"status": "ok", "result_id": "m_x", "output": "Ki = 0.5 µM"}
 
-    outcome = reverse_literature_check(compound_ids=["T19860", "T1262"], skip_curated=True, save_raw=False)
+    outcome = reverse_literature_check(
+        compound_ids=["T19860", "T1262"],
+        skip_curated=True,
+        save_raw=False,
+        sources=["pmc"],
+    )
 
     assert "T19860" in outcome["refs_skipped_curated"]
     assert "T1262" in outcome["refs_written"]
@@ -177,10 +247,39 @@ def test_reverse_literature_check_truncates_compound_cap(
     mock_map.return_value = {"status": "ok", "result_id": "m_x", "output": "no values"}
 
     with patch("agent.tools.reverse.MAX_REVERSE_LITERATURE_COMPOUNDS", 2):
-        with patch("agent.tools.reverse.MAX_REVERSE_MAP_PER_RUN", 1):
-            outcome = reverse_literature_check(skip_curated=False, save_raw=False)
+        outcome = reverse_literature_check(
+            skip_curated=False,
+            save_raw=False,
+            sources=["pmc"],
+            max_compounds_per_run=2,
+            max_map_per_run=1,
+        )
 
     assert outcome["checked"] == 2
     assert len(outcome["truncated_compound_ids"]) == 4
     assert outcome["map_count"] == 1
     assert mock_map.call_count == 1
+
+
+@patch("agent.tools.reverse.map_literature_results")
+@patch("agent.tools.reverse.search_literature")
+def test_reverse_literature_check_multi_source(
+    mock_search,
+    mock_map,
+    clavulanate_workspace: dict,
+) -> None:
+    mock_search.return_value = {"status": "ok", "result_id": "s_x", "output": "hit"}
+    mock_map.return_value = {"status": "ok", "result_id": "m_x", "output": "Ki = 2 µM"}
+
+    outcome = reverse_literature_check(
+        compound_ids=["T1262"],
+        skip_curated=False,
+        save_raw=False,
+        sources=["pmc", "biorxiv", "proteins"],
+    )
+
+    assert outcome["checked"] == 1
+    assert mock_search.call_count == 3
+    assert mock_map.call_count == 1
+    assert outcome["map_count"] == 3
+    assert outcome["map_cache_hits"] == 2

@@ -43,6 +43,7 @@ def _patch_agent_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[
         "REFERENCE_INHIBITORS_CSV": data / "reference_inhibitors.csv",
         "WORKFLOW_COMPOUND_SELECTION": workflow,
         "SELECTION_STATE_JSON": workflow / "state.json",
+        "LITERATURE_SEARCH_CACHE_JSON": workflow / "literature_search_cache.json",
         "SELECTION_DRAFT_PLATE_JSON": workflow / "plate_map_r1_draft.json",
         "SIMILARITY_NEIGHBORS_JSON": workflow / "neighbors.json",
         "FORWARD_SNAPSHOTS_DIR": forward_snapshots,

@@ -62,9 +62,9 @@ def search_literature(
     Args:
         query: Natural-language search query.
         source: Paperclip source flag, e.g. pmc, biorxiv, trials/us, proteins.
-        limit: Maximum number of results (default 10, cap at 20).
+        limit: Maximum number of results (default 10, cap at 30).
     """
-    limit = max(1, min(limit, 20))
+    limit = max(1, min(limit, 30))
     try:
         client = _paperclip_client()
         result = client.search(query, source=source, limit=limit)
