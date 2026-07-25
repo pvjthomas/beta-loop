@@ -8,7 +8,7 @@ Master timeline: [PLAN.md](../PLAN.md).
 
 ---
 
-## Progress snapshot (Sat ~15:30)
+## Progress snapshot (Sat ~16:05)
 
 | Area | Status |
 |------|--------|
@@ -22,14 +22,16 @@ Master timeline: [PLAN.md](../PLAN.md).
 | **Phase B ADK pipeline** | ✓ Done — forward / reverse / bridge / merger sub-agents |
 | **Offline selection run** | ✓ Done — `ml/workflows/compound_selection/state.json`, draft plate, neighbors |
 | **Forward v1 snapshot** | ✓ Done — `ml/workflows/compound_selection/snapshots/forward/v1/` |
+| **Forward agent tests (Tier 1–3)** | ✓ Done — 31 tests; clavulanate → v3 screen (23) → full library (105); see [FORWARD_TEST_PLAN.md](agent/tests/FORWARD_TEST_PLAN.md) |
 | **ADK coordinator + tools** | ✓ Done — literature, kinetics, plates, selection, chem |
 | **Analysis — kinetics** | ✓ Done — `ml/analysis/kinetics.py` + `analyze_kinetics()` tool |
 | **Analysis — R2 plate design** | ✓ Done — `ml/analysis/plates.py` + `design_next_plate()` tool |
-| **Agent tests** | ✓ Done — 23 tests passing (`pytest ml/agent/tests/`) |
+| **Reverse / bridge agent tests** | ✗ Not started |
 | **R1 active plate** | ✓ Done — `data/plate_map_r1.json` v2 validation (8 wells) |
 | **Discovery layouts archived** | ✓ Done — `data/screens/1/v1`, `v2`, `v3` |
 | **R1 discovery draft** | ✓ Done — `ml/workflows/compound_selection/plate_map_r1_draft.json` (24 compounds) |
-| **Paperclip batch searches** | ✗ Not done — raw `data/literature/*.txt` batch pending (per-compound refs done) |
+| **Paperclip batch searches** | ✓ Done — `data/compound_literature/*.txt` (2026-07-25) |
+| **Forward Tier 4 Paperclip CI** | ✗ Optional — baseline logged; `test_paperclip_clavulanic.py` manual/nightly |
 | **GNINA docking** | ✗ Stub only — `run_gnina_batch()` not run |
 | **`analysis/ic50.py`** | ✗ Not done — 4PL fit deferred until R2 data |
 | **Synthetic kinetics fixture** | ✗ Not done — add `ml/agent/tests/fixtures/kinetics_r1_synthetic.csv` |
@@ -38,7 +40,7 @@ Master timeline: [PLAN.md](../PLAN.md).
 | **R2 plate map** | ✗ Waiting — agent writes after R1 analysis |
 | **Demo artifacts** | ✗ Not done — heatmaps, IC50 table, dashboard |
 
-**You are here:** Validation v2 on robot (or pending GFP). Build synthetic kinetics tests + demo plots while waiting for R1 CSV.
+**You are here:** Forward agent test pyramid complete (Tier 1–3). Validation v2 on robot (or pending GFP). **Next:** synthetic kinetics tests + demo plots while waiting for R1 CSV.
 
 ---
 
@@ -131,7 +133,9 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 - [x] `ml/agent/agent.py` — coordinator + 6 sub-agents
 - [x] Tools: `prioritize_compounds`, `analyze_kinetics`, `design_next_plate`, `search_literature`, Phase B pipeline
 - [x] Offline `run_compound_selection_pipeline()`
-- [x] Test suite (`pytest ml/agent/tests/` — 23 passing)
+- [x] Test suite — forward agent Tier 1–3 (`pytest ml/agent/tests/` — 31 passing, excludes Paperclip benchmark)
+- [ ] Forward Tier 4 Paperclip integration test in CI/nightly
+- [ ] Reverse / bridge agent test tiers
 - [ ] Optional: wrap coordinator in ADK `LoopAgent` max 2 iterations
 
 ### Optional
@@ -147,7 +151,8 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 | **P0** | Active validation plate `data/plate_map_r1.json` | ✓ Done |
 | **P0** | `literature_summary.json` + compound refs | ✓ Done |
 | **P0** | ADK agent + Phase B pipeline | ✓ Done |
-| **P1** | Synthetic kinetics test | ✗ Not started |
+| **P1** | Forward agent tests (Tier 1–3) | ✓ Done |
+| **P1** | Synthetic kinetics test | ✗ **Next** |
 | **P1** | Confirm plate schema with Chang | ✗ TODO |
 | **P2** | Paperclip batch raw files | ✗ Not started |
 | **P2** | GNINA scores | ✗ Optional |
@@ -201,12 +206,14 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 3. [x] Python + Paperclip env
 4. [x] Consolidate code under `ml/` (agent, analysis, workflows)
 5. [x] Phase B pipeline + R1 validation plate
-6. [x] ADK coordinator + analysis tools + tests
+6. [x] ADK coordinator + analysis tools + forward tests (Tier 1–3)
 7. [ ] Synthetic kinetics fixture + test ← **next**
-8. [ ] Paperclip batch → `data/literature/`
-9. [ ] GNINA / RDKit similarity (optional)
-10. [ ] After R1: analyze → summarize → R2 plate
-11. [ ] After R2: IC50 + demo artifacts
+8. [ ] Forward Tier 4 Paperclip CI/nightly (optional)
+9. [ ] Paperclip batch → `data/literature/` (raw dumps; structured priors ✓)
+10. [ ] GNINA / RDKit similarity (optional)
+11. [ ] Promote discovery v3 plate after validation sign-off
+12. [ ] After R1: analyze → summarize → R2 plate
+13. [ ] After R2: IC50 + demo artifacts
 
 ---
 

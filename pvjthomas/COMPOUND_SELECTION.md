@@ -486,8 +486,9 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 6. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
 7. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r1_draft.json` (24 compounds)
 8. [x] Validation plate v2 → active `data/plate_map_r1.json`
-9. [ ] Promote discovery draft after validation passes + Philip sign-off
-10. [ ] Share full discovery plate with Chang for screen workflow
+9. [x] Forward agent test suite (Tier 1–3) — see [`ml/agent/tests/FORWARD_TEST_PLAN.md`](../ml/agent/tests/FORWARD_TEST_PLAN.md)
+10. [ ] Promote discovery v3 plate (`data/screens/1/v3/`) after validation passes + Philip sign-off
+11. [ ] Share full discovery plate with Chang for screen workflow
 
 ---
 

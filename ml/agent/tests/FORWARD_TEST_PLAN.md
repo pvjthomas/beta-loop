@@ -230,9 +230,26 @@ Run: `seed_reference_inhibitors` → `match_literature_to_library` → `write_li
 
 Assert full v1 artifact tree + state fields + clavulanic gold assertions.
 
-### Tier 3 — Timing benchmarks (CI or manual)
+### Tier 2.5 — Screen subset integration (CI, tmp_path)
 
-Measure **offline matching** only (no Paperclip):
+**Library:** 23 compound IDs from [`data/screens/1/v3/plate_map.json`](../../../data/screens/1/v3/plate_map.json) → `fixtures/compounds_screen_v3_subset.csv`.
+
+**Fixture:** `screen_workspace` — v3 plate compounds + project `literature_summary.json` + curated T19860 ref.
+
+| Check | Expected |
+|-------|----------|
+| Tier-1 inhibitor wells (B1–B4) | T19860, T1262, T6685, T14081 all in forward `matches[]` |
+| Enmetazobactam guard | T14081, not T1262 |
+| Substrate wells | T1005, T1008, T0199, T1213, … **not** in `matches[]` |
+| Clavulanate group | T14979 thin ref → canonical T19860 |
+
+Module: `integration/test_forward_screen_coverage.py`.
+
+### Tier 3 — Full library pipeline + timing (CI, tmp_path)
+
+**Library:** full 105-compound `compounds.csv` → `full_library_workspace` fixture.
+
+Offline pipeline integration (`test_forward_full_library_pipeline.py`) plus matching timing benchmarks:
 
 ```
 reference          match_ms   library_scan_ms
@@ -264,6 +281,7 @@ ml/agent/tests/
   conftest.py                   # path overrides, fixture loaders
   fixtures/
     compounds_clavulanate_subset.csv
+    compounds_screen_v3_subset.csv   # 23 IDs from data/screens/1/v3/plate_map.json
     literature_summary_clavulanate.json
     refs/T19860.json
   unit/
@@ -271,9 +289,13 @@ ml/agent/tests/
     test_forward_compound_groups.py
     test_forward_curated_refs.py
     test_forward_lit_caps.py
+    test_forward_literature_only.py
   integration/
     test_forward_pipeline_offline.py
     test_forward_v1_artifacts.py
+    test_forward_literature_only_pipeline.py
+    test_forward_screen_coverage.py      # Tier 2.5 — v3 plate subset
+    test_forward_full_library_pipeline.py  # Tier 3 — 105-compound pipeline
   benchmark/
     test_forward_match_timing.py
     test_paperclip_clavulanic.py   # @pytest.mark.integration
@@ -285,12 +307,41 @@ ml/agent/tests/
 
 ## Implementation order
 
-1. **Alternate-form grouping** in `forward.py` (Case A cross-refs, Case B literature-only path)
-2. **Literature caps** enforced in ref writer + search orchestrator
-3. **Tier 1–2 tests** on clavulanic fixture subset
-4. **v1 artifact contract tests**
-5. **Tier 3 timing** benchmarks
-6. **Tier 4 Paperclip** after manual baseline run (fill latency table below)
+1. [x] **Alternate-form grouping** in `forward.py` (Case A cross-refs, Case B literature-only path)
+2. [x] **Literature caps** enforced in ref writer + search orchestrator
+3. [x] **Tier 1–2 tests** on clavulanic fixture subset
+4. [x] **Tier 2.5 screen subset** tests on v3 plate compounds (`compounds_screen_v3_subset.csv`)
+5. [x] **v1 artifact contract tests**
+6. [x] **Tier 3 full-library pipeline + timing** benchmarks
+7. [ ] **Tier 4 Paperclip** — baseline recorded; optional CI/nightly gate on `test_paperclip_clavulanic.py`
+
+---
+
+## Status (2026-07-25)
+
+**Done this session**
+
+| Tier | Scope | Module(s) | Tests |
+|------|-------|-----------|-------|
+| 1 | Unit — name match, groups, caps, curated refs, literature-only | `tests/unit/test_forward_*.py` | 18 |
+| 2 | Offline pipeline — clavulanate 6-compound fixture | `test_forward_pipeline_offline.py`, `test_forward_v1_artifacts.py` | 5 |
+| 2.5 | **Screen subset** — 23 IDs from `data/screens/1/v3/plate_map.json` | `test_forward_screen_coverage.py` | 6 |
+| 3 | Full library — 105-compound pipeline + `<500 ms` match budget | `test_forward_full_library_pipeline.py`, `test_forward_match_timing.py` | 3 + benchmarks |
+
+Run (from `ml/agent/`):
+
+```bash
+PYTHONPATH=. python3 -m pytest tests/ -q --ignore=tests/benchmark/
+# 31 passed
+```
+
+**What's next**
+
+1. **Tier 4 Paperclip** — run `tests/benchmark/test_paperclip_clavulanic.py` on nightly or when `PAPERCLIP_API_KEY` is set; harden cost/latency thresholds after 2–3 baseline runs.
+2. **Synthetic kinetics fixture** — `kinetics_r1_synthetic.csv` + unit test for `analyze_kinetics()` (blocks closed-loop demo until R1 CSV lands).
+3. **Promote discovery plate** — copy `data/screens/1/v3/plate_map.json` → `data/plate_map_r1.json` after validation v2 passes (clavulanate ≥50% inhibition).
+4. **GNINA batch** — populate `dock_score` column; re-run merger / swap exploration wells (e.g. T1213 → GNINA top hit).
+5. **Reverse + bridge test tiers** — mirror forward pyramid for `reverse_agent` and `bridge_agent` when those stabilize.
 
 ---
 

@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-25T23:03:16Z",
+  "updated_at": "2026-07-25T23:04:06Z",
   "forward": {
     "library_matches": {
-      "ran_at": "2026-07-25T23:03:08Z",
+      "ran_at": "2026-07-25T23:04:06Z",
       "tanimoto_threshold": 0.85,
       "matches": [
         {
@@ -197,7 +197,7 @@
   },
   "reverse": {
     "scaffold_classification": {
-      "ran_at": "2026-07-25T21:44:03Z",
+      "ran_at": "2026-07-25T23:04:06Z",
       "rdkit": {
         "available": true
       },
@@ -946,7 +946,7 @@
       "csv_updated": false
     },
     "dock_rank": {
-      "ran_at": "2026-07-25T21:44:03Z",
+      "ran_at": "2026-07-25T23:04:06Z",
       "status": "fallback_no_scores",
       "tier3_candidates": [
         "T0138",
@@ -968,11 +968,11 @@
       "output": "/Users/fio/zeon_hack/ml/workflows/compound_selection/neighbors.json"
     },
     "tier2_analogs": {
-      "ran_at": "2026-07-25T21:44:03Z",
+      "ran_at": "2026-07-25T23:04:06Z",
       "candidates": []
     },
     "clustering": {
-      "ran_at": "2026-07-25T21:44:03Z",
+      "ran_at": "2026-07-25T23:04:06Z",
       "tanimoto_threshold": 0.7,
       "cluster_count": 64,
       "representatives": [
@@ -1301,7 +1301,7 @@
     }
   },
   "merge": {
-    "ran_at": "2026-07-25T21:44:03Z",
+    "ran_at": "2026-07-25T23:04:06Z",
     "tier1_inhibitors": [
       "T19860",
       "T1262",
