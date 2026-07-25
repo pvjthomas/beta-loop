@@ -6,9 +6,9 @@
 | Copy | Path |
 |------|------|
 | Versioned rationale (immutable) | [`pvjthomas/runs/1/v1/selection_rationale.md`](runs/1/v1/selection_rationale.md) |
-| Versioned plate map | [`data/runs/1/v1/plate_map.json`](../data/runs/1/v1/plate_map.json) |
+| Versioned plate map | [`data/screens/1/v1/plate_map.json`](../data/screens/1/v1/plate_map.json) |
 | Active plate map (robot) | [`data/plate_map_r1.json`](../data/plate_map_r1.json) |
-| Run manifest | [`data/runs/1/v1/manifest.json`](../data/runs/1/v1/manifest.json) |
+| Run manifest | [`data/screens/1/v1/manifest.json`](../data/screens/1/v1/manifest.json) |
 
 **Library:** TargetMol β-Lactam Compound Library-A (105 compounds) · [`data/compounds.csv`](../data/compounds.csv)
 
@@ -21,7 +21,7 @@ This document explains **every well** on the Round 1 discovery plate for teammat
 TEM-1 cleaves nitrocefin → A490 rises. **True β-lactamase inhibitors** (clavulanate-class) slow that rise; **β-lactam antibiotics** are hydrolyzed as substrates and usually do **not** block nitrocefin cleavage.
 
 **Screen concentration:** 50 µM final (5 µL of 500 µM working solution into 50 µL assay).  
-**Hit threshold:** ≥50% inhibition vs vehicle (normalized to no-enzyme background).
+**Hit threshold:** ≥50% inhibition vs vehicle (normalized to no-TEM-1 background).
 
 **Excluded from all test wells:** **T19709 (nitrocefin)** — it is the chromogenic assay substrate, not a compound to screen.
 
@@ -31,7 +31,7 @@ TEM-1 cleaves nitrocefin → A490 rises. **True β-lactamase inhibitors** (clavu
 
 | Row | Wells | Content |
 |-----|-------|---------|
-| **A** | A1–A12 | Plate controls (6 vehicle · 4 no-enzyme · 2 clavulanate positive) |
+| **A** | A1–A12 | Plate controls (6 vehicle · 4 no-TEM-1 · 2 clavulanate positive) |
 | **B** | B1–B4 | Tier-1 inhibitors (4 scaffold reps) |
 | **C** | C1–C4 | Inhibitor analogs (+1 wildcard) |
 | **D** | D1–D8 | Substrate controls (intentional negatives) |
@@ -56,8 +56,8 @@ These wells are **not** part of the 24-compound discovery set. They anchor norma
 | Well(s) | Role | Enzyme? | Compound | Expected A490 slope | Pass if… |
 |---------|------|---------|----------|---------------------|----------|
 | A1–A6 | `vehicle` | ✓ | DMSO matched | **Max** | Strong enzymatic signal |
-| A7–A10 | `no_enzyme` | ✗ | DMSO matched | **Min** | Flat / background only |
-| A11–A12 | `positive_control` | ✓ | T19860 clavulanic acid @ 50 µM | **Low** | ≥50% inhibition vs vehicle |
+| A7–A10 | `no_tem1` | ✗ | DMSO matched | **Min** | Flat / background only |
+| A11–A12 | `pos-ctrl-clavaculin` | ✓ | T19860 clavulanic acid @ 50 µM | **Low** | ≥50% inhibition vs vehicle |
 
 **DMSO rule:** Every compound well and every vehicle well must carry the **same DMSO fraction**. Library stock is 10 mM in DMSO; do not let vehicle wells run DMSO-free.
 
@@ -144,10 +144,10 @@ Same biology as Tier-1, but **salt forms, prodrugs, or inhibitor-adjacent struct
 **Normalization formula** (same plate):
 
 ```
-pct_inhibition = 100 × (1 - (slope_sample - slope_no_enzyme) / (slope_vehicle - slope_no_enzyme))
+pct_inhibition = 100 × (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - slope_no_tem1))
 ```
 
-Use median of A1–A6 for vehicle and A7–A10 for no-enzyme.
+Use median of A1–A6 for vehicle and A7–A10 for no-TEM-1.
 
 ---
 
@@ -172,8 +172,8 @@ For each `compound_id` in `plate_map_r1.json`, transfer from source plate using 
 | `role` | Robot behavior |
 |--------|----------------|
 | `vehicle` | Add matched DMSO; **add enzyme** |
-| `no_enzyme` | Add matched DMSO; **skip enzyme** |
-| `positive_control` | Add T19860 @ 50 µM; **add enzyme** |
+| `no_tem1` | Add matched DMSO; **skip enzyme** |
+| `pos-ctrl-clavaculin` | Add T19860 @ 50 µM; **add enzyme** |
 | `sample` | Add compound @ 50 µM; **add enzyme** |
 
 ---

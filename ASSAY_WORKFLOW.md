@@ -38,7 +38,7 @@ Part 1: CFPS          Part 2: GFP gate       Part 3: Nitrocefin screen
 | **2 — GFP gate** | Was sfGFP–TEM-1 fusion actually made? | **Same CFPS plate** | Green **fluorescence** |
 | **3 — Screen** | Does each compound inhibit TEM-1 activity? | **New assay plate** | Yellow → **red** (A490 kinetics) |
 
-**Critical path:** Round 1 screening does not start until the GFP gate passes and the nitrocefin validation plate passes (vehicle active, no-enzyme flat, clavulanate inhibits).
+**Critical path:** Round 1 screening does not start until the GFP gate passes and the nitrocefin validation plate passes (vehicle active, no-TEM-1 flat, clavulanate inhibits).
 
 ---
 
@@ -166,7 +166,7 @@ Nitrocefin addition starts the clock. Batch the nitrocefin add, then read immedi
 | Well type | Enzyme | Compound | Expected |
 |-----------|--------|----------|----------|
 | **Vehicle** | ✓ | DMSO only (matched %) | Max slope — normalization reference |
-| **No-enzyme** | ✗ | DMSO or compound | Min slope — background |
+| **No-TEM-1** | ✗ | DMSO or compound | Min slope — background |
 | **Positive** (recommended) | ✓ | Clavulanic acid @ 50 µM (T19860) | Strong inhibition vs vehicle |
 
 ### Scoring
@@ -174,7 +174,7 @@ Nitrocefin addition starts the clock. Batch the nitrocefin add, then read immedi
 Normalize each well to controls on the **same plate**:
 
 ```
-pct_inhibition = 100 × (1 - (slope_sample - slope_no_enzyme) / (slope_vehicle - slope_no_enzyme))
+pct_inhibition = 100 × (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - slope_no_tem1))
 ```
 
 | Result @ 50 µM | Interpretation |
@@ -251,7 +251,7 @@ Run a minimal validation plate (~10 wells) before committing the full Round 1 li
 | Wells | Role | Pass criterion |
 |-------|------|----------------|
 | 4× Vehicle | enzyme + DMSO + nitrocefin | Strong linear A490 slope |
-| 2× No-enzyme | nitrocefin, no enzyme | Flat (background) |
+| 2× No-TEM-1 | nitrocefin, no enzyme | Flat (background) |
 | 2× Clavulanate @ 50 µM | known inhibitor | ≥ 50% inhibition vs vehicle |
 
 Philip signs off → Chang runs Round 1. See [NITROCEFIN_ASSAY.md](pvjthomas/NITROCEFIN_ASSAY.md) for DMSO matching rules and library class notes.

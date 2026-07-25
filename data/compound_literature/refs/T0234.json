@@ -1,0 +1,29 @@
+{
+  "compound_id": "T0234",
+  "name": "Methicillin sodium salt",
+  "match": "yes",
+  "support": "weak",
+  "entries": [
+    {
+      "source": "paperclip",
+      "target": "TEM-1",
+      "assay": "nitrocefin",
+      "note": "Reverse literature check for Methicillin sodium salt. Map complete: 5/5 tasks succeeded in 1781ms\nResults ID: m_faec6b6e\nFull results: /.gxl/map_m_faec6b6e.txt\n\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided paper content, there is no mention of a nitrocefin colorimetric assay, Methicillin sodium salt, inhibition constants ($K_i$ or $\n  [success] \u03b2-Lactamase Suppression as a Strategy\nto Target Methicillin-Resistant   (PMC9773349)\n    Based on the provided paper, there is no information regarding Methicillin sodium salt, TEM-1 beta-lactamase, or their kinetic/inhibitory values ($K_i\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper, there is no mention of \"Methicillin sodium salt\", \"nitrocefin colorimetric assay\", \"Ki\", \"IC50\", or specific assay concen\n  [success] Reversible inactivation of a peptidoglycan transpeptidase by a \u03b2-lacta  (PMC5567249)\n    Based on the provided research paper content, there is no mention of Methicillin sodium salt, TEM-1 beta-lactamase, Ki, IC50 values, or related assays\n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    Based on the provided paper content, there is no mention of Methicillin sodium salt, TEM-1 beta-lactamase, nitrocefin colorimetric assays, or specific\n\nFull results: /.gxl/map_m_faec6b6e.txt",
+      "paperclip_search_id": "s_6f0a8324",
+      "paperclip_map_id": "m_faec6b6e",
+      "ki_uM": null,
+      "ic50_uM": null,
+      "pmcid": "PMC12484619"
+    }
+  ],
+  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T0234",
+  "assay_recommendations": {
+    "tem1_nitrocefin": {
+      "screen_conc_uM": 50,
+      "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted.",
+      "screen_conc_source": "project_default",
+      "max_assay_conc_uM": 1000.0,
+      "metric": "relative nitrocefin hydrolysis vs no-inhibitor control"
+    }
+  }
+}

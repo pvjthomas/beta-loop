@@ -1,7 +1,7 @@
 # Compound selection plan — Philip
 
 **Owner:** Philip (pvjthomas) · **Task 2:** Compound screening (prioritization + closed-loop design)  
-**Outputs:** `data/compounds.csv`, `data/literature_summary.json`, `data/plate_map_r1.json`, `data/selection/*`, agent priors for R2
+**Outputs:** `data/compounds.csv`, `data/literature_summary.json`, `data/plate_map_r1.json`, `ml/workflows/compound_selection/*`, agent priors for R2
 
 **Implementation:** Phase A (inventory) done · Phase B ADK pipeline in [`agent/`](agent/README.md) · Active robot plate is **validation v2** (not full discovery)
 
@@ -65,7 +65,7 @@ Compound transfers use **plate + row + col** from `data/compounds.csv` (columns 
 | To validate assay | Required? | Wells |
 |-------------------|-----------|-------|
 | TEM-1 + nitrocefin + vehicle | **Yes** | Max activity |
-| No-enzyme control | **Yes** | Background |
+| No-TEM-1 control | **Yes** | Background |
 | Clavulanate positive | **Yes** | Inhibition works |
 | Antibiotic (e.g. ampicillin) | **No** | Optional demo only |
 
@@ -80,7 +80,7 @@ Philip sign-off required before Chang runs discovery screen. See also [NITROCEFI
 | Well(s) | Role | compound_id | Pass if… |
 |---------|------|-------------|----------|
 | 4× | Vehicle | — | Strong A490 slope |
-| 2× | No-enzyme | — | Flat / background |
+| 2× | No-TEM-1 | — | Flat / background |
 | 2× | Positive | T19860 @ 50 µM | ≥50% inhibition vs vehicle |
 | 2× | Optional substrate demo | T1005 Ampicillin @ 50 µM | Low inhibition (not required to pass) |
 
@@ -101,13 +101,13 @@ Maps to `plate_map` field: `role`.
 | `role` | Enzyme? | Compound | Expected A490 slope | # wells (typical) | Purpose | Notes |
 |--------|---------|----------|---------------------|-------------------|---------|-------|
 | `vehicle` | ✓ | DMSO matched | **Max** | 4–6 | Normalization reference | _TBD: exact DMSO %_ |
-| `no_enzyme` | ✗ | DMSO or sample matched | **Min** | 2–4 | Background / non-enzymatic | _TBD_ |
-| `positive_control` | ✓ | Clavulanate T19860 @ 50 µM | **Low** | 1–2 | Prove inhibition detectable | _TBD: backup positive (sulbactam?)_ |
+| `no_tem1` | ✗ | DMSO or sample matched | **Min** | 2–4 | Background / non-enzymatic | _TBD_ |
+| `pos-ctrl-clavaculin` | ✓ | Clavulanate T19860 @ 50 µM | **Low** | 1–2 | Prove inhibition detectable | _TBD: backup positive (sulbactam?)_ |
 | `validation_substrate` | ✓ | e.g. Ampicillin T1005 @ 50 µM | **High** (like vehicle) | 0–2 | Optional substrate demo | Validation plate only |
 | _stub_ | | | | | | |
 
-**Minimal validation plate** uses: `vehicle`, `no_enzyme`, `positive_control`, optional `validation_substrate`.  
-**Round 1 / R2** require: `vehicle`, `no_enzyme`, `positive_control` on every screen plate.
+**Minimal validation plate** uses: `vehicle`, `no_tem1`, `pos-ctrl-clavaculin`, optional `validation_substrate`.  
+**Round 1 / R2** require: `vehicle`, `no_tem1`, `pos-ctrl-clavaculin` on every screen plate.
 
 ---
 
@@ -252,7 +252,7 @@ Columns: `name`, `smiles`, `ic50_uM`, `assay`, `source`, `pmid_or_chembl_id`
 
 ### Step F1 — Literature search (Paperclip)
 
-Run and save under `data/literature/`:
+Run and save under `data/compound_literature/`:
 
 ```bash
 paperclip search "TEM-1 beta-lactamase inhibitor IC50 nitrocefin" -n 30
@@ -297,6 +297,34 @@ Record in `data/compounds.csv`:
 | **No overlap** | Rely on reverse + similarity; literature still informs assay conc and IC50 expectations |
 
 **Expected for this library:** forward search **will** hit clavulanate/sulbactam/tazobactam — that validates the pipeline.
+
+### Step F5 — Screening priors (Philip P0, blocks plate sign-off)
+
+**Running the forward agent is top priority.** Offline tests and the **live forward pass** (2026-07-25) prove the pipeline; Philip’s curation is what makes every well on the discovery plate defensible to judges and Chang.
+
+For **each compound on the Round 1 screen** (especially Tier-1 inhibitors + positive controls), Philip must deliver:
+
+| Field | Location | Example (T19860) |
+|-------|----------|------------------|
+| **Screen concentration (µM)** | `refs/{id}.json` → `assay_recommendations.tem1_nitrocefin.screen_conc_uM` | 50 µM |
+| **Rationale for that conc** | same block → `screen_rationale` | ~60× above Ki → expect strong inhibition |
+| **Expected outcome @ screen conc** | `literature_summary.json` → `compound_assay_priors.{id}.expected_at_50uM` | `>=50% inhibition` |
+| **Literature Ki/IC50 + assay** | `refs/{id}.json` → `entries[]` with PMID/DOI | Ki = 0.85 µM, nitrocefin, Radojković 2025 |
+| **Saved evidence** | `pvjthomas/local/literature/{id}/` (gitignored raw) + structured ref in git | PMC12274840 full-text |
+
+**Gold template:** [`data/compound_literature/refs/T19860.json`](../data/compound_literature/refs/T19860.json)
+
+**Still needed (stubs today):** T1262, T14081, T1631/T6685 — forward match ✓ but no PMID-backed entries or `assay_recommendations` yet.
+
+**Workflow:**
+
+1. **Run forward agent** — seed → Paperclip → match → finalize v1 (see [PLAN.md](../PLAN.md) next actions). ✓ Done 2026-07-25.
+2. **Paperclip map/full-text** per forward hit — extract Ki/IC50, enzyme conc, nitrocefin conc, buffer/pH.
+3. **Pick screen concentration** — default project conc **50 µM** unless literature or solubility dictates otherwise; document multiplier vs Ki.
+4. **Write ref JSON + patch `literature_summary.json`** — one canonical ref per inhibitor group (Case A alternates get thin pointers).
+5. **Update `pvjthomas/runs/1/v3/selection_rationale.md`** — cite priors per well before Philip sign-off.
+
+**Gate:** Do not promote `data/screens/1/v3/` → active `data/plate_map_r1.json` until Tier-1 inhibitor priors are at T19860 quality.
 
 ---
 
@@ -414,7 +442,7 @@ Use **substrate-class antibiotics as intentional negatives** in R1 — judges lo
 | **Tier 3 — docking** | 8 | GNINA top among non-Tier-1 |
 | **Tier 4 — substrate controls** | 8 | Diverse antibiotic_substrate (expect <10% inhibition) |
 
-Plus on-plate controls (vehicle, no-enzyme, clavulanate duplicate) — see [PLAN.md](../PLAN.md).
+Plus on-plate controls (vehicle, no-TEM-1, clavulanate duplicate) — see [PLAN.md](../PLAN.md).
 
 ### 5. Round 2 decision rules (for agent / Philip sign-off)
 
@@ -449,7 +477,7 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 
 | Sub-agent | Tools | Output |
 |-----------|-------|--------|
-| `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library` | `reference_inhibitors.csv`, `literature/refs/*.json` |
+| `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library` | `reference_inhibitors.csv`, `compound_literature/refs/*.json` |
 | `reverse_agent` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score` | `selection/state.json` |
 | `bridge_agent` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` | `similarity/neighbors.json` |
 | `selection_merger` | `merge_tier_assignments`, `generate_round1_plate_draft` | `selection/plate_map_r1_draft.json` |
@@ -466,28 +494,33 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 | `data/compounds.csv` | Full library + tags, tiers | ✓ Phase A |
 | `data/compound_dossiers.json` | Per-compound summaries | ✓ |
 | `data/reference_inhibitors.csv` | Literature / ChEMBL gold set | ✓ seeded |
-| `data/literature/refs/*.json` | Per-compound Paperclip curation | Partial (T19860, T1262, T6685, T14979) |
-| `data/literature/*.txt` | Raw Paperclip batch outputs | Optional |
+| `data/compound_literature/refs/*.json` | Per-compound Paperclip curation + **screen conc priors** | Partial — **T19860 gold**; T1262/T14081/T1631/T6685 stubs need PMID evidence |
+| `data/compound_literature/*.txt` | Raw Paperclip batch outputs | Optional |
 | `data/literature_summary.json` | Structured priors for agent | ✓ |
-| `data/selection/plate_map_r1_draft.json` | Agent-generated 24-compound layout | ✓ draft |
+| `ml/workflows/compound_selection/plate_map_r1_draft.json` | Agent-generated 24-compound layout | ✓ draft |
 | `data/plate_map_r1.json` | **Active** robot plate | ✓ v2 validation (8 wells) |
-| `data/runs/1/v1/` | Archived v1 discovery + rationale | ✓ superseded |
+| `data/screens/1/v1/` | Archived v1 discovery + rationale | ✓ superseded |
 | `pvjthomas/runs/1/v1/selection_rationale.md` | Human-readable well picks | ✓ v1 |
 
 ---
 
 ## Execution order (Philip)
 
+**Top priority:** run forward agent + document screen concentrations and literature evidence (Step F5) before promoting the discovery plate.
+
 1. [x] Parse library SMILES → `data/compounds.csv` (Phase A)
-2. [x] Forward: seed `reference_inhibitors.csv` + match literature → library
+2. [x] Forward: seed `reference_inhibitors.csv` + match literature → library (offline)
 3. [x] Match literature → library (exact + Tanimoto; T19860 curated via Paperclip)
-4. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
-5. [ ] Reverse: GNINA dock → `dock_score` column (stub only)
-6. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
-7. [x] Merge tiers → `data/selection/plate_map_r1_draft.json` (24 compounds)
-8. [x] Validation plate v2 → active `data/plate_map_r1.json`
-9. [ ] Promote discovery draft after validation passes + Philip sign-off
-10. [ ] Share full discovery plate with Chang for screen workflow
+4. [x] Forward agent test suite (Tier 1–3) — see [`ml/agent/tests/FORWARD_TEST_PLAN.md`](../ml/agent/tests/FORWARD_TEST_PLAN.md)
+5. [ ] **Run forward agent live** — Paperclip searches → match → finalize v1 snapshot ← **P0**
+6. [ ] **Screening priors for discovery plate** — concentration + saved literature evidence per compound (T19860 template) ← **P0**
+7. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
+8. [ ] Reverse: GNINA dock → `dock_score` column (stub only; defer until forward priors done)
+9. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
+10. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r1_draft.json` (24 compounds)
+11. [x] Validation plate v2 → active `data/plate_map_r1.json`
+12. [ ] Promote discovery v3 plate (`data/screens/1/v3/`) after validation passes + **Step F5 complete** + Philip sign-off
+13. [ ] Share full discovery plate with Chang for screen workflow
 
 ---
 

@@ -21,7 +21,7 @@ See [`STORAGE.md`](../STORAGE.md) for the full git vs local policy.
   "source_csv_git": null,
   "normalization": {
     "vehicle_wells": ["A1", "A2", "A3", "A4", "A5", "A6"],
-    "no_enzyme_wells": ["A7", "A8", "A9", "A10"]
+    "no_tem1_wells": ["A7", "A8", "A9", "A10"]
   },
   "compounds": {
     "T19860": {

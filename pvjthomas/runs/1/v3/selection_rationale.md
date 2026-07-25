@@ -1,7 +1,7 @@
 # Round 1 / version 3 — discovery plate rationale
 
 **Round:** 1 · **Version:** 3 (`r1-discovery-v3`)  
-**Supersedes:** `data/runs/1/v1/` (single-replicate layout)  
+**Supersedes:** `data/screens/1/v1/` (single-replicate layout)  
 **Active robot plate:** still v2 validation until sign-off → [`data/plate_map_r1.json`](../../../../data/plate_map_r1.json)
 
 See [`data/README.md`](../../../../data/README.md) for rounds vs versions.
@@ -14,7 +14,7 @@ Full Round 1 discovery screen on a **96-well flat-bottom plate**. Each test comp
 
 | Block | Wells | Content |
 |-------|-------|---------|
-| Controls | A1–A12 | 6× vehicle · 4× no-enzyme · 2× clavulanate positive |
+| Controls | A1–A12 | 6× vehicle · 4× no-TEM-1 · 2× clavulanate positive |
 | Tier-1 inhibitors | B1–B12 | 4 compounds × 3 |
 | Inhibitor analogs | C1–C12 | 4 compounds × 3 |
 | Substrate controls | D1–E12 | 8 compounds × 3 |
@@ -31,7 +31,7 @@ Full Round 1 discovery screen on a **96-well flat-bottom plate**. Each test comp
 
 ```
         1      2      3      4      5      6      7      8      9     10     11     12
-A    veh×6          noE×4          pos×2
+A    veh×6          noTEM1×4          pos×2
 B   T19860×3  T1262×3  T6685×3  T14081×3
 C   T14979×3  T1631×3  T13038×3 T1213×3
 D–E  substrate controls ×3 each (8 compounds)
@@ -45,7 +45,7 @@ Each `×3` = three adjacent wells with the same `compound_id` and `replicate` 1/
 
 ## Analysis notes
 
-- **Hit call:** median `pct_inhibition` across triplicate ≥ 50% vs vehicle (use A1–A6 vehicle, A7–A10 no-enzyme).
+- **Hit call:** median `pct_inhibition` across triplicate ≥ 50% vs vehicle (use A1–A6 vehicle, A7–A10 no-TEM-1).
 - **Replicate QC:** flag wells where replicate CV > threshold before averaging.
 - **Normalization:** same formula as v1 — see [`../v1/selection_rationale.md`](../v1/selection_rationale.md).
 
@@ -55,13 +55,13 @@ Each `×3` = three adjacent wells with the same `compound_id` and `replicate` 1/
 
 After v2 validation passes and Philip signs off:
 
-1. Copy `data/runs/1/v3/plate_map.json` → `data/plate_map_r1.json`
+1. Copy `data/screens/1/v3/plate_map.json` → `data/plate_map_r1.json`
 2. Update `pvjthomas/selection_rationale.md` to point at this document
 
 ---
 
 ## Related files
 
-- Frozen plate map: [`data/runs/1/v3/plate_map.json`](../../../../data/runs/1/v3/plate_map.json)
-- Draft (same layout): [`data/selection/plate_map_r1_draft.json`](../../../../data/selection/plate_map_r1_draft.json)
+- Frozen plate map: [`data/screens/1/v3/plate_map.json`](../../../../data/screens/1/v3/plate_map.json)
+- Draft (same layout): [`ml/workflows/compound_selection/plate_map_r1_draft.json`](../../../../ml/workflows/compound_selection/plate_map_r1_draft.json)
 - Full compound rationale (v1 prose): [`../v1/selection_rationale.md`](../v1/selection_rationale.md)

@@ -73,7 +73,7 @@ For synthesis across multiple papers:
 paperclip map --from s_<result_id> "What IC50 values and assay conditions were used for TEM-1 inhibitors?"
 ```
 
-Save outputs to `data/literature/` for the agent to reference when designing Round 1 and Round 2 plates.
+Save outputs to `data/compound_literature/` for the agent to reference when designing Round 1 and Round 2 plates.
 
 ### Integration with ADK agent
 
@@ -169,7 +169,7 @@ GOOGLE_API_KEY=...
 |-----|------|:----:|
 | ML | `pip install -r requirements.txt` | ☑ |
 | ML | Paperclip CLI or API key configured | ☑ |
-| ML | Run TEM-1 literature searches → `data/literature/` | ☐ |
+| ML | Run TEM-1 literature searches → `data/compound_literature/` | ☐ |
 | ML | ADK agent with `search_literature` tool | ☐ |
 | ML | GNINA batch dock (optional) | ☐ |
 | Robotics | Zeon sim + workflow drafts | ☐ |

@@ -1,0 +1,37 @@
+{
+  "compound_id": "T6685",
+  "match": "yes",
+  "support": "strong",
+  "reference_inhibitor": "sulbactam",
+  "entries": [
+    {
+      "name": "sulbactam",
+      "smiles": "[Na+].[H][C@@]12CC(=O)N1[C@@]([H])(C([O-])=O)C(C)(C)S2(=O)=O",
+      "ic50_uM": "",
+      "assay": "nitrocefin",
+      "source": "manual_seed",
+      "pmid_or_chembl_id": ""
+    },
+    {
+      "source": "paperclip",
+      "target": "TEM-1",
+      "assay": "nitrocefin",
+      "note": "Reverse literature check for Sulbactam sodium. Map complete: 5/5 tasks succeeded in 1877ms\nResults ID: m_49d0369a\nFull results: /.gxl/map_m_49d0369a.txt\n\n  [success] In Vitro Activity of Cefaclor/Beta-Lactamases Inhibitors (Clavulanic A  (PMC12189933)\n    Based on the provided paper content, there is no information regarding Sulbactam sodium against TEM-1 beta-lactamase in a nitrocefin colorimetric assa\n  [success] Molecular Basis of Class A \u03b2-Lactamase Inhibition by Relebactam  (PMC6761529)\n    Based on the provided paper content, there is no mention of Sulbactam sodium, TEM-1 beta-lactamase, or their assay metrics. The paper focuses on releb\n  [success] Sulbactam\u2013durlobactam: a \u03b2-lactam/\u03b2-lactamase inhibitor combination ta  (PMC11229585)\n    Based on the provided paper, the specific $K_i$ or $\\text{IC}_{50}$ values, inhibitor concentrations, nitrocefin substrate concentrations, and TEM-1 e\n  [success] Effect of Lactamase Inhibitors on the Biosensor Penp during the Measur  (PMC6427286)\n    Based on the provided paper, the information regarding the nitrocefin colorimetric assay, Ki/IC50 values, enzyme concentrations, and substrate concent\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided paper content, there is no mention of Sulbactam sodium, nitrocefin colorimetric assays, $K_i$, $IC_{50}$, enzyme concentrations,\n\nFull results: /.gxl/map_m_49d0369a.txt",
+      "paperclip_search_id": "s_481e3588",
+      "paperclip_map_id": "m_49d0369a",
+      "ki_uM": null,
+      "ic50_uM": null,
+      "pmcid": "PMC12189933"
+    }
+  ],
+  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T6685",
+  "assay_recommendations": {
+    "tem1_nitrocefin": {
+      "screen_conc_uM": 50,
+      "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted.",
+      "screen_conc_source": "project_default",
+      "max_assay_conc_uM": 1000.0,
+      "metric": "relative nitrocefin hydrolysis vs no-inhibitor control"
+    }
+  }
+}

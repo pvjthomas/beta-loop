@@ -25,7 +25,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0138.json",
+        "refs_summary_file": "data/compound_literature/refs/T0138.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0138/"
       },
@@ -76,7 +76,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0198.json",
+        "refs_summary_file": "data/compound_literature/refs/T0198.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0198/"
       },
@@ -127,7 +127,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0199.json",
+        "refs_summary_file": "data/compound_literature/refs/T0199.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0199/"
       },
@@ -166,7 +166,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0234.json",
+        "refs_summary_file": "data/compound_literature/refs/T0234.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0234/"
       },
@@ -205,7 +205,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0366.json",
+        "refs_summary_file": "data/compound_literature/refs/T0366.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0366/"
       },
@@ -244,7 +244,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1001.json",
+        "refs_summary_file": "data/compound_literature/refs/T1001.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1001/"
       },
@@ -295,7 +295,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1005.json",
+        "refs_summary_file": "data/compound_literature/refs/T1005.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1005/"
       },
@@ -346,7 +346,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1008.json",
+        "refs_summary_file": "data/compound_literature/refs/T1008.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1008/"
       },
@@ -385,7 +385,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1031.json",
+        "refs_summary_file": "data/compound_literature/refs/T1031.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1031/"
       },
@@ -436,7 +436,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1063.json",
+        "refs_summary_file": "data/compound_literature/refs/T1063.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1063/"
       },
@@ -487,7 +487,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1122.json",
+        "refs_summary_file": "data/compound_literature/refs/T1122.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1122/"
       },
@@ -538,7 +538,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1305.json",
+        "refs_summary_file": "data/compound_literature/refs/T1305.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1305/"
       },
@@ -589,7 +589,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0814L.json",
+        "refs_summary_file": "data/compound_literature/refs/T0814L.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0814L/"
       },
@@ -628,7 +628,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1005L.json",
+        "refs_summary_file": "data/compound_literature/refs/T1005L.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1005L/"
       },
@@ -667,7 +667,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1218.json",
+        "refs_summary_file": "data/compound_literature/refs/T1218.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1218/"
       },
@@ -718,7 +718,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1213.json",
+        "refs_summary_file": "data/compound_literature/refs/T1213.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1213/"
       },
@@ -757,7 +757,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1224.json",
+        "refs_summary_file": "data/compound_literature/refs/T1224.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1224/"
       },
@@ -796,7 +796,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1227.json",
+        "refs_summary_file": "data/compound_literature/refs/T1227.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1227/"
       },
@@ -847,7 +847,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1262.json",
+        "refs_summary_file": "data/compound_literature/refs/T1262.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1262/"
       },
@@ -886,7 +886,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0911.json",
+        "refs_summary_file": "data/compound_literature/refs/T0911.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0911/"
       },
@@ -925,7 +925,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0814.json",
+        "refs_summary_file": "data/compound_literature/refs/T0814.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0814/"
       },
@@ -964,7 +964,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0827.json",
+        "refs_summary_file": "data/compound_literature/refs/T0827.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0827/"
       },
@@ -1003,7 +1003,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0868.json",
+        "refs_summary_file": "data/compound_literature/refs/T0868.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0868/"
       },
@@ -1042,7 +1042,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0953.json",
+        "refs_summary_file": "data/compound_literature/refs/T0953.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0953/"
       },
@@ -1081,7 +1081,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0932.json",
+        "refs_summary_file": "data/compound_literature/refs/T0932.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0932/"
       },
@@ -1120,7 +1120,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1495.json",
+        "refs_summary_file": "data/compound_literature/refs/T1495.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1495/"
       },
@@ -1171,7 +1171,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1037.json",
+        "refs_summary_file": "data/compound_literature/refs/T1037.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1037/"
       },
@@ -1210,7 +1210,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1023.json",
+        "refs_summary_file": "data/compound_literature/refs/T1023.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1023/"
       },
@@ -1249,7 +1249,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T3263.json",
+        "refs_summary_file": "data/compound_literature/refs/T3263.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T3263/"
       },
@@ -1288,7 +1288,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0049.json",
+        "refs_summary_file": "data/compound_literature/refs/T0049.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0049/"
       },
@@ -1327,7 +1327,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T6386.json",
+        "refs_summary_file": "data/compound_literature/refs/T6386.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T6386/"
       },
@@ -1366,7 +1366,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T6437.json",
+        "refs_summary_file": "data/compound_literature/refs/T6437.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T6437/"
       },
@@ -1405,7 +1405,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T4553.json",
+        "refs_summary_file": "data/compound_literature/refs/T4553.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T4553/"
       },
@@ -1444,7 +1444,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T4270.json",
+        "refs_summary_file": "data/compound_literature/refs/T4270.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T4270/"
       },
@@ -1483,7 +1483,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T7043.json",
+        "refs_summary_file": "data/compound_literature/refs/T7043.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T7043/"
       },
@@ -1522,7 +1522,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T5038.json",
+        "refs_summary_file": "data/compound_literature/refs/T5038.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T5038/"
       },
@@ -1561,7 +1561,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T5022.json",
+        "refs_summary_file": "data/compound_literature/refs/T5022.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T5022/"
       },
@@ -1600,7 +1600,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T4998.json",
+        "refs_summary_file": "data/compound_literature/refs/T4998.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T4998/"
       },
@@ -1639,7 +1639,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T5006.json",
+        "refs_summary_file": "data/compound_literature/refs/T5006.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T5006/"
       },
@@ -1678,7 +1678,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T6438.json",
+        "refs_summary_file": "data/compound_literature/refs/T6438.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T6438/"
       },
@@ -1717,7 +1717,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T7560.json",
+        "refs_summary_file": "data/compound_literature/refs/T7560.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T7560/"
       },
@@ -1756,7 +1756,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T7120.json",
+        "refs_summary_file": "data/compound_literature/refs/T7120.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T7120/"
       },
@@ -1795,7 +1795,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T5570.json",
+        "refs_summary_file": "data/compound_literature/refs/T5570.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T5570/"
       },
@@ -1834,7 +1834,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T7733.json",
+        "refs_summary_file": "data/compound_literature/refs/T7733.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T7733/"
       },
@@ -1873,7 +1873,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T8126.json",
+        "refs_summary_file": "data/compound_literature/refs/T8126.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T8126/"
       },
@@ -1912,7 +1912,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T8134.json",
+        "refs_summary_file": "data/compound_literature/refs/T8134.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T8134/"
       },
@@ -1951,7 +1951,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T6385.json",
+        "refs_summary_file": "data/compound_literature/refs/T6385.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T6385/"
       },
@@ -1990,7 +1990,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T8062.json",
+        "refs_summary_file": "data/compound_literature/refs/T8062.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T8062/"
       },
@@ -2029,7 +2029,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T8063.json",
+        "refs_summary_file": "data/compound_literature/refs/T8063.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T8063/"
       },
@@ -2068,7 +2068,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T5041.json",
+        "refs_summary_file": "data/compound_literature/refs/T5041.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T5041/"
       },
@@ -2119,7 +2119,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T6685.json",
+        "refs_summary_file": "data/compound_literature/refs/T6685.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T6685/"
       },
@@ -2158,7 +2158,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T8390.json",
+        "refs_summary_file": "data/compound_literature/refs/T8390.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T8390/"
       },
@@ -2197,7 +2197,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T4405.json",
+        "refs_summary_file": "data/compound_literature/refs/T4405.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T4405/"
       },
@@ -2236,7 +2236,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T8620.json",
+        "refs_summary_file": "data/compound_literature/refs/T8620.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T8620/"
       },
@@ -2275,7 +2275,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T6582.json",
+        "refs_summary_file": "data/compound_literature/refs/T6582.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T6582/"
       },
@@ -2326,7 +2326,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T14081.json",
+        "refs_summary_file": "data/compound_literature/refs/T14081.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T14081/"
       },
@@ -2365,7 +2365,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0141L.json",
+        "refs_summary_file": "data/compound_literature/refs/T0141L.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0141L/"
       },
@@ -2404,7 +2404,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T12004.json",
+        "refs_summary_file": "data/compound_literature/refs/T12004.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T12004/"
       },
@@ -2443,7 +2443,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T11265.json",
+        "refs_summary_file": "data/compound_literature/refs/T11265.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T11265/"
       },
@@ -2482,7 +2482,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T7858.json",
+        "refs_summary_file": "data/compound_literature/refs/T7858.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T7858/"
       },
@@ -2521,7 +2521,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/TQ0056.json",
+        "refs_summary_file": "data/compound_literature/refs/TQ0056.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/TQ0056/"
       },
@@ -2560,7 +2560,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T19709.json",
+        "refs_summary_file": "data/compound_literature/refs/T19709.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T19709/"
       },
@@ -2599,7 +2599,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T8302.json",
+        "refs_summary_file": "data/compound_literature/refs/T8302.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T8302/"
       },
@@ -2638,7 +2638,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T10392.json",
+        "refs_summary_file": "data/compound_literature/refs/T10392.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T10392/"
       },
@@ -2689,7 +2689,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T14979.json",
+        "refs_summary_file": "data/compound_literature/refs/T14979.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T14979/"
       },
@@ -2728,7 +2728,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T17021.json",
+        "refs_summary_file": "data/compound_literature/refs/T17021.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T17021/"
       },
@@ -2767,7 +2767,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T6622.json",
+        "refs_summary_file": "data/compound_literature/refs/T6622.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T6622/"
       },
@@ -2806,7 +2806,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T4984.json",
+        "refs_summary_file": "data/compound_literature/refs/T4984.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T4984/"
       },
@@ -2845,7 +2845,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T8261.json",
+        "refs_summary_file": "data/compound_literature/refs/T8261.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T8261/"
       },
@@ -2896,7 +2896,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0989.json",
+        "refs_summary_file": "data/compound_literature/refs/T0989.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0989/"
       },
@@ -2935,7 +2935,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0141.json",
+        "refs_summary_file": "data/compound_literature/refs/T0141.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0141/"
       },
@@ -2986,7 +2986,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T13926.json",
+        "refs_summary_file": "data/compound_literature/refs/T13926.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T13926/"
       },
@@ -3025,7 +3025,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T14922.json",
+        "refs_summary_file": "data/compound_literature/refs/T14922.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T14922/"
       },
@@ -3064,7 +3064,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T67977.json",
+        "refs_summary_file": "data/compound_literature/refs/T67977.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T67977/"
       },
@@ -3115,7 +3115,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T124492.json",
+        "refs_summary_file": "data/compound_literature/refs/T124492.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T124492/"
       },
@@ -3168,7 +3168,7 @@
         "ic50_uM_prior": null,
         "recommended_screen_uM": 50,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T19860.json",
+        "refs_summary_file": "data/compound_literature/refs/T19860.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T19860/"
       },
@@ -3209,7 +3209,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T20022.json",
+        "refs_summary_file": "data/compound_literature/refs/T20022.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T20022/"
       },
@@ -3248,7 +3248,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T67978.json",
+        "refs_summary_file": "data/compound_literature/refs/T67978.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T67978/"
       },
@@ -3287,7 +3287,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T30787.json",
+        "refs_summary_file": "data/compound_literature/refs/T30787.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T30787/"
       },
@@ -3326,7 +3326,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0868L.json",
+        "refs_summary_file": "data/compound_literature/refs/T0868L.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0868L/"
       },
@@ -3365,7 +3365,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T75295.json",
+        "refs_summary_file": "data/compound_literature/refs/T75295.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T75295/"
       },
@@ -3416,7 +3416,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0224.json",
+        "refs_summary_file": "data/compound_literature/refs/T0224.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0224/"
       },
@@ -3455,7 +3455,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0985.json",
+        "refs_summary_file": "data/compound_literature/refs/T0985.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0985/"
       },
@@ -3506,7 +3506,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1029.json",
+        "refs_summary_file": "data/compound_literature/refs/T1029.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1029/"
       },
@@ -3545,7 +3545,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1070.json",
+        "refs_summary_file": "data/compound_literature/refs/T1070.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1070/"
       },
@@ -3584,7 +3584,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1118.json",
+        "refs_summary_file": "data/compound_literature/refs/T1118.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1118/"
       },
@@ -3623,7 +3623,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1312.json",
+        "refs_summary_file": "data/compound_literature/refs/T1312.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1312/"
       },
@@ -3662,7 +3662,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1190.json",
+        "refs_summary_file": "data/compound_literature/refs/T1190.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1190/"
       },
@@ -3713,7 +3713,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1631.json",
+        "refs_summary_file": "data/compound_literature/refs/T1631.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1631/"
       },
@@ -3752,7 +3752,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T6231.json",
+        "refs_summary_file": "data/compound_literature/refs/T6231.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T6231/"
       },
@@ -3791,7 +3791,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T4501.json",
+        "refs_summary_file": "data/compound_literature/refs/T4501.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T4501/"
       },
@@ -3830,7 +3830,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T5024.json",
+        "refs_summary_file": "data/compound_literature/refs/T5024.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T5024/"
       },
@@ -3881,7 +3881,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T7387.json",
+        "refs_summary_file": "data/compound_literature/refs/T7387.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T7387/"
       },
@@ -3920,7 +3920,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T22314.json",
+        "refs_summary_file": "data/compound_literature/refs/T22314.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T22314/"
       },
@@ -3971,7 +3971,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T21369.json",
+        "refs_summary_file": "data/compound_literature/refs/T21369.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T21369/"
       },
@@ -4010,7 +4010,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T40475.json",
+        "refs_summary_file": "data/compound_literature/refs/T40475.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T40475/"
       },
@@ -4049,7 +4049,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T20643.json",
+        "refs_summary_file": "data/compound_literature/refs/T20643.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T20643/"
       },
@@ -4088,7 +4088,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1118L.json",
+        "refs_summary_file": "data/compound_literature/refs/T1118L.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1118L/"
       },
@@ -4139,7 +4139,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T13038.json",
+        "refs_summary_file": "data/compound_literature/refs/T13038.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T13038/"
       },
@@ -4178,7 +4178,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T0133.json",
+        "refs_summary_file": "data/compound_literature/refs/T0133.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T0133/"
       },
@@ -4217,7 +4217,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1223.json",
+        "refs_summary_file": "data/compound_literature/refs/T1223.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1223/"
       },
@@ -4256,7 +4256,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T7142.json",
+        "refs_summary_file": "data/compound_literature/refs/T7142.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T7142/"
       },
@@ -4295,7 +4295,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1364.json",
+        "refs_summary_file": "data/compound_literature/refs/T1364.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1364/"
       },
@@ -4334,7 +4334,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T6411.json",
+        "refs_summary_file": "data/compound_literature/refs/T6411.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T6411/"
       },
@@ -4373,7 +4373,7 @@
         "support": null,
         "ic50_uM_prior": null,
         "refs_summary_storage": "git",
-        "refs_summary_file": "data/literature/refs/T1126.json",
+        "refs_summary_file": "data/compound_literature/refs/T1126.json",
         "raw_storage": "local",
         "raw_local": "pvjthomas/local/literature/T1126/"
       },

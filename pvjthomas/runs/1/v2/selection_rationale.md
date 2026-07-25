@@ -1,7 +1,7 @@
 # Round 1 / version 2 — validation plate rationale
 
 **Round:** 1 (first closed-loop screen) · **Version:** 2 (`r1-validation-v2`)  
-**Supersedes:** `data/runs/1/v1/` (24-compound discovery layout — not run)
+**Supersedes:** `data/screens/1/v1/` (24-compound discovery layout — not run)
 
 See [`data/README.md`](../../../../data/README.md) for rounds vs versions.
 
@@ -30,7 +30,7 @@ Minimal assay validation before the full compound screen. Two conditions only:
 | Pre-incubation | 10 min before nitrocefin |
 | Read | A490 initial slope |
 
-**Literature basis (git):** [`data/literature/refs/T19860.json`](../../../../data/literature/refs/T19860.json)
+**Literature basis (git):** [`data/compound_literature/refs/T19860.json`](../../../../data/compound_literature/refs/T19860.json)
 
 - TEM-1 Ki (clavulanic acid) = **0.85 µM** — Radojković et al., *J Biol Chem* 2025, [PMC12274840](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12274840/)
 - Literature nitrocefin assay: 0.25 nM TEM-1, 200 µM nitrocefin, 0.25–5 µM inhibitor, 100 mM NaPi pH 6.4, 25 °C, A486
@@ -43,5 +43,5 @@ Minimal assay validation before the full compound screen. Two conditions only:
 ## Robot / workflow
 
 - Active plate map: [`data/plate_map_r1.json`](../../../../data/plate_map_r1.json)
-- Frozen snapshot: [`data/runs/1/v2/plate_map.json`](../../../../data/runs/1/v2/plate_map.json)
+- Frozen snapshot: [`data/screens/1/v2/plate_map.json`](../../../../data/screens/1/v2/plate_map.json)
 - Protocol: [`pvjthomas/NITROCEFIN_ASSAY.md`](../../../NITROCEFIN_ASSAY.md)

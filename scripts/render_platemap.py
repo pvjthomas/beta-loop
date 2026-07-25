@@ -8,16 +8,17 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "pvjthomas"))
+sys.path.insert(0, str(REPO_ROOT / "ml"))
 
 from analysis.plate_viz import load_and_render  # noqa: E402
 
 
-def _collect_all_runs(data_dir: Path) -> list[Path]:
+def _collect_all_runs(data_dir: Path, repo_root: Path) -> list[Path]:
     paths: list[Path] = []
-    paths.extend(sorted(data_dir.glob("runs/**/plate_map.json")))
+    paths.extend(sorted(data_dir.glob("screens/**/plate_map.json")))
     paths.extend(sorted(data_dir.glob("plate_map_r*.json")))
-    paths.extend(sorted(data_dir.glob("selection/plate_map_r*_draft.json")))
+    workflow = repo_root / "ml" / "workflows" / "compound_selection"
+    paths.extend(sorted(workflow.glob("plate_map_r*_draft.json")))
     return paths
 
 
@@ -43,7 +44,7 @@ def main() -> int:
     parser.add_argument(
         "--all-runs",
         action="store_true",
-        help="Render all versioned snapshots, active maps, and drafts under data/",
+        help="Render all versioned snapshots, active maps, and drafts under data/ and ml/workflows/",
     )
     parser.add_argument(
         "--data-dir",
@@ -54,7 +55,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.all_runs:
-        paths = _collect_all_runs(args.data_dir)
+        paths = _collect_all_runs(args.data_dir, REPO_ROOT)
         if not paths:
             print("No plate map JSON files found.", file=sys.stderr)
             return 1

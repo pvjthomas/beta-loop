@@ -1,0 +1,1467 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-07-25T23:22:40Z",
+  "forward": {
+    "library_matches": {
+      "ran_at": "2026-07-25T23:04:06Z",
+      "tanimoto_threshold": 0.85,
+      "matches": [
+        {
+          "reference_name": "clavulanic acid",
+          "match_type": "direct",
+          "compound_id": "T19860",
+          "compound_name": "Clavulanic Acid",
+          "tanimoto": 1.0,
+          "group_id": "clavulanate",
+          "canonical_compound_id": "T19860",
+          "related_forms": [
+            "T14979",
+            "T19860"
+          ]
+        },
+        {
+          "reference_name": "sulbactam",
+          "match_type": "direct",
+          "compound_id": "T1631",
+          "compound_name": "Sulbactam",
+          "tanimoto": 1.0,
+          "group_id": "sulbactam",
+          "canonical_compound_id": "T1631",
+          "related_forms": [
+            "T1631",
+            "T6685"
+          ]
+        },
+        {
+          "reference_name": "tazobactam",
+          "match_type": "direct",
+          "compound_id": "T1262",
+          "compound_name": "Tazobactam",
+          "tanimoto": 1.0,
+          "group_id": "tazobactam",
+          "canonical_compound_id": "T1262",
+          "related_forms": [
+            "T1262"
+          ]
+        },
+        {
+          "reference_name": "enmetazobactam",
+          "match_type": "direct",
+          "compound_id": "T14081",
+          "compound_name": "Enmetazobactam",
+          "tanimoto": 1.0,
+          "group_id": "enmetazobactam",
+          "canonical_compound_id": "T14081",
+          "related_forms": [
+            "T14081"
+          ]
+        },
+        {
+          "reference_name": "clavulanate lithium",
+          "match_type": "direct",
+          "compound_id": "T14979",
+          "compound_name": "Clavulanate lithium",
+          "tanimoto": 1.0,
+          "group_id": "clavulanate",
+          "canonical_compound_id": "T19860",
+          "related_forms": [
+            "T14979",
+            "T19860"
+          ]
+        }
+      ],
+      "literature_only": []
+    },
+    "agent_version": "v1",
+    "run_label": "forward-research-agent-v1",
+    "manifest": "ml/workflows/compound_selection/snapshots/forward/v1/manifest.json",
+    "finalized_at": "2026-07-25T23:03:16Z",
+    "compound_groups": [
+      {
+        "group_id": "clavulanate",
+        "canonical_compound_id": "T19860",
+        "compound_ids": [
+          "T14979",
+          "T19860"
+        ],
+        "forms": [
+          {
+            "compound_id": "T14979",
+            "name": "Clavulanate lithium",
+            "form_type": "lithium_salt",
+            "is_canonical": false
+          },
+          {
+            "compound_id": "T19860",
+            "name": "Clavulanic Acid",
+            "form_type": "free_acid",
+            "is_canonical": true
+          }
+        ]
+      },
+      {
+        "group_id": "enmetazobactam",
+        "canonical_compound_id": "T14081",
+        "compound_ids": [
+          "T14081"
+        ],
+        "forms": [
+          {
+            "compound_id": "T14081",
+            "name": "Enmetazobactam",
+            "form_type": "other",
+            "is_canonical": true
+          }
+        ]
+      },
+      {
+        "group_id": "sulbactam",
+        "canonical_compound_id": "T1631",
+        "compound_ids": [
+          "T1631",
+          "T6685"
+        ],
+        "forms": [
+          {
+            "compound_id": "T1631",
+            "name": "Sulbactam",
+            "form_type": "other",
+            "is_canonical": true
+          },
+          {
+            "compound_id": "T6685",
+            "name": "Sulbactam sodium",
+            "form_type": "sodium_salt",
+            "is_canonical": false
+          }
+        ]
+      },
+      {
+        "group_id": "tazobactam",
+        "canonical_compound_id": "T1262",
+        "compound_ids": [
+          "T1262"
+        ],
+        "forms": [
+          {
+            "compound_id": "T1262",
+            "name": "Tazobactam",
+            "form_type": "other",
+            "is_canonical": true
+          }
+        ]
+      }
+    ],
+    "literature_searches": {
+      "ran_at": "2026-07-25T23:03:12Z",
+      "caps": {
+        "max_batch_queries": 2,
+        "query_limit": 15,
+        "max_searches_per_run": 6
+      },
+      "queries": [
+        {
+          "query": "TEM-1 beta-lactamase inhibitor IC50 nitrocefin",
+          "source": "pmc"
+        },
+        {
+          "query": "clavulanic acid sulbactam tazobactam beta-lactamase inhibitor",
+          "source": "pmc"
+        }
+      ],
+      "results": [
+        {
+          "status": "ok",
+          "query": "TEM-1 beta-lactamase inhibitor IC50 nitrocefin",
+          "source": "pmc",
+          "limit": 15,
+          "result_id": "s_13bfedb9",
+          "output": "Found 15 papers  [s_13bfedb9]\n\n  1. Escherichia coli  phylogeny drives co-amoxiclav resistance through variable expression of TEM-1 beta-lactamase\n     William Matlock, Gillian Rodger, Emma Pritchard, Matthew Colpus, Natalia Kapel, Lucinda Barrett, Mar...\n     PMC12484619 \u00b7 PMC \u00b7 2025-09-30\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12484619/\n     \"This study investigated how *E. coli* phylogeny influences co-amoxiclav resistance. Resistance levels are significantly driven by phylogenetic variation in *bla TEM-1* beta-lactamase expression.\"\n\n  2. Assay Platform\nfor Clinically Relevant Metallo-\u03b2-lactamases\n     Sander\nS. van Berkel, J\u00fcrgen Brem, Anna M. Rydzik, Ramya Salimraj, Ricky Cain, Anil Verma, Raymond\nJ...\n     PMC3910272 \u00b7 PMC \u00b7 2013-07-30\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3910272/\n     \"A new assay platform using fluorogenic substrates was developed for clinically relevant metallo-\u03b2-lactamases. This platform enabled the identification of 4-chloroisoquinolinols as potential broad-spectrum MBL inhibitors.\"\n\n  3. In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-Lactamase Inhibitor against Extended-Spectrum Beta-Lactamase-Encoding Genes\n     Dwi Krihariyani, Evy Diah Woelansari, Edy Haryanto, Retno Sasongkowati, Anik Handayati, Sri Sulami E...\n     PMC11229569 \u00b7 PMC \u00b7 2024-06-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11229569/\n     \"This study investigated brazilein from sappan wood as a potential inhibitor of extended-spectrum beta-lactamases. Brazilein showed significant potential to block the beta-lactamase activity of the blaCTX-M gene.\"\n\n  4. Targeting Class A and C Serine\n\u03b2-Lactamases\nwith a Broad-Spectrum Boronic Acid Derivative\n     Donatella Tondi, Alberto Venturelli, Richard Bonnet, Cecilia Pozzi, Brian K. Shoichet, Maria\nPaola C...\n     PMC4079326 \u00b7 PMC \u00b7 2015-05-31\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4079326/\n     \"A novel boronic acid derivative was designed and synthesized to inhibit class A and C serine \u03b2-lactamases. This compound demonstrates potent, broad-spectrum activity, offering a potential solution to antibiotic resistance.\"\n\n  5. Classification and applicability of new beta-lactamase inhibitors\n     Emilia Cercenado, Francisco Javier Candel\n     PMC12584905 \u00b7 PMC \u00b7 2025-10-24\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12584905/\n     \"This review classifies new beta-lactamase inhibitors and their characteristics. Their applicability depends on the specific beta-lactamase/carbapenemase, microorganism, and resistance mechanisms.\"\n\n  6. Inhibitor Discovery of Full-Length New Delhi Metallo-\u03b2-Lactamase-1 (NDM-1)\n     Bingzheng Shen, Yan Yu, Hui Chen, Xin Cao, Xingzhen Lao, Yongliang Fang, Yun Shi, Jiao Chen, Heng Zh...\n     PMC3652859 \u00b7 biomedrxiv \u00b7 2013-01-01\n     https://doi.org/10.1371/journal.pone.0062955\n     \"NDM-1's hydrolysis of \u03b2-lactam antibiotics was studied, finding it ineffective against aztreonam. Thiophene-carboxylic acid derivatives inhibit NDM-1 and enhance meropenem's antibacterial activity.\"\n\n  7. Saturation Mutagenesis and Molecular Modeling: The Impact of Methionine 182 Substitutions on the Stability of \u03b2-Lactamase TEM-1\n     Vitaly G. Grigorenko, Alexandra V. Krivitskaya, Maria G. Khrenova, Maya Yu. Rubtsova, Galina V. Pres...\n     PMC11276661 \u00b7 PMC \u00b7 2024-07-13\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11276661/\n     \"Saturation mutagenesis and molecular modeling studied methionine 182 substitutions in TEM-1 \u03b2-lactamase. Substitutions at this position significantly impact enzyme stability and thermoreactivation, but not catalytic activity, with the M182E variant showing the highest activity.\"\n\n  8. Targeting the Class A Carbapenemase GES-5 via Virtual Screening\n     Raphael Klein, Laura Cendron, Martina Montanari, Pierangelo Bellio, Giuseppe Celenza, Lorenzo Maso, ...\n     PMC7072645 \u00b7 biomedrxiv \u00b7 2020-02-14\n     https://doi.org/10.3390/biom10020304\n     \"Virtual screening identified compounds that inhibit the GES-5 carbapenemase. Four derivatives showed high micromolar inhibitory activity, serving as promising starting points for further development.\"\n\n  9. Breakthrough Advances in Beta-Lactamase Inhibitors: New Synthesized Compounds and Mechanisms of Action Against Drug-Resistant Bacteria\n     Ya-Si Huang, Hong Zhou\n     PMC11859904 \u00b7 PMC \u00b7 2025-02-03\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11859904/\n     \"Newly synthesized beta-lactamase inhibitors were studied for their effects and mechanisms against drug-resistant bacteria. These compounds enhance the affinity and stability of inhibitor-enzyme complexes, offering new strategies for combating antibiotic resistance.\"\n\n  10. Screening of inhibitors for S130G inhibitor resistant mutants of TEM type beta-lactamase\n     Mohd Hassan Baig, Mohd Danishuddin, Saif Khan, Asad U Khan\n     PMC3530876 \u00b7 PMC \u00b7 2012-01-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3530876/\n     \"This study screened for inhibitors against the S130G TEM mutant beta-lactamase using a structure-based virtual screening approach. Several compounds demonstrated higher efficacy than existing inhibitors, with specific amino acids identified as crucial for inhibitor binding.\"\n\n  11. In Vitro Activity of Cefaclor/Beta-Lactamases Inhibitors (Clavulanic Acid and Sulbactam) Combination Against Extended-Spectrum Beta-Lactamase Producing Uropathogenic  E. coli\n     Ali Atoom, Bayan Alzubi, Dana Barakat, Rana Abu-Gheyab, Dalia Ismail-Agha, Awatef Al-Kaabneh, Nawfal...\n     PMC12189933 \u00b7 PMC \u00b7 2025-06-13\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12189933/\n     \"Cefaclor combined with clavulanic acid or sulbactam showed improved in vitro activity against ESBL-producing *E. coli*. These combinations demonstrated synergistic and bactericidal effects, restoring susceptibility in many isolates.\"\n\n  12. Discovery of the Novel Inhibitor Against New Delhi Metallo-\u03b2-Lactamase Based on Virtual Screening and Molecular Modelling\n     Xiyan Wang, Yanan Yang, Yawen Gao, Xiaodi Niu\n     PMC7279046 \u00b7 biomedrxiv \u00b7 2020-05-18\n     https://doi.org/10.3390/ijms21103567\n     \"Virtual screening and molecular modeling identified ZINC05683641 as a potential inhibitor of New Delhi metallo-\u03b2-lactamase (NDM-1). This compound competitively inhibits NDM-1 by binding to key catalytic residues, offering a new avenue for combating antibiotic resistance.\"\n\n  13. New Delhi Metallo-Beta-Lactamase Inhibitors: A Systematic Scoping Review\n     Lutfun Nahar, Hideharu Hagiya, Kazuyoshi Gotoh, Md Asaduzzaman, Fumio Otsuka\n     PMC11277577 \u00b7 Journal of Clinical Medicine \u00b7 2024-07-18\n     https://doi.org/10.3390/jcm13144199\n     \"A systematic scoping review synthesized data on New Delhi metallo-beta-lactamase inhibitors. While numerous potential inhibitors have been identified, none are currently clinically applicable for treating infections.\"\n\n  14. Effect of Lactamase Inhibitors on the Biosensor Penp during the Measurement of Lactam Antibiotics Concentration\n     Dagoberto Soto, Camila Silva, Cristian Ugalde, Kwok-Yin Wong, Yun-Chung Leung, Lok-Yan So, Max Andre...\n     PMC6427286 \u00b7 biomedrxiv \u00b7 2019-03-12\n     https://doi.org/10.3390/s19051237\n     \"This study investigated the impact of lactamase inhibitors on the PenP biosensor's ability to measure lactam antibiotics. The findings indicate that lactamase inhibitors have a minimal effect on PenP's detection capabilities.\"\n\n  15. Extended-spectrum beta-lactamases: definition, history, an update on their genetic environment and detection methods\n     Soufyane Yassara, Ikrame Zeouk, Samira Jaouhar, Mohammed Sbiti, Khadija Bekhti\n     PMC12188005 \u00b7 PMC \u00b7 2025-01-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12188005/\n     \"This review discusses extended-spectrum beta-lactamases (ESBLs), their history, genetic spread, and detection. ESBL-producing bacteria are a significant global threat, requiring vigilant identification and development of new treatments.\"\n\n[582ms, saved to s_13bfedb9]\n\n\ud83d\udca1 Extract data across these results with: map --from s_13bfedb9 \"your question\"\n[582ms, saved to s_13bfedb9]\n",
+          "saved_path": "/Users/fio/zeon_hack/data/compound_literature/pmc_1215905.txt",
+          "elapsed_ms": 2183
+        },
+        {
+          "status": "ok",
+          "query": "clavulanic acid sulbactam tazobactam beta-lactamase inhibitor",
+          "source": "pmc",
+          "limit": 15,
+          "result_id": "s_5530b55f",
+          "output": "Found 15 papers  [s_5530b55f]\n\n  1. In Vitro Activity of Cefaclor/Beta-Lactamases Inhibitors (Clavulanic Acid and Sulbactam) Combination Against Extended-Spectrum Beta-Lactamase Producing Uropathogenic  E. coli\n     Ali Atoom, Bayan Alzubi, Dana Barakat, Rana Abu-Gheyab, Dalia Ismail-Agha, Awatef Al-Kaabneh, Nawfal...\n     PMC12189933 \u00b7 PMC \u00b7 2025-06-13\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12189933/\n     \"Cefaclor combined with clavulanic acid or sulbactam showed improved in vitro activity against ESBL-producing *E. coli*. These combinations demonstrated synergistic and bactericidal effects, restoring susceptibility in many isolates.\"\n\n  2. Old and New Beta-Lactamase Inhibitors: Molecular Structure, Mechanism of Action, and Clinical Use\n     Davide Carcione, Claudia Siracusa, Adela Sulejmani, Valerio Leoni, Jari Intra\n     PMC8388860 \u00b7 PMC \u00b7 2021-08-17\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8388860/\n     \"This review examines current and emerging beta-lactamase inhibitors, their mechanisms, and clinical applications. New inhibitors are needed to combat resistance, particularly against Gram-negative bacteria and certain beta-lactamase classes.\"\n\n  3. In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-Lactamase Inhibitor against Extended-Spectrum Beta-Lactamase-Encoding Genes\n     Dwi Krihariyani, Evy Diah Woelansari, Edy Haryanto, Retno Sasongkowati, Anik Handayati, Sri Sulami E...\n     PMC11229569 \u00b7 PMC \u00b7 2024-06-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11229569/\n     \"This study investigated brazilein from sappan wood as a potential inhibitor of extended-spectrum beta-lactamases. Brazilein showed significant potential to block the beta-lactamase activity of the blaCTX-M gene.\"\n\n  4. Molecular Basis of Class A \u03b2-Lactamase Inhibition by Relebactam\n     Catherine L. Tooke, Philip Hinchliffe, Pauline A. Lang, Adrian J. Mulholland, J\u00fcrgen Brem, Christoph...\n     PMC6761529 \u00b7 biomedrxiv \u00b7 2019-08-05\n     https://doi.org/10.1128/AAC.00564-19\n     \"This study investigates the molecular basis of relebactam's inhibition of class A \u03b2-lactamases. Relebactam is a diazabicyclooctane inhibitor effective against common bacterial resistance mechanisms.\"\n\n  5. Comparative evaluation of five \u03b2-Lactamase inhibitors in combination with \u03b2-Lactams against multidrug-resistant Mycobacterium tuberculosis in vitro\n     Jie Shi, Danwei Zheng, Ruyue Su, Xiaoguang Ma, Yankun Zhu, Shaohua Wang, Wenjing Chang, Dingyong Sun\n     PMC12036291 \u00b7 PMC \u00b7 2025-04-28\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12036291/\n     \"This study evaluated \u03b2-lactam and \u03b2-lactamase inhibitor combinations against multidrug-resistant tuberculosis. Tebipenem combined with relebactam showed the most potent activity, with specific BlaC mutations potentially linked to increased susceptibility.\"\n\n  6. Novel \u03b2-lactamase inhibitors: a therapeutic hope against the scourge of multidrug resistance\n     Richard R. Watkins, Krisztina M. Papp-Wallace, Sarah M. Drawz, Robert A. Bonomo\n     PMC3871716 \u00b7 biomedrxiv \u00b7 2013-12-24\n     https://doi.org/10.3389/fmicb.2013.00392\n     \"This review examines novel \u03b2-lactamase inhibitors being developed to combat multidrug-resistant bacteria. These new inhibitors offer renewed hope for restoring the effectiveness of \u03b2-lactam antibiotics, though they may not cover all resistant strains.\"\n\n  7. Synergistic Activity of Cefiderocol in Combination with Avibactam, Sulbactam or Tazobactam against Carbapenem-Resistant Gram-Negative Bacteria\n     Russell E. Lewis, Marta Palombo, Erica Diani, Benedetta Secci, Davide Gibellini, Paolo Gaibani\n     PMC11352988 \u00b7 PMC \u00b7 2024-08-06\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11352988/\n     \"The activity of cefiderocol combined with avibactam, sulbactam, or tazobactam was studied against carbapenem-resistant Gram-negative bacteria. Cefiderocol/sulbactam showed the most promising synergistic activity across all tested resistant Gram-negative isolates.\"\n\n  8. Biochemical exploration of \u03b2-lactamase inhibitors\n     Varshaa Arer, Debasish Kar\n     PMC9888030 \u00b7 biomedrxiv \u00b7 2023-01-17\n     https://doi.org/10.3389/fgene.2022.1060736\n     \"This study explores the biochemistry of \u03b2-lactamase inhibitors and their mechanisms. Combining these inhibitors with antibiotics is a safe and effective strategy to combat microbial resistance.\"\n\n  9. Genetic Analysis of Virulence and \u03b2-Lactamase Determinants Related to \u03b2-Lactamase Inhibitors in  Pseudomonas aeruginosa  Strains from Nosocomial Infections\n     Gloria Luz Paniagua-Contreras, Elizabeth Olvera-Navarro, Jennefer Paloma Herrera-Gabriel, Laura Ver\u00f3...\n     PMC12837615 \u00b7 PMC \u00b7 2025-12-22\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12837615/\n     \"This study analyzed virulence and \u03b2-lactamase genes in *Pseudomonas aeruginosa* strains from nosocomial and community infections. Most strains showed resistance to \u03b2-lactamase inhibitor antibiotics, with phylogroup 1 being more frequent.\"\n\n  10. \u03b2-Lactam Antibiotics and \u03b2-Lactamase Enzymes Inhibitors, Part 2: Our Limited Resources\n     Silvana Alfei, Anna Maria Schito\n     PMC9031764 \u00b7 biomedrxiv \u00b7 2022-04-13\n     https://doi.org/10.3390/ph15040476\n     \"This review examines \u03b2-lactam antibiotics and the \u03b2-lactamase enzymes that confer resistance. It highlights the limited effectiveness of current inhibitors against metallo-\u03b2-lactamases, a growing threat.\"\n\n  11. Approachable Synthetic Methodologies for Second-Generation  \u03b2 -Lactamase Inhibitors: A Review\n     Noor Fatima, Shehla Khalid, Nasir Rasool, Muhammad Imran, Bushra Parveen, Aqsa Kanwal, Marius Irimie...\n     PMC11434895 \u00b7 PMC \u00b7 2024-08-23\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11434895/\n     \"This review surveys synthetic methods for second-generation \u03b2-lactamase inhibitors. These inhibitors, including vaborbactam and avibactam, are a successful strategy against multidrug-resistant bacteria.\"\n\n  12. A Review of \u03b2\u2010Lactamase Inhibitors in Clinical Use and Development: Mechanisms, Spectrum, and Therapeutic Applications\n     Mohammad Javad Roustaye Gourabi; Anita Nikoo; Bita Khanbabaei; Masoud Kargar; Amirhossein Fayyazi; S...\n     PMC13191775 \u00b7 biomedrxiv \u00b7 2026-05-21\n     https://doi.org/10.1155/ijm/4479031\n\n  13. Sulbactam\u2013durlobactam: a \u03b2-lactam/\u03b2-lactamase inhibitor combination targeting  Acinetobacter baumannii\n     Sarah M McLeod, John P O'Donnell, Navaneeth Narayanan, John P Mills, Keith S Kaye\n     PMC11229585 \u00b7 PMC \u00b7 2024-03-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11229585/\n     \"Sulbactam\u2013durlobactam is a new drug combination targeting *Acinetobacter baumannii*. It effectively restores sulbactam's activity against multidrug-resistant strains, offering a promising treatment for serious infections.\"\n\n  14. Production of \u03b2-Lactamase Inhibitors by  Streptomyces  Species\n     Daniela de Ara\u00fajo Viana Marques, Suellen Emilliany Feitosa Machado, Val\u00e9ria Carvalho Santos Ebinuma,...\n     PMC6163296 \u00b7 biomedrxiv \u00b7 2018-07-17\n     https://doi.org/10.3390/antibiotics7030061\n     \"This review discusses *Streptomyces* species as producers of \u03b2-lactamase inhibitors. It highlights methods to enhance production and discusses clinical and commercial aspects of these compounds.\"\n\n  15. Current Strategy for Targeting Metallo-\u03b2-Lactamase with Metal-Ion-Binding Inhibitors\n     Jessica L. Ortega-Balleza, Lenci K. V\u00e1zquez-Jim\u00e9nez, Eyra Ortiz-P\u00e9rez, Guadalupe Avalos-Navarro, Alm...\n     PMC11356879 \u00b7 PMC \u00b7 2024-08-21\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11356879/\n     \"This review analyzes strategies for designing metal-ion-binding inhibitors against metallo-\u03b2-lactamases (MBLs). The key finding is that Zn\u00b2\u207a chelation is crucial for the mechanism of action of most MBL inhibitors.\"\n\n[351ms, saved to s_5530b55f]\n\n\ud83d\udca1 Extract data across these results with: map --from s_5530b55f \"your question\"\n[351ms, saved to s_5530b55f]\n",
+          "saved_path": "/Users/fio/zeon_hack/data/compound_literature/pmc_5451187.txt",
+          "elapsed_ms": 1842
+        }
+      ],
+      "search_count": 2,
+      "truncated": []
+    }
+  },
+  "reverse": {
+    "scaffold_classification": {
+      "ran_at": "2026-07-25T23:11:13Z",
+      "rdkit": {
+        "available": true
+      },
+      "counts": {
+        "antibiotic_substrate": 97,
+        "inhibitor": 7,
+        "exclude": 1
+      },
+      "compounds": [
+        {
+          "compound_id": "T0138",
+          "name": "Cefpiramide acid",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0198",
+          "name": "Ceftiofur sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0199",
+          "name": "Cephradine",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0234",
+          "name": "Methicillin sodium salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0366",
+          "name": "Cefadroxil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1001",
+          "name": "Dicloxacillin Sodium hydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1005",
+          "name": "Amoxicillin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1008",
+          "name": "Cephalexin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1031",
+          "name": "Cloxacillin sodium monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1063",
+          "name": "Ticarcillin disodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1122",
+          "name": "Cephalothin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1305",
+          "name": "Ceftazidime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0814L",
+          "name": "Ampicillin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1005L",
+          "name": "Amoxicillin trihydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1218",
+          "name": "Cefoperazone sodium salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1213",
+          "name": "Piperacillin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1224",
+          "name": "Cefuroxime sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1227",
+          "name": "Cefuroxime axetil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1262",
+          "name": "Tazobactam",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0911",
+          "name": "Cefotaxime sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0814",
+          "name": "Ampicillin Trihydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0827",
+          "name": "Cefsulodin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0868",
+          "name": "Cefepime Dihydrochloride Monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0953",
+          "name": "Cefazolin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0932",
+          "name": "Cefixime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1495",
+          "name": "Cefaclor monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1037",
+          "name": "Doripenem monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1023",
+          "name": "Cefoxitin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T3263",
+          "name": "(6R,7S)-Cefminox sodium heptahydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0049",
+          "name": "Azlocillin sodium salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6386",
+          "name": "Ampicillin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6437",
+          "name": "Cefoperazone",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4553",
+          "name": "Procaine penicillin G",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4270",
+          "name": "Cefquinome sulfate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7043",
+          "name": "Cefotetan",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5038",
+          "name": "Cephapirin Sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5022",
+          "name": "Ceforanide",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4998",
+          "name": "Cefpodoxime proxetil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5006",
+          "name": "Flucloxacillin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6438",
+          "name": "Cefoselis Sulfate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7560",
+          "name": "Pivmecillinam hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7120",
+          "name": "Cefetamet pivoxil hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5570",
+          "name": "Cephalothin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7733",
+          "name": "Cefotaxime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8126",
+          "name": "Cefodizime Sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8134",
+          "name": "Cefathiamidine",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6385",
+          "name": "Amoxicillin Sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8062",
+          "name": "Cefazedone",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8063",
+          "name": "Cephapirin Benzathine",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5041",
+          "name": "Faropenem sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6685",
+          "name": "Sulbactam sodium",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8390",
+          "name": "Cefazolin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4405",
+          "name": "Ceftibuten dihydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8620",
+          "name": "piperacillin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6582",
+          "name": "Mezlocillin Sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T14081",
+          "name": "Enmetazobactam",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0141L",
+          "name": "Cefalonium Dihydrate(5575-21-3 free base)",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T12004",
+          "name": "Meropenem trihydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T11265",
+          "name": "Faropenem daloxate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7858",
+          "name": "Ceftezole sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "TQ0056",
+          "name": "Cefuracetime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T19709",
+          "name": "Nitrocefin",
+          "scaffold_class": "exclude",
+          "tier": null,
+          "exclude": true
+        },
+        {
+          "compound_id": "T8302",
+          "name": "Ceftiofur",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T10392",
+          "name": "Aspoxicillin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T14979",
+          "name": "Clavulanate lithium",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T17021",
+          "name": "Tebipenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6622",
+          "name": "Oxacillin sodium monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4984",
+          "name": "Cefozopran hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8261",
+          "name": "Ceftazidime Pentahydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0989",
+          "name": "7-Aminocephalosporanic acid",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0141",
+          "name": "Cephalonium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T13926",
+          "name": "Tigemonam",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T14922",
+          "name": "Cefodizime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T67977",
+          "name": "Cefazaflur",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T124492",
+          "name": "Imipenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T19860",
+          "name": "Clavulanic Acid",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T20022",
+          "name": "Cephalexin monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T67978",
+          "name": "Cefuzonam",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T30787",
+          "name": "Cefetamet sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0868L",
+          "name": "Cefepime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T75295",
+          "name": "Ceftriaxone",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0224",
+          "name": "Meropenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0985",
+          "name": "Oxacillin sodium salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1029",
+          "name": "Aztreonam",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1070",
+          "name": "Cefmetazole sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1118",
+          "name": "Cefprozil monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1312",
+          "name": "Nafcillin sodium monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1190",
+          "name": "Cefmenoxime hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1631",
+          "name": "Sulbactam",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6231",
+          "name": "Tebipenem Pivoxil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4501",
+          "name": "Ceftizoxime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5024",
+          "name": "Cefotiam Hexetil Hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7387",
+          "name": "Ceftaroline fosamil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T22314",
+          "name": "Doripenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T21369",
+          "name": "Mecillinam",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T40475",
+          "name": "Ceftobiprole medocaril",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T20643",
+          "name": "Cefoxitin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1118L",
+          "name": "Cefprozil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T13038",
+          "name": "Sultamicillin",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0133",
+          "name": "Cefdinir",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1223",
+          "name": "Ceftriaxone sodium hydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7142",
+          "name": "Cephalosporin C zinc salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1364",
+          "name": "7-Aminodeacetoxycephalosporanic acid",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6411",
+          "name": "Biapenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1126",
+          "name": "Penicillin V Potassium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        }
+      ],
+      "csv_updated": false
+    },
+    "dock_rank": {
+      "ran_at": "2026-07-25T23:11:13Z",
+      "status": "fallback_no_scores",
+      "tier3_candidates": [
+        "T0138",
+        "T0198",
+        "T0199",
+        "T0234",
+        "T0366",
+        "T1001",
+        "T1005",
+        "T1008"
+      ]
+    },
+    "literature_checks": {
+      "ran_at": "2026-07-25T23:22:40Z",
+      "caps": {
+        "max_compounds": 10,
+        "query_limit": 5,
+        "max_map_per_run": 10
+      },
+      "targets_requested": 3,
+      "search_count": 3,
+      "map_count": 3,
+      "truncated_compound_ids": [],
+      "results": [
+        {
+          "compound_id": "T6385",
+          "name": "Amoxicillin Sodium",
+          "query": "Amoxicillin Sodium beta-lactamase inhibitor TEM-1 nitrocefin",
+          "search": {
+            "status": "ok",
+            "query": "Amoxicillin Sodium beta-lactamase inhibitor TEM-1 nitrocefin",
+            "source": "pmc",
+            "limit": 5,
+            "result_id": "s_a8fe9233",
+            "output": "Found 5 papers  [s_a8fe9233]\n\n  1. Escherichia coli  phylogeny drives co-amoxiclav resistance through variable expression of TEM-1 beta-lactamase\n     William Matlock, Gillian Rodger, Emma Pritchard, Matthew Colpus, Natalia Kapel, Lucinda Barrett, Mar...\n     PMC12484619 \u00b7 PMC \u00b7 2025-09-30\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12484619/\n     \"This study investigated how *E. coli* phylogeny influences co-amoxiclav resistance. Resistance levels are significantly driven by phylogenetic variation in *bla TEM-1* beta-lactamase expression.\"\n\n  2. Effect of Lactamase Inhibitors on the Biosensor Penp during the Measurement of Lactam Antibiotics Concentration\n     Dagoberto Soto, Camila Silva, Cristian Ugalde, Kwok-Yin Wong, Yun-Chung Leung, Lok-Yan So, Max Andre...\n     PMC6427286 \u00b7 biomedrxiv \u00b7 2019-03-12\n     https://doi.org/10.3390/s19051237\n     \"This study investigated the impact of lactamase inhibitors on the PenP biosensor's ability to measure lactam antibiotics. The findings indicate that lactamase inhibitors have a minimal effect on PenP's detection capabilities.\"\n\n  3. In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-Lactamase Inhibitor against Extended-Spectrum Beta-Lactamase-Encoding Genes\n     Dwi Krihariyani, Evy Diah Woelansari, Edy Haryanto, Retno Sasongkowati, Anik Handayati, Sri Sulami E...\n     PMC11229569 \u00b7 PMC \u00b7 2024-06-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11229569/\n     \"This study investigated brazilein from sappan wood as a potential inhibitor of extended-spectrum beta-lactamases. Brazilein showed significant potential to block the beta-lactamase activity of the blaCTX-M gene.\"\n\n  4. In vitro  and  in vivo  Inhibitory Activity of NADPH Against the AmpC BER Class C \u03b2-Lactamase\n     Jung-Hyun Na, Tae Hee Lee, Soo-Bong Park, Min-Kyu Kim, Bo-Gyeong Jeong, Kyung Min Chung, Sun-Shin Ch...\n     PMC6308799 \u00b7 PMC \u00b7 2018-12-21\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6308799/\n     \"NADPH was studied for its inhibitory activity against the AmpC BER class C \u03b2-lactamase. NADPH restored ceftazidime's antibacterial activity in vitro and in vivo, showing potential for novel \u03b2-lactamase inhibitor development.\"\n\n  5. Classification and applicability of new beta-lactamase inhibitors\n     Emilia Cercenado, Francisco Javier Candel\n     PMC12584905 \u00b7 PMC \u00b7 2025-10-24\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12584905/\n     \"This review classifies new beta-lactamase inhibitors and their characteristics. Their applicability depends on the specific beta-lactamase/carbapenemase, microorganism, and resistance mechanisms.\"\n\n[335ms, saved to s_a8fe9233]\n\n\ud83d\udca1 Extract data across these results with: map --from s_a8fe9233 \"your question\"\n[335ms, saved to s_a8fe9233]\n",
+            "elapsed_ms": 1759,
+            "saved_path": "/Users/fio/zeon_hack/pvjthomas/local/literature/T6385/reverse_4383627.txt"
+          },
+          "map": {
+            "status": "ok",
+            "question": "For Amoxicillin Sodium against TEM-1 beta-lactamase in a nitrocefin colorimetric assay: report Ki or IC50 in \u00b5M, the inhibitor concentration(s) used in the assay (\u00b5M; single-point screen concentration preferred, or the full tested range), nitrocefin substrate concentration (\u00b5M), TEM-1 enzyme concentration (nM), PMID or PMCID, and whether the compound acts as an inhibitor or substrate.",
+            "from_results": "s_a8fe9233",
+            "result_id": "m_0d446648",
+            "output": "Map complete: 5/5 tasks succeeded in 1330ms\nResults ID: m_0d446648\nFull results: /.gxl/map_m_0d446648.txt\n\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided research paper content, there is no information regarding the use of Amoxicillin Sodium against TEM-1 beta-lactamase in a nitroc\n  [success] Effect of Lactamase Inhibitors on the Biosensor Penp during the Measur  (PMC6427286)\n    Based on the provided paper content, the text does not contain information regarding a nitrocefin colorimetric assay, IC50/Ki values, TEM-1 enzyme con\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper content, there is no mention of Amoxicillin Sodium, TEM-1 beta-lactamase nitrocefin colorimetric assays, $K_i$, $IC_{50}$,\n  [success] In vitro  and  in vivo  Inhibitory Activity of NADPH Against the AmpC   (PMC6308799)\n    Based on the provided paper, there is no mention of Amoxicillin Sodium, TEM-1 beta-lactamase, or their evaluation in a nitrocefin colorimetric assay. \n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    Based on the provided paper, there is no mention of Amoxicillin Sodium, TEM-1 beta-lactamase, nitrocefin colorimetric assays, $K_i$, $IC_{50}$, enzyme\n\nFull results: /.gxl/map_m_0d446648.txt",
+            "elapsed_ms": 2516
+          },
+          "screen_recommendation": {
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default",
+            "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted."
+          },
+          "ref": {
+            "status": "written",
+            "ref_path": "/Users/fio/zeon_hack/data/compound_literature/refs/T6385.json",
+            "ki_uM": null,
+            "ic50_uM": null,
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default"
+          }
+        },
+        {
+          "compound_id": "T8390",
+          "name": "Cefazolin",
+          "query": "Cefazolin beta-lactamase inhibitor TEM-1 nitrocefin",
+          "search": {
+            "status": "ok",
+            "query": "Cefazolin beta-lactamase inhibitor TEM-1 nitrocefin",
+            "source": "pmc",
+            "limit": 5,
+            "result_id": "s_99b9dbdb",
+            "output": "Found 5 papers  [s_99b9dbdb]\n\n  1. Escherichia coli  phylogeny drives co-amoxiclav resistance through variable expression of TEM-1 beta-lactamase\n     William Matlock, Gillian Rodger, Emma Pritchard, Matthew Colpus, Natalia Kapel, Lucinda Barrett, Mar...\n     PMC12484619 \u00b7 PMC \u00b7 2025-09-30\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12484619/\n     \"This study investigated how *E. coli* phylogeny influences co-amoxiclav resistance. Resistance levels are significantly driven by phylogenetic variation in *bla TEM-1* beta-lactamase expression.\"\n\n  2. Effect of Lactamase Inhibitors on the Biosensor Penp during the Measurement of Lactam Antibiotics Concentration\n     Dagoberto Soto, Camila Silva, Cristian Ugalde, Kwok-Yin Wong, Yun-Chung Leung, Lok-Yan So, Max Andre...\n     PMC6427286 \u00b7 biomedrxiv \u00b7 2019-03-12\n     https://doi.org/10.3390/s19051237\n     \"This study investigated the impact of lactamase inhibitors on the PenP biosensor's ability to measure lactam antibiotics. The findings indicate that lactamase inhibitors have a minimal effect on PenP's detection capabilities.\"\n\n  3. In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-Lactamase Inhibitor against Extended-Spectrum Beta-Lactamase-Encoding Genes\n     Dwi Krihariyani, Evy Diah Woelansari, Edy Haryanto, Retno Sasongkowati, Anik Handayati, Sri Sulami E...\n     PMC11229569 \u00b7 PMC \u00b7 2024-06-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11229569/\n     \"This study investigated brazilein from sappan wood as a potential inhibitor of extended-spectrum beta-lactamases. Brazilein showed significant potential to block the beta-lactamase activity of the blaCTX-M gene.\"\n\n  4. Kinetic and Structural Requirements for Carbapenemase\nActivity in GES-Type \u03b2-Lactamases\n     Nichole\nK. Stewart, Clyde A. Smith, Hilary Frase, D. J. Black, Sergei B. Vakulenko\n     PMC4303295 \u00b7 PMC \u00b7 2015-12-08\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4303295/\n     \"This study investigated the kinetic and structural basis for carbapenemase activity in GES-type \u03b2-lactamases. A single amino acid change significantly enhances carbapenem hydrolysis, primarily by increasing the acylation rate.\"\n\n  5. Classification and applicability of new beta-lactamase inhibitors\n     Emilia Cercenado, Francisco Javier Candel\n     PMC12584905 \u00b7 PMC \u00b7 2025-10-24\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12584905/\n     \"This review classifies new beta-lactamase inhibitors and their characteristics. Their applicability depends on the specific beta-lactamase/carbapenemase, microorganism, and resistance mechanisms.\"\n\n[274ms, saved to s_99b9dbdb]\n\n\ud83d\udca1 Extract data across these results with: map --from s_99b9dbdb \"your question\"\n[274ms, saved to s_99b9dbdb]\n",
+            "elapsed_ms": 1755,
+            "saved_path": "/Users/fio/zeon_hack/pvjthomas/local/literature/T8390/reverse_5934055.txt"
+          },
+          "map": {
+            "status": "ok",
+            "question": "For Cefazolin against TEM-1 beta-lactamase in a nitrocefin colorimetric assay: report Ki or IC50 in \u00b5M, the inhibitor concentration(s) used in the assay (\u00b5M; single-point screen concentration preferred, or the full tested range), nitrocefin substrate concentration (\u00b5M), TEM-1 enzyme concentration (nM), PMID or PMCID, and whether the compound acts as an inhibitor or substrate.",
+            "from_results": "s_99b9dbdb",
+            "result_id": "m_1e6dd5c9",
+            "output": "Map complete: 5/5 tasks succeeded in 2084ms\nResults ID: m_1e6dd5c9\nFull results: /.gxl/map_m_1e6dd5c9.txt\n\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided paper content, there is no mention of Cefazolin, nitrocefin colorimetric assays, $K_i$, $IC_{50}$ values, enzyme concentrations,\n  [success] Effect of Lactamase Inhibitors on the Biosensor Penp during the Measur  (PMC6427286)\n    Based on the provided paper content, there is no information regarding the *Ki*, *IC50*, nitrocefin substrate concentration, or TEM-1 enzyme concentra\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper content, there is no mention of Cefazolin, nitrocefin colorimetric assays, $K_i$, $IC_{50}$ values, inhibitor concentratio\n  [success] Kinetic and Structural Requirements for Carbapenemase\nActivity in GES-  (PMC4303295)\n    Based on the provided paper content, there is no mention of Cefazolin, TEM-1 beta-lactamase, or nitrocefin assays involving TEM-1. The paper focuses e\n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    Based on the provided paper, there is no mention of Cefazolin, TEM-1 beta-lactamase, nitrocefin colorimetric assays, $K_i$, or $\\text{IC}_{50}$ values\n\nFull results: /.gxl/map_m_1e6dd5c9.txt",
+            "elapsed_ms": 4410
+          },
+          "screen_recommendation": {
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default",
+            "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted."
+          },
+          "ref": {
+            "status": "written",
+            "ref_path": "/Users/fio/zeon_hack/data/compound_literature/refs/T8390.json",
+            "ki_uM": null,
+            "ic50_uM": null,
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default"
+          }
+        },
+        {
+          "compound_id": "TQ0056",
+          "name": "Cefuracetime",
+          "query": "Cefuracetime beta-lactamase inhibitor TEM-1 nitrocefin",
+          "search": {
+            "status": "ok",
+            "query": "Cefuracetime beta-lactamase inhibitor TEM-1 nitrocefin",
+            "source": "pmc",
+            "limit": 5,
+            "result_id": "s_04b25677",
+            "output": "Found 5 papers  [s_04b25677]\n\n  1. Escherichia coli  phylogeny drives co-amoxiclav resistance through variable expression of TEM-1 beta-lactamase\n     William Matlock, Gillian Rodger, Emma Pritchard, Matthew Colpus, Natalia Kapel, Lucinda Barrett, Mar...\n     PMC12484619 \u00b7 PMC \u00b7 2025-09-30\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12484619/\n     \"This study investigated how *E. coli* phylogeny influences co-amoxiclav resistance. Resistance levels are significantly driven by phylogenetic variation in *bla TEM-1* beta-lactamase expression.\"\n\n  2. Characterization of Interactions between CTX-M-15 and Clavulanic Acid, Desfuroylceftiofur, Ceftiofur, Ampicillin, and Nitrocefin\n     Parvaneh Ahmadvand, Johannetsy J. Avillan, Jacob A. Lewis, Douglas R. Call, ChulHee Kang\n     PMC9100253 \u00b7 biomedrxiv \u00b7 2022-05-07\n     https://doi.org/10.3390/ijms23095229\n     \"Crystal structures of CTX-M-15 with beta-lactams and clavulanic acid were determined. CTX-M-15 binds beta-lactams similarly but clavulanic acid weakly, with proposed catalytic and inhibition mechanisms.\"\n\n  3. In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-Lactamase Inhibitor against Extended-Spectrum Beta-Lactamase-Encoding Genes\n     Dwi Krihariyani, Evy Diah Woelansari, Edy Haryanto, Retno Sasongkowati, Anik Handayati, Sri Sulami E...\n     PMC11229569 \u00b7 PMC \u00b7 2024-06-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11229569/\n     \"This study investigated brazilein from sappan wood as a potential inhibitor of extended-spectrum beta-lactamases. Brazilein showed significant potential to block the beta-lactamase activity of the blaCTX-M gene.\"\n\n  4. Reversible inactivation of a peptidoglycan transpeptidase by a \u03b2-lactam antibiotic mediated by \u03b2-lactam-ring recyclization in the enzyme active site\n     Zainab Edoo, Michel Arthur, Jean-Emmanuel Hugonnet\n     PMC5567249 \u00b7 biomedrxiv \u00b7 2017-08-22\n     https://doi.org/10.1038/s41598-017-09341-8\n     \"A peptidoglycan transpeptidase was studied to understand its interaction with a \u03b2-lactam antibiotic. The antibiotic's ring can be reformed within the enzyme's active site, leading to reversible inactivation.\"\n\n  5. Classification and applicability of new beta-lactamase inhibitors\n     Emilia Cercenado, Francisco Javier Candel\n     PMC12584905 \u00b7 PMC \u00b7 2025-10-24\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12584905/\n     \"This review classifies new beta-lactamase inhibitors and their characteristics. Their applicability depends on the specific beta-lactamase/carbapenemase, microorganism, and resistance mechanisms.\"\n\n[260ms, saved to s_04b25677]\n\n\ud83d\udca1 Extract data across these results with: map --from s_04b25677 \"your question\"\n[260ms, saved to s_04b25677]\n",
+            "elapsed_ms": 1763,
+            "saved_path": "/Users/fio/zeon_hack/pvjthomas/local/literature/TQ0056/reverse_8771320.txt"
+          },
+          "map": {
+            "status": "ok",
+            "question": "For Cefuracetime against TEM-1 beta-lactamase in a nitrocefin colorimetric assay: report Ki or IC50 in \u00b5M, the inhibitor concentration(s) used in the assay (\u00b5M; single-point screen concentration preferred, or the full tested range), nitrocefin substrate concentration (\u00b5M), TEM-1 enzyme concentration (nM), PMID or PMCID, and whether the compound acts as an inhibitor or substrate.",
+            "from_results": "s_04b25677",
+            "result_id": "m_16903bf0",
+            "output": "Map complete: 5/5 tasks succeeded in 1519ms\nResults ID: m_16903bf0\nFull results: /.gxl/map_m_16903bf0.txt\n\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Sorry, your request was blocked by the model provider's content filters. Please try rephrasing it and submitting it again.\n  [success] Characterization of Interactions between CTX-M-15 and Clavulanic Acid,  (PMC9100253)\n    Based on the provided paper content, there is no mention of \"Cefuracetime\", \"TEM-1 beta-lactamase\", or any related IC50/Ki values for that specific co\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper, there is no mention of Cefuracetime, a nitrocefin colorimetric assay, Ki/IC50 values, inhibitor concentrations, substrate\n  [success] Reversible inactivation of a peptidoglycan transpeptidase by a \u03b2-lacta  (PMC5567249)\n    Based on the provided research paper content, there is no mention of Cefuracetime, TEM-1 beta-lactamase, or their kinetic/inhibitory values (such as K\n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    Based on the provided paper content, there is no mention of \"Cefuracetime\", \"TEM-1 beta-lactamase\", a \"nitrocefin colorimetric assay\", or specific $K_\n\nFull results: /.gxl/map_m_16903bf0.txt",
+            "elapsed_ms": 2384
+          },
+          "screen_recommendation": {
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default",
+            "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted."
+          },
+          "ref": {
+            "status": "written",
+            "ref_path": "/Users/fio/zeon_hack/data/compound_literature/refs/TQ0056.json",
+            "ki_uM": null,
+            "ic50_uM": null,
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default"
+          }
+        }
+      ],
+      "refs_written": [
+        "T6385",
+        "T8390",
+        "TQ0056"
+      ],
+      "refs_skipped_curated": []
+    }
+  },
+  "bridge": {
+    "tanimoto_neighbors": {
+      "ran_at": "2026-07-25T21:43:56Z",
+      "threshold": 0.7,
+      "reference_count": 5,
+      "output": "/Users/fio/zeon_hack/ml/workflows/compound_selection/neighbors.json"
+    },
+    "tier2_analogs": {
+      "ran_at": "2026-07-25T23:04:06Z",
+      "candidates": []
+    },
+    "clustering": {
+      "ran_at": "2026-07-25T23:04:06Z",
+      "tanimoto_threshold": 0.7,
+      "cluster_count": 64,
+      "representatives": [
+        {
+          "compound_id": "T0985",
+          "name": "Oxacillin sodium salt",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T30787",
+          "name": "Cefetamet sodium",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T67978",
+          "name": "Cefuzonam",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T0814",
+          "name": "Ampicillin Trihydrate",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T0366",
+          "name": "Cefadroxil",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T6385",
+          "name": "Amoxicillin Sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1213",
+          "name": "Piperacillin sodium",
+          "cluster_size": 4
+        },
+        {
+          "compound_id": "TQ0056",
+          "name": "Cefuracetime",
+          "cluster_size": 3
+        },
+        {
+          "compound_id": "T8390",
+          "name": "Cefazolin",
+          "cluster_size": 3
+        },
+        {
+          "compound_id": "T1495",
+          "name": "Cefaclor monohydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0133",
+          "name": "Cefdinir",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T20643",
+          "name": "Cefoxitin",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T22314",
+          "name": "Doripenem",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T6231",
+          "name": "Tebipenem Pivoxil",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T1631",
+          "name": "Sulbactam",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T1070",
+          "name": "Cefmetazole sodium",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T0224",
+          "name": "Meropenem",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T19860",
+          "name": "Clavulanic Acid",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T0141",
+          "name": "Cephalonium",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T8302",
+          "name": "Ceftiofur",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T7858",
+          "name": "Ceftezole sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T8063",
+          "name": "Cephapirin Benzathine",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T8126",
+          "name": "Cefodizime Sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T5570",
+          "name": "Cephalothin",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T6437",
+          "name": "Cefoperazone",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T1126",
+          "name": "Penicillin V Potassium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T6411",
+          "name": "Biapenem",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1364",
+          "name": "7-Aminodeacetoxycephalosporanic acid",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T7142",
+          "name": "Cephalosporin C zinc salt",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1223",
+          "name": "Ceftriaxone sodium hydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T13038",
+          "name": "Sultamicillin",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T40475",
+          "name": "Ceftobiprole medocaril",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T21369",
+          "name": "Mecillinam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T7387",
+          "name": "Ceftaroline fosamil",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T5024",
+          "name": "Cefotiam Hexetil Hydrochloride",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4501",
+          "name": "Ceftizoxime",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1312",
+          "name": "Nafcillin sodium monohydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1029",
+          "name": "Aztreonam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T124492",
+          "name": "Imipenem",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T67977",
+          "name": "Cefazaflur",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T13926",
+          "name": "Tigemonam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0989",
+          "name": "7-Aminocephalosporanic acid",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T8261",
+          "name": "Ceftazidime Pentahydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4984",
+          "name": "Cefozopran hydrochloride",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T10392",
+          "name": "Aspoxicillin",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T11265",
+          "name": "Faropenem daloxate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T14081",
+          "name": "Enmetazobactam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4405",
+          "name": "Ceftibuten dihydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T5041",
+          "name": "Faropenem sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T8134",
+          "name": "Cefathiamidine",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T7560",
+          "name": "Pivmecillinam hydrochloride",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T6438",
+          "name": "Cefoselis Sulfate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4998",
+          "name": "Cefpodoxime proxetil",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T5022",
+          "name": "Ceforanide",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T7043",
+          "name": "Cefotetan",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4270",
+          "name": "Cefquinome sulfate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4553",
+          "name": "Procaine penicillin G",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0827",
+          "name": "Cefsulodin sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1262",
+          "name": "Tazobactam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1305",
+          "name": "Ceftazidime",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1063",
+          "name": "Ticarcillin disodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0234",
+          "name": "Methicillin sodium salt",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0199",
+          "name": "Cephradine",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0138",
+          "name": "Cefpiramide acid",
+          "cluster_size": 1
+        }
+      ],
+      "output_local": "/Users/fio/zeon_hack/pvjthomas/local/similarity/cluster_reps.json"
+    }
+  },
+  "merge": {
+    "ran_at": "2026-07-25T23:04:06Z",
+    "tier1_inhibitors": [
+      "T19860",
+      "T1262",
+      "T6685",
+      "T14081"
+    ],
+    "tier2_analogs": [
+      "T14979",
+      "T1631",
+      "T13038",
+      "T1213"
+    ],
+    "tier3_docking_or_diverse": [
+      "T0138",
+      "T0198",
+      "T0199",
+      "T0234",
+      "T0366",
+      "T1001",
+      "T1005",
+      "T1008"
+    ],
+    "tier4_substrate_controls": [
+      "T0985",
+      "T30787",
+      "T67978",
+      "T0814",
+      "T0366",
+      "T6385",
+      "TQ0056",
+      "T8390"
+    ],
+    "plate_draft": "/Users/fio/zeon_hack/ml/workflows/compound_selection/plate_map_r1_draft.json"
+  }
+}

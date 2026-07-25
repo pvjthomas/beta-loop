@@ -17,7 +17,7 @@ local/
 
 ## After adding local files
 
-1. Curate a summary into `data/compound_dossiers.json` or `data/literature/refs/{id}.json`.
+1. Curate a summary into `data/compound_dossiers.json` or `data/compound_literature/refs/{id}.json`.
 2. Ensure dossier `*_storage` fields point at the local path.
 
 ## Bootstrap (optional)

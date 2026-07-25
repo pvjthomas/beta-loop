@@ -1,0 +1,29 @@
+{
+  "compound_id": "T0366",
+  "name": "Cefadroxil",
+  "match": "yes",
+  "support": "weak",
+  "entries": [
+    {
+      "source": "paperclip",
+      "target": "TEM-1",
+      "assay": "nitrocefin",
+      "note": "Reverse literature check for Cefadroxil. Map complete: 5/5 tasks succeeded in 1710ms\nResults ID: m_7e06e050\nFull results: /.gxl/map_m_7e06e050.txt\n\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided paper content, there is no mention of Cefadroxil, nitrocefin colorimetric assays, Ki, IC50 values, inhibitor concentrations, nit\n  [success] Effect of Lactamase Inhibitors on the Biosensor Penp during the Measur  (PMC6427286)\n    Based on the provided paper content, there is no information regarding \"Cefadroxil,\" \"TEM-1 beta-lactamase,\" \"nitrocefin colorimetric assay,\" $K_i$, $\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper, there is no mention of Cefadroxil, nitrocefin colorimetric assays, Ki, IC50 values, inhibitor concentrations, substrate c\n  [success] Characterization of Interactions between CTX-M-15 and Clavulanic Acid,  (PMC9100253)\n    Based on the provided paper, the information regarding Cefadroxil against TEM-1 beta-lactamase is not mentioned. The paper focuses exclusively on the \n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    The provided paper does not contain information about Cefadroxil, TEM-1 beta-lactamase, or nitrocefin colorimetric assays.\n\nFull results: /.gxl/map_m_7e06e050.txt",
+      "paperclip_search_id": "s_ecfea547",
+      "paperclip_map_id": "m_7e06e050",
+      "ki_uM": null,
+      "ic50_uM": null,
+      "pmcid": "PMC12484619"
+    }
+  ],
+  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T0366",
+  "assay_recommendations": {
+    "tem1_nitrocefin": {
+      "screen_conc_uM": 50,
+      "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted.",
+      "screen_conc_source": "project_default",
+      "max_assay_conc_uM": 1000.0,
+      "metric": "relative nitrocefin hydrolysis vs no-inhibitor control"
+    }
+  }
+}

@@ -44,7 +44,7 @@ def save_run_folder(run_name: str = "run"):
 
     # Destination: inside the project data tree, keyed by execution id under
     # data/logs/<eid>/ so it syncs on terminal (and stays clear of the reserved,
-    # non-syncing data/runs/).
+    # non-syncing data/screens/).
     out = project_data_dir(f"logs/{eid}/{safe}_{stamp}", create=True)
     if out is None:
         print_log(
