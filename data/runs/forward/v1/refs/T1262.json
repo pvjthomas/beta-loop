@@ -1,5 +1,6 @@
 {
   "compound_id": "T1262",
+  "name": "Tazobactam",
   "match": "yes",
   "support": "strong",
   "reference_inhibitor": "tazobactam",
@@ -13,5 +14,10 @@
       "pmid_or_chembl_id": ""
     }
   ],
-  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T1262"
+  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T1262",
+  "group_id": "tazobactam",
+  "related_forms": [
+    "T1262"
+  ],
+  "canonical_compound_id": "T1262"
 }

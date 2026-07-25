@@ -1,5 +1,6 @@
 {
   "compound_id": "T14081",
+  "name": "Enmetazobactam",
   "match": "yes",
   "support": "strong",
   "reference_inhibitor": "enmetazobactam",
@@ -13,5 +14,10 @@
       "pmid_or_chembl_id": ""
     }
   ],
-  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T14081"
+  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T14081",
+  "group_id": "enmetazobactam",
+  "related_forms": [
+    "T14081"
+  ],
+  "canonical_compound_id": "T14081"
 }

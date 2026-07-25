@@ -7,6 +7,7 @@ PVJ_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO_ROOT / "data"
 LITERATURE_DIR = DATA_DIR / "literature"
 LITERATURE_REFS_DIR = LITERATURE_DIR / "refs"
+LITERATURE_ONLY_REFS_DIR = LITERATURE_REFS_DIR / "_literature_only"
 COMPOUNDS_CSV = DATA_DIR / "compounds.csv"
 COMPOUND_DOSSIERS_JSON = DATA_DIR / "compound_dossiers.json"
 LITERATURE_SUMMARY_JSON = DATA_DIR / "literature_summary.json"

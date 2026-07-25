@@ -1,45 +1,73 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-25T21:48:41Z",
+  "updated_at": "2026-07-25T22:11:14Z",
   "forward": {
     "library_matches": {
-      "ran_at": "2026-07-25T21:48:41Z",
+      "ran_at": "2026-07-25T22:11:14Z",
       "tanimoto_threshold": 0.85,
       "matches": [
         {
           "reference_name": "clavulanic acid",
           "match_type": "direct",
-          "compound_id": "T14979",
-          "compound_name": "Clavulanate lithium",
-          "tanimoto": 1.0
+          "compound_id": "T19860",
+          "compound_name": "Clavulanic Acid",
+          "tanimoto": 1.0,
+          "group_id": "clavulanate",
+          "canonical_compound_id": "T19860",
+          "related_forms": [
+            "T14979",
+            "T19860"
+          ]
         },
         {
           "reference_name": "sulbactam",
           "match_type": "direct",
-          "compound_id": "T6685",
-          "compound_name": "Sulbactam sodium",
-          "tanimoto": 1.0
+          "compound_id": "T1631",
+          "compound_name": "Sulbactam",
+          "tanimoto": 1.0,
+          "group_id": "sulbactam",
+          "canonical_compound_id": "T1631",
+          "related_forms": [
+            "T1631",
+            "T6685"
+          ]
         },
         {
           "reference_name": "tazobactam",
           "match_type": "direct",
           "compound_id": "T1262",
           "compound_name": "Tazobactam",
-          "tanimoto": 1.0
+          "tanimoto": 1.0,
+          "group_id": "tazobactam",
+          "canonical_compound_id": "T1262",
+          "related_forms": [
+            "T1262"
+          ]
         },
         {
           "reference_name": "enmetazobactam",
           "match_type": "direct",
           "compound_id": "T14081",
           "compound_name": "Enmetazobactam",
-          "tanimoto": 1.0
+          "tanimoto": 1.0,
+          "group_id": "enmetazobactam",
+          "canonical_compound_id": "T14081",
+          "related_forms": [
+            "T14081"
+          ]
         },
         {
           "reference_name": "clavulanate lithium",
           "match_type": "direct",
           "compound_id": "T14979",
           "compound_name": "Clavulanate lithium",
-          "tanimoto": 1.0
+          "tanimoto": 1.0,
+          "group_id": "clavulanate",
+          "canonical_compound_id": "T19860",
+          "related_forms": [
+            "T14979",
+            "T19860"
+          ]
         }
       ],
       "literature_only": []
@@ -47,7 +75,83 @@
     "agent_version": "v1",
     "run_label": "forward-research-agent-v1",
     "manifest": "data/runs/forward/v1/manifest.json",
-    "finalized_at": "2026-07-25T21:48:41Z"
+    "finalized_at": "2026-07-25T22:11:14Z",
+    "compound_groups": [
+      {
+        "group_id": "clavulanate",
+        "canonical_compound_id": "T19860",
+        "compound_ids": [
+          "T14979",
+          "T19860"
+        ],
+        "forms": [
+          {
+            "compound_id": "T14979",
+            "name": "Clavulanate lithium",
+            "form_type": "lithium_salt",
+            "is_canonical": false
+          },
+          {
+            "compound_id": "T19860",
+            "name": "Clavulanic Acid",
+            "form_type": "free_acid",
+            "is_canonical": true
+          }
+        ]
+      },
+      {
+        "group_id": "enmetazobactam",
+        "canonical_compound_id": "T14081",
+        "compound_ids": [
+          "T14081"
+        ],
+        "forms": [
+          {
+            "compound_id": "T14081",
+            "name": "Enmetazobactam",
+            "form_type": "other",
+            "is_canonical": true
+          }
+        ]
+      },
+      {
+        "group_id": "sulbactam",
+        "canonical_compound_id": "T1631",
+        "compound_ids": [
+          "T1631",
+          "T6685"
+        ],
+        "forms": [
+          {
+            "compound_id": "T1631",
+            "name": "Sulbactam",
+            "form_type": "other",
+            "is_canonical": true
+          },
+          {
+            "compound_id": "T6685",
+            "name": "Sulbactam sodium",
+            "form_type": "sodium_salt",
+            "is_canonical": false
+          }
+        ]
+      },
+      {
+        "group_id": "tazobactam",
+        "canonical_compound_id": "T1262",
+        "compound_ids": [
+          "T1262"
+        ],
+        "forms": [
+          {
+            "compound_id": "T1262",
+            "name": "Tazobactam",
+            "form_type": "other",
+            "is_canonical": true
+          }
+        ]
+      }
+    ]
   },
   "reverse": {
     "scaffold_classification": {

@@ -84,7 +84,9 @@ print(json.dumps(run_compound_selection_pipeline(), indent=2))
 
 | Module | Tools |
 |--------|-------|
-| `tools/forward.py` | `seed_reference_inhibitors`, `match_literature_to_library`, `finalize_forward_run`, … |
+| `tools/forward.py` | `seed_reference_inhibitors`, `match_literature_to_library`, `build_compound_groups`, `search_literature_only_forms`, `finalize_forward_run`, … |
+
+See [`tests/FORWARD_TEST_PLAN.md`](tests/FORWARD_TEST_PLAN.md) for v1 test plan (alternate forms, literature caps, clavulanic benchmark).
 | `tools/reverse.py` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score`, … |
 | `tools/bridge.py` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` |
 | `tools/selection.py` | `run_compound_selection_pipeline`, `generate_round1_plate_draft`, … |

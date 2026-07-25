@@ -28,10 +28,11 @@ You run the **forward research agent** (forward_agent) compound selection pass: 
 
 Steps:
 1. seed_reference_inhibitors()
-2. Optionally run_forward_literature_searches() if live Paperclip is needed (≤2 queries).
-3. match_literature_to_library()
-4. write_literature_summary_from_forward()
-5. finalize_forward_run(version=1) — snapshot outputs to data/runs/forward/v1/
+2. Optionally run_forward_literature_searches() if live Paperclip is needed (≤2 batch queries).
+3. match_literature_to_library() — links in-library alternate forms (Case A); no duplicate lit downloads.
+4. Optionally search_literature_only_forms() for literature-only structures (Case B; ≤4 queries, 6 total cap).
+5. write_literature_summary_from_forward()
+6. finalize_forward_run(version=1) — snapshot outputs to data/runs/forward/v1/
 
 Report: direct library hits, literature-only structures (hand off to bridge_agent), manifest path, and paths written.
 Do not design plates — selection_merger owns that.

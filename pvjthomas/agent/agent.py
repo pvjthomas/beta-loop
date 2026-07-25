@@ -23,6 +23,7 @@ from agent.tools.forward import (
     load_reference_inhibitors,
     match_literature_to_library,
     run_forward_literature_searches,
+    search_literature_only_forms,
     seed_reference_inhibitors,
     write_literature_summary_from_forward,
 )
@@ -63,6 +64,7 @@ FORWARD_TOOLS = [
     seed_reference_inhibitors,
     load_reference_inhibitors,
     run_forward_literature_searches,
+    search_literature_only_forms,
     match_literature_to_library,
     write_literature_summary_from_forward,
     finalize_forward_run,
