@@ -21,6 +21,13 @@ An ADK agent prioritizes compounds (Paperclip literature + GNINA docking), a Zeo
 ## Quick start
 
 ```bash
+git clone https://github.com/pvjthomas/beta-loop.git
+cd beta-loop
+
+# Use GitHub noreply email for commits (avoids GH007 push errors)
+git config user.email "pvjthomas@users.noreply.github.com"
+git config user.name "pvjthomas"
+
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env   # add PAPERCLIP_API_KEY, GOOGLE_API_KEY
