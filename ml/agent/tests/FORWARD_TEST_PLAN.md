@@ -335,13 +335,23 @@ PYTHONPATH=. python3 -m pytest tests/ -q --ignore=tests/benchmark/
 # 31 passed
 ```
 
-**What's next**
+**What's next (Philip P0 — top priority)**
 
-1. **Tier 4 Paperclip** — run `tests/benchmark/test_paperclip_clavulanic.py` on nightly or when `PAPERCLIP_API_KEY` is set; harden cost/latency thresholds after 2–3 baseline runs.
-2. **Synthetic kinetics fixture** — `kinetics_r1_synthetic.csv` + unit test for `analyze_kinetics()` (blocks closed-loop demo until R1 CSV lands).
-3. **Promote discovery plate** — copy `data/screens/1/v3/plate_map.json` → `data/plate_map_r1.json` after validation v2 passes (clavulanate ≥50% inhibition).
-4. **GNINA batch** — populate `dock_score` column; re-run merger / swap exploration wells (e.g. T1213 → GNINA top hit).
-5. **Reverse + bridge test tiers** — mirror forward pyramid for `reverse_agent` and `bridge_agent` when those stabilize.
+Live forward pass + Paperclip batch ✓ (2026-07-25). **Screening priors curation blocks discovery plate sign-off.**
+
+1. **Curate inhibitor refs to T19860 quality** — for each forward hit on the v3 plate (T1262, T1631/T6685, T14081, T14979, …):
+   - **`assay_recommendations.tem1_nitrocefin.screen_conc_uM`** — project default 50 µM unless literature/solubility says otherwise
+   - **`entries[]`** — PMID/DOI, Ki/IC50, assay conditions (Paperclip map + full-text)
+   - **`literature_summary.json` → `compound_assay_priors`** — `expected_at_50uM`, role, rationale
+2. **Update `pvjthomas/runs/1/v3/selection_rationale.md`** — cite priors per well before sign-off.
+3. **Then** promote v3 plate → `data/plate_map_r1.json` (after validation v2 passes).
+
+**After P0 (lower priority)**
+
+4. **Tier 4 Paperclip CI** — nightly gate on `test_paperclip_clavulanic.py`.
+5. **Synthetic kinetics fixture** — parallel track while waiting for R1 CSV.
+6. **GNINA batch** — populate `dock_score`; swap exploration wells.
+7. **Reverse + bridge test tiers** — mirror forward pyramid.
 
 ---
 
