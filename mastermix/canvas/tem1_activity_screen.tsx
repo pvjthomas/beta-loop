@@ -55,6 +55,9 @@ const DEFAULT_COMPOUNDS = [
   "Cefpiramide acid", "Ceftiofur sodium", "Cephradine", "Methicillin", "Cefadroxil",
   "Dicloxacillin", "Amoxicillin", "Cephalexin", "Cloxacillin", "Ticarcillin",
 ];
+// Test-run switch: keep compounds 3-10 configured below, but only submit/run the
+// first two compound groups. Set back to 10 to restore the full screen.
+const ACTIVE_COMPOUND_COUNT = 2;
 
 const objName = (o: Obj) => o.displayName || o.name || o.uuid;
 const csv = (xs: string[]) => xs.join(",");
@@ -98,7 +101,8 @@ export default function Tem1ActivityScreen() {
   const [hostErrors, setHostErrors] = useState<string[]>([]);
   const [snapshot, setSnapshot] = useState<string | null>(null);
 
-  const allCompoundWells = COMPOUND_WELLS.flat();
+  const activeCompoundWellsByGroup = COMPOUND_WELLS.slice(0, ACTIVE_COMPOUND_COUNT);
+  const allCompoundWells = activeCompoundWellsByGroup.flat();
   const tem1Wells = [...POSITIVE_WELLS, ...VEHICLE_WELLS, ...allCompoundWells];
   const vehicleAdditionWells = [...NEGATIVE_WELLS, ...VEHICLE_WELLS];
   const allWells = [...POSITIVE_WELLS, ...NEGATIVE_WELLS, ...VEHICLE_WELLS, ...allCompoundWells];
@@ -161,8 +165,8 @@ export default function Tem1ActivityScreen() {
         <div style={STYLE.eyebrow}>TEM-1 beta-lactamase · nitrocefin activity screen</div>
         <h1 style={STYLE.h1}>Single-Plate Activity Screen</h1>
         <p style={STYLE.sub}>
-          Builds a 39-well plate: 3 replicates each of clavulanic-acid positive control, no-TEM-1 negative control,
-          vehicle plus TEM-1 control, and 10 test compounds. Nitrocefin is added last and the plate goes directly to A490 readout.
+          Test-run mode builds a 15-well plate: 3 replicates each of clavulanic-acid positive control, no-TEM-1 negative control,
+          vehicle plus TEM-1 control, and 2 test compounds. Compounds 3-10 remain in the workflow for later re-enable.
         </p>
 
         <h2 style={STYLE.h2}>Run Timing</h2>
@@ -195,7 +199,7 @@ export default function Tem1ActivityScreen() {
             <thead><tr><th style={STYLE.th}>Condition</th><th style={STYLE.th}>Destination wells</th><th style={STYLE.th}>Source plate</th><th style={STYLE.th}>Source well</th></tr></thead>
             <tbody>
               <tr><td style={STYLE.td}>Positive control: clavulanic acid</td><td style={STYLE.td}>{csv(POSITIVE_WELLS)}</td><td style={STYLE.td}>{selectObj(positivePlate, setPositivePlate, sourcePlates)}</td><td style={STYLE.td}><input style={STYLE.field} value={positiveWell} onChange={(e) => setPositiveWell(e.target.value)} /></td></tr>
-              {compounds.map((c, i) => (
+              {compounds.slice(0, ACTIVE_COMPOUND_COUNT).map((c, i) => (
                 <tr key={i}>
                   <td style={STYLE.td}>Compound {i + 1}: {c.label}</td>
                   <td style={STYLE.td}>{csv(COMPOUND_WELLS[i])}</td>
@@ -210,7 +214,7 @@ export default function Tem1ActivityScreen() {
         <h2 style={STYLE.h2}>Plate Layout</h2>
         <div style={STYLE.card}>
           <p style={STYLE.sub}>
-            {chip("Positive", "positive")} {csv(POSITIVE_WELLS)} · {chip("No TEM-1", "negative")} {csv(NEGATIVE_WELLS)} · {chip("Vehicle + TEM-1", "vehicle")} {csv(VEHICLE_WELLS)} · {chip("10 test compounds", "compound")} {allCompoundWells.length} wells
+            {chip("Positive", "positive")} {csv(POSITIVE_WELLS)} · {chip("No TEM-1", "negative")} {csv(NEGATIVE_WELLS)} · {chip("Vehicle + TEM-1", "vehicle")} {csv(VEHICLE_WELLS)} · {chip("2 test compounds", "compound")} {allCompoundWells.length} wells
           </p>
           <table style={STYLE.table}>
             <tbody>
@@ -225,14 +229,14 @@ export default function Tem1ActivityScreen() {
             </tbody>
           </table>
           <p style={{ ...STYLE.sub, marginTop: 10 }}>
-            Per well: 20 uL enzyme/no-enzyme prep + 5 uL compound/control + 25 uL nitrocefin = 50 uL. Estimated tips: 39 x 10 uL transfers and 78 x 120 uL transfers.
+            Per well: 20 uL enzyme/no-enzyme prep + 5 uL compound/control + 25 uL nitrocefin = 50 uL. The workflow batches repeated additions: up to 5 wells per 100 uL enzyme aspiration, 4 wells per 100 uL nitrocefin aspiration, and 2 wells per 10 uL compound/control aspiration.
           </p>
         </div>
 
         {errors.length > 0 && <div style={STYLE.error}>{errors.map((e, i) => <div key={i}>- {e}</div>)}</div>}
 
         <button type="button" style={STYLE.button} onClick={() => { const e = localErrors(); setHostErrors([]); if (e.length === 0) { zeon.submit(values); setSnapshot(live); } }}>
-          {confirmed ? "Setup confirmed" : `Confirm 39-well screen (${waitMin || 0} min pre-incubation)`}
+          {confirmed ? "Setup confirmed" : `Confirm 15-well test screen (${waitMin || 0} min pre-incubation)`}
         </button>
       </div>
     </div>
