@@ -1,0 +1,19 @@
+# β-Loop — Python dependencies
+# Install: python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+
+# Agent
+google-adk
+
+# Literature search (GXL Paperclip)
+gxl-paperclip
+
+# Analysis
+numpy
+pandas
+scipy
+
+# Cheminformatics (compound tagging, fingerprints)
+rdkit
+
+# Optional: docking pipeline (install separately if using GNINA binary)
+# gnina — not on PyPI; see REQUIREMENTS.md
