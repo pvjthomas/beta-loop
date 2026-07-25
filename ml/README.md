@@ -1,77 +1,80 @@
-# ML — Closed-loop agent & analysis
+# ML — Philip (pvjthomas)
 
 **Primary role:** Task 2 — compound screening closed loop (see [ROLES.md](../ROLES.md))
 
-**Detailed plan:** **[CLOSED_LOOP.md](CLOSED_LOOP.md)** — Paperclip → priors → R1 plate map → kinetics analysis → R2 design → IC50 → demo artifacts.
+Philip is both **ML** and **bio/integration** on this team. All Task 2 code lives here — ADK agent, analysis, and compound-selection pipeline. Bio/QC notes and assay docs stay in [pvjthomas/](../pvjthomas/).
 
-Personal workspace for agent code, analysis scripts, and ML notes. Shared deliverables land in `agent/`, `analysis/`, and `data/` at repo root.
+**Execution plan:** **[CLOSED_LOOP.md](CLOSED_LOOP.md)** — current checklist with done items marked.
 
-## Not your job (assumed working)
+## Layout
 
-These are **pvjthomas + Rob/Chang** — do not block your work on them:
+```
+ml/
+├── agent/              # Google ADK coordinator + Phase B sub-agents + tests
+├── analysis/           # kinetics scoring, R2 plate design, plate viz
+├── workflows/
+│   └── compound_selection/   # pipeline state, drafts, forward snapshots
+├── README.md           # this file
+└── CLOSED_LOOP.md      # plan + checklist
+```
 
-- GFP gate go/no-go
-- Minimal validation plate sign-off
-- CFPS / screen hardware execution
-- Wet-lab QC during robot runs
+Selection science rules: [pvjthomas/COMPOUND_SELECTION.md](../pvjthomas/COMPOUND_SELECTION.md)
 
-**Assumption:** enzyme prep and assay controls pass; you ship `plate_map_r1.json` on schedule.
+## Run the agent
 
-## Your lead tasks
+From repo root (`.env` configured for Vertex + Paperclip):
 
-- [x] ML workspace + closed-loop plan ([CLOSED_LOOP.md](CLOSED_LOOP.md))
-- [x] Paperclip CLI + SDK installed and authenticated
-- [x] `pip install -r requirements.txt` (google-adk 2.5.0, numpy, pandas, scipy, rdkit)
-- [x] Paperclip searches → `data/literature/` + `data/literature_summary.json` (hardcoded priors shipped; raw searches pending)
-- [x] **`data/plate_map_r1.json`** — run 1 v1 shipped
-- [ ] ADK agent skeleton (`agent/`) with function tools
-- [ ] `analyze_kinetics()` on synthetic CSV → `analysis/`
-- [ ] After R1: `round_summary_r1.json` + `plate_map_r2.json` within 20 min of export
-- [ ] After R2: IC50 table, heatmaps, `round_summary_r2.json`
-- [ ] Demo dashboard / plots for pitch
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
 
-## Your folder
+# Interactive CLI
+adk run ml/agent
 
-Use this directory for:
+# Web UI
+adk web ml/agent --port 8000
+```
 
-- WIP agent prompts and tool stubs before promoting to `agent/`
-- Analysis notebooks or one-off scripts before promoting to `analysis/`
-- GNINA / RDKit batch job notes
-- Test fixtures (synthetic `kinetics_*.csv`)
+### Offline compound-selection pipeline
 
-## Handoffs you receive
+```bash
+python -c "
+import sys
+sys.path.insert(0, 'ml')
+from agent.tools.selection import run_compound_selection_pipeline
+import json
+print(json.dumps(run_compound_selection_pipeline(), indent=2))
+"
+```
 
-- **H0 (optional):** Philip's compound tiers in `data/compounds.csv` — consume, don't re-tag from scratch
-- **H2:** `data/kinetics_r{N}.csv` from Chang — start analysis within 5 min
+### Tests
 
-## Handoffs you send
+```bash
+.venv/bin/python -m pytest ml/agent/tests/ -q
+```
 
-- **H1:** `data/plate_map_r1.json` / `plate_map_r2.json` → Chang (before each screen)
-- **H3:** `round_summary_r1.json` + proposed `plate_map_r2.json` → team sync (~16:20)
-- **H4:** IC50 table, heatmaps, agent rationale → pvjthomas for pitch
+## Shared data contract
 
-## Interface with pvjthomas
+| Path | Role |
+|------|------|
+| `data/compounds.csv` | Library — consume tier/scaffold tags |
+| `data/literature_summary.json` | Structured priors |
+| `data/plate_map_r*.json` | **Active** robot plates (sign-off before overwrite) |
+| `data/kinetics_r*.csv` | Input from Chang after each screen |
+| `data/round_summary_r*.json` | Agent analysis output |
+| `ml/workflows/compound_selection/` | Drafts + pipeline state (not robot-active) |
 
-Philip owns **compound selection rationale** and **sign-off** on R1/R2 plate science. You own **implementation**:
+See [PLAN.md](../PLAN.md) and [REQUIREMENTS.md](../REQUIREMENTS.md) for schemas.
 
-| Philip | You |
-|--------|-----|
-| Tier buckets, inhibitor vs substrate story | `plate_map_r*.json` encoding |
-| R2 sign-off after R1 | Agent emits R2 proposal + rationale |
-| Demo narrative | Figures, IC50 table, agent logs |
+## Handoffs
 
-See [pvjthomas/COMPOUND_SELECTION.md](../pvjthomas/COMPOUND_SELECTION.md) for selection rules; your job is to encode them in code and files.
+| ID | Direction | Artifact |
+|----|-----------|----------|
+| H1 | ML → Robotics | `data/plate_map_r{N}.json` |
+| H2 | Robotics → ML | `data/kinetics_r{N}.csv` |
+| H3 | ML → Team | `round_summary_r1.json` + proposed `plate_map_r2.json` |
+| H4 | ML → pitch | IC50 table, heatmaps, agent rationale |
 
-## Shared paths
+## Not blocking ML work
 
-| Path | Your files |
-|------|------------|
-| `agent/` | ADK LoopAgent, tools |
-| `analysis/` | kinetics, IC50, plots |
-| `data/literature/` | Paperclip raw outputs |
-| `data/literature_summary.json` | structured priors |
-| `data/plate_map_r*.json` | generate |
-| `data/round_summary_r*.json` | generate |
-| `data/kinetics_r*.csv` | consume |
-
-See [PLAN.md](../PLAN.md) and [REQUIREMENTS.md](../REQUIREMENTS.md) for schemas and install.
+GFP gate, validation plate sign-off, CFPS/screen hardware, and wet-lab QC are shared with [pvjthomas/](../pvjthomas/) bio role — ship analysis code and R2 design paths in parallel.

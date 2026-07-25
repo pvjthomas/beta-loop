@@ -6,9 +6,9 @@
 | Copy | Path |
 |------|------|
 | Versioned rationale (immutable) | [`pvjthomas/runs/1/v1/selection_rationale.md`](runs/1/v1/selection_rationale.md) |
-| Versioned plate map | [`data/runs/1/v1/plate_map.json`](../data/runs/1/v1/plate_map.json) |
+| Versioned plate map | [`data/screens/1/v1/plate_map.json`](../data/screens/1/v1/plate_map.json) |
 | Active plate map (robot) | [`data/plate_map_r1.json`](../data/plate_map_r1.json) |
-| Run manifest | [`data/runs/1/v1/manifest.json`](../data/runs/1/v1/manifest.json) |
+| Run manifest | [`data/screens/1/v1/manifest.json`](../data/screens/1/v1/manifest.json) |
 
 **Library:** TargetMol β-Lactam Compound Library-A (105 compounds) · [`data/compounds.csv`](../data/compounds.csv)
 

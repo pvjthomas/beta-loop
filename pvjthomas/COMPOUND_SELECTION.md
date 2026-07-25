@@ -1,7 +1,7 @@
 # Compound selection plan — Philip
 
 **Owner:** Philip (pvjthomas) · **Task 2:** Compound screening (prioritization + closed-loop design)  
-**Outputs:** `data/compounds.csv`, `data/literature_summary.json`, `data/plate_map_r1.json`, `data/selection/*`, agent priors for R2
+**Outputs:** `data/compounds.csv`, `data/literature_summary.json`, `data/plate_map_r1.json`, `ml/workflows/compound_selection/*`, agent priors for R2
 
 **Implementation:** Phase A (inventory) done · Phase B ADK pipeline in [`agent/`](agent/README.md) · Active robot plate is **validation v2** (not full discovery)
 
@@ -252,7 +252,7 @@ Columns: `name`, `smiles`, `ic50_uM`, `assay`, `source`, `pmid_or_chembl_id`
 
 ### Step F1 — Literature search (Paperclip)
 
-Run and save under `data/literature/`:
+Run and save under `data/compound_literature/`:
 
 ```bash
 paperclip search "TEM-1 beta-lactamase inhibitor IC50 nitrocefin" -n 30
@@ -449,7 +449,7 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 
 | Sub-agent | Tools | Output |
 |-----------|-------|--------|
-| `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library` | `reference_inhibitors.csv`, `literature/refs/*.json` |
+| `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library` | `reference_inhibitors.csv`, `compound_literature/refs/*.json` |
 | `reverse_agent` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score` | `selection/state.json` |
 | `bridge_agent` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` | `similarity/neighbors.json` |
 | `selection_merger` | `merge_tier_assignments`, `generate_round1_plate_draft` | `selection/plate_map_r1_draft.json` |
@@ -466,12 +466,12 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 | `data/compounds.csv` | Full library + tags, tiers | ✓ Phase A |
 | `data/compound_dossiers.json` | Per-compound summaries | ✓ |
 | `data/reference_inhibitors.csv` | Literature / ChEMBL gold set | ✓ seeded |
-| `data/literature/refs/*.json` | Per-compound Paperclip curation | Partial (T19860, T1262, T6685, T14979) |
-| `data/literature/*.txt` | Raw Paperclip batch outputs | Optional |
+| `data/compound_literature/refs/*.json` | Per-compound Paperclip curation | Partial (T19860, T1262, T6685, T14979) |
+| `data/compound_literature/*.txt` | Raw Paperclip batch outputs | Optional |
 | `data/literature_summary.json` | Structured priors for agent | ✓ |
-| `data/selection/plate_map_r1_draft.json` | Agent-generated 24-compound layout | ✓ draft |
+| `ml/workflows/compound_selection/plate_map_r1_draft.json` | Agent-generated 24-compound layout | ✓ draft |
 | `data/plate_map_r1.json` | **Active** robot plate | ✓ v2 validation (8 wells) |
-| `data/runs/1/v1/` | Archived v1 discovery + rationale | ✓ superseded |
+| `data/screens/1/v1/` | Archived v1 discovery + rationale | ✓ superseded |
 | `pvjthomas/runs/1/v1/selection_rationale.md` | Human-readable well picks | ✓ v1 |
 
 ---
@@ -484,7 +484,7 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 4. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
 5. [ ] Reverse: GNINA dock → `dock_score` column (stub only)
 6. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
-7. [x] Merge tiers → `data/selection/plate_map_r1_draft.json` (24 compounds)
+7. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r1_draft.json` (24 compounds)
 8. [x] Validation plate v2 → active `data/plate_map_r1.json`
 9. [ ] Promote discovery draft after validation passes + Philip sign-off
 10. [ ] Share full discovery plate with Chang for screen workflow

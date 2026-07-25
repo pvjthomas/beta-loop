@@ -13,7 +13,7 @@ This repo splits **team contract** (small, final, shared) from **Philip workspac
 | Schemas, plate maps, rationales | Raw Paperclip search/map dumps |
 | Summary JSON/CSV/MD (&lt; ~500 KB) | GNINA poses (`.sdf`, `.pdbqt`), docking logs |
 | Final assay aggregates | Full plate-reader exports (if large) |
-| Structured literature refs | Unstructured literature walls of text |
+| Structured compound literature refs | Unstructured literature walls of text |
 | `compound_dossiers.json` summaries | Notebooks, scratch plots, debug logs |
 
 **`storage` field** in dossiers: `"git"` | `"local"` | `"both"`.
@@ -27,13 +27,19 @@ data/                              # GIT — team contract
 ├── compounds.csv                  # library index (plate lookup, coarse tags)
 ├── compound_dossiers.json         # per-compound summaries (agent + analysis)
 ├── literature_summary.json        # global assay priors
-├── literature/
+├── compound_literature/
 │   └── refs/                      # structured refs per compound (push when populated)
 │       └── {compound_id}.json
 ├── assay/
 │   └── run_{n}_summary.json       # final slopes / pct_inhibition per compound
 ├── plate_map_r1.json              # active plate (robot)
-└── runs/                          # versioned plate snapshots
+└── screens/                       # versioned physical screen snapshots
+
+ml/workflows/compound_selection/  # GIT — Philip ADK pipeline workspace
+├── state.json                     # forward/reverse/bridge/merge state
+├── plate_map_r1_draft.json        # draft plate (pre sign-off)
+├── neighbors.json                 # Tanimoto neighbors (bridge)
+└── snapshots/forward/v{N}/        # frozen per-agent runs
 
 pvjthomas/local/                   # LOCAL — gitignored (see .gitignore)
 ├── literature/{compound_id}/      # raw Paperclip *.txt
@@ -51,12 +57,13 @@ pvjthomas/local/                   # LOCAL — gitignored (see .gitignore)
 |------|:----:|------------|----------|
 | `data/compounds.csv` | ✓ | Philip / ML | Identity, source well, `scaffold_class`, `tier` |
 | `data/compound_dossiers.json` | ✓ | Philip / ML | Per-compound summaries; pointers to local paths |
-| `data/literature/refs/{id}.json` | ✓ | Philip | PMIDs, IC50 rows, mechanism notes |
+| `data/compound_literature/refs/{id}.json` | ✓ | Philip | PMIDs, IC50 rows, mechanism notes |
 | `data/literature_summary.json` | ✓ | ML | Global priors for agent |
 | `data/assay/run_{n}_summary.json` | ✓ | ML | One row per screened compound |
 | `data/kinetics_r{n}.csv` | ○ | Rob → ML | Push only if small (&lt;1 MB); else summary only |
 | `data/plate_map_r*.json` | ✓ | ML | Well assignments |
-| `data/runs/{run}/v{ver}/` | ✓ | ML | Versioned plate snapshots |
+| `data/screens/{run}/v{ver}/` | ✓ | Philip | Versioned physical screen plate snapshots |
+| `ml/workflows/compound_selection/` | ✓ | Philip | ADK pipeline state, drafts, agent snapshots |
 | `pvjthomas/local/literature/` | ✗ | Philip | Raw Paperclip output |
 | `pvjthomas/local/docking/` | ✗ | Philip | GNINA artifacts |
 | `pvjthomas/local/kinetics/` | ✗ | ML | Full reader exports |
@@ -86,7 +93,7 @@ Regenerate or patch dossiers after batch jobs; keep `compounds.csv` columns in s
 
 ```
 Paperclip search  →  pvjthomas/local/literature/T19860/*.txt   (local)
-                  →  data/literature/refs/T19860.json          (git, curated)
+                  →  data/compound_literature/refs/T19860.json          (git, curated)
                   →  compound_dossiers.json literature fields (git)
 
 GNINA dock        →  pvjthomas/local/docking/T19860/          (local)

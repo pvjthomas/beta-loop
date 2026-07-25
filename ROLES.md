@@ -2,8 +2,8 @@
 
 | Member | Folder | Role |
 |--------|--------|------|
-| pvjthomas | [pvjthomas/](pvjthomas/) | Bio / hardware / integration |
-| ML | [ml/](ml/) | ADK agent, Paperclip, kinetics analysis, plate map files |
+| pvjthomas | [pvjthomas/](pvjthomas/) | Philip — bio / hardware / integration |
+| ML | [ml/](ml/) | Philip — ADK agent, Paperclip, kinetics analysis, plate maps |
 | learsch (Rob) | [learsch/](learsch/) | Automation — expression pipeline (proposed) |
 | changhu (Chang) | [changhu/](changhu/) | Automation — screening pipeline (proposed) |
 
@@ -14,7 +14,7 @@ Quick reference for who does what during the hackathon.
 | Task | Lead | Support | Folder / path |
 |------|------|---------|---------------|
 | **1. Program assay on robotics** | Rob + Chang (see folder plans) | pvjthomas (QC) | `workflows/` |
-| **2. Compound screening (closed loop)** | ML (agent + analysis) | pvjthomas (selection sign-off), Chang (robot) | `agent/`, `analysis/`, `data/` |
+| **2. Compound screening (closed loop)** | ML (Philip) | Chang (robot) | `ml/agent/`, `ml/analysis/`, `data/` |
 
 **ML plan:** [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)  
 **Philip's selection science:** [pvjthomas/COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md)
@@ -24,7 +24,7 @@ Quick reference for who does what during the hackathon.
 
 Zeon **skills library** = provided primitives. **Task 1** = compose them into CFPS / GFP / screen workflows. **Task 2** = agent + analysis that drives which compounds go on each plate.
 
-Assign Task 1 vs Task 2 to learsch and changhu at kickoff; pvjthomas spans both (QC + integration + demo).
+Assign Task 1 vs Task 2 to learsch and changhu at kickoff; Philip spans both roles (ML code in `ml/`, bio QC in `pvjthomas/`).
 
 **Update:** Rob and Chang collaborate on Task 1 automation with a proposed upstream/downstream split — they must review and agree (TODO in their folder READMEs).
 
@@ -51,7 +51,7 @@ Assign Task 1 vs Task 2 to learsch and changhu at kickoff; pvjthomas spans both 
 ## Handoff points
 
 ### H0: Paperclip → ML (Phase 0, before hackathon)
-- **Artifact:** `data/literature/*.txt` + `data/literature_summary.json`
+- **Artifact:** `data/compound_literature/*.txt` + `data/literature_summary.json`
 - **Verify:** known inhibitors listed, assay conc/timing documented
 
 ### H1: ML → Robotics (before each screen)

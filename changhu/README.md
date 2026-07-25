@@ -85,7 +85,7 @@ You own the **robot side** of the closed loop:
 - Consume `plate_map_r*.json` from agent
 - Produce `kinetics_r*.csv` for analysis
 
-Agent / IC50 / Paperclip / plate maps → [ML](../ml/README.md). Compound selection sign-off → pvjthomas.
+Agent / IC50 / Paperclip / plate maps → [ml/](../ml/README.md). Validation sign-off → [pvjthomas/](../pvjthomas/).
 
 ---
 

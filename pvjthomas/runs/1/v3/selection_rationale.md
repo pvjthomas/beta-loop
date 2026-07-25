@@ -1,7 +1,7 @@
 # Round 1 / version 3 — discovery plate rationale
 
 **Round:** 1 · **Version:** 3 (`r1-discovery-v3`)  
-**Supersedes:** `data/runs/1/v1/` (single-replicate layout)  
+**Supersedes:** `data/screens/1/v1/` (single-replicate layout)  
 **Active robot plate:** still v2 validation until sign-off → [`data/plate_map_r1.json`](../../../../data/plate_map_r1.json)
 
 See [`data/README.md`](../../../../data/README.md) for rounds vs versions.
@@ -55,13 +55,13 @@ Each `×3` = three adjacent wells with the same `compound_id` and `replicate` 1/
 
 After v2 validation passes and Philip signs off:
 
-1. Copy `data/runs/1/v3/plate_map.json` → `data/plate_map_r1.json`
+1. Copy `data/screens/1/v3/plate_map.json` → `data/plate_map_r1.json`
 2. Update `pvjthomas/selection_rationale.md` to point at this document
 
 ---
 
 ## Related files
 
-- Frozen plate map: [`data/runs/1/v3/plate_map.json`](../../../../data/runs/1/v3/plate_map.json)
-- Draft (same layout): [`data/selection/plate_map_r1_draft.json`](../../../../data/selection/plate_map_r1_draft.json)
+- Frozen plate map: [`data/screens/1/v3/plate_map.json`](../../../../data/screens/1/v3/plate_map.json)
+- Draft (same layout): [`ml/workflows/compound_selection/plate_map_r1_draft.json`](../../../../ml/workflows/compound_selection/plate_map_r1_draft.json)
 - Full compound rationale (v1 prose): [`../v1/selection_rationale.md`](../v1/selection_rationale.md)

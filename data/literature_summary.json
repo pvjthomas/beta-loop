@@ -39,7 +39,7 @@
         "read_nm": 486,
         "duration_min": 10
       },
-      "refs_file": "data/literature/refs/T19860.json",
+      "refs_file": "data/compound_literature/refs/T19860.json",
       "expected_at_50uM": ">=50% inhibition"
     },
     "T14979": {
@@ -67,5 +67,5 @@
       "citation": "Radojkovi\u0107 et al., J Biol Chem 2025 \u2014 TEM-1 clavulanic acid Ki = 0.85 \u00b5M (nitrocefin assay)"
     }
   ],
-  "forward_updated_at": "2026-07-25T22:11:14Z"
+  "forward_updated_at": "2026-07-25T22:15:14Z"
 }

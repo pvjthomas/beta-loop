@@ -19,8 +19,8 @@ See **[PLAN.md](PLAN.md#two-main-tasks)** for details, owners, and how they conn
 
 | Folder | Member | Role |
 |--------|--------|------|
-| [pvjthomas/](pvjthomas/) | pvjthomas | Bio / hardware / integration |
-| [ml/](ml/) | ML | ADK agent, Paperclip, kinetics analysis |
+| [pvjthomas/](pvjthomas/) | Philip | Bio / hardware / integration, assay QC, demo |
+| [ml/](ml/) | Philip | ADK agent, Paperclip, kinetics analysis |
 | [learsch/](learsch/) | Rob (learsch) | Automation — expression (CFPS, GFP) |
 | [changhu/](changhu/) | Chang (changhu) | Automation — screening (assay, reader) |
 
@@ -55,13 +55,11 @@ curl -fsSL https://paperclip.gxl.ai/install.sh | bash
 ## Repo layout
 
 ```
-pvjthomas/      # pvjthomas — bio / hardware / integration
-ml/             # ML — agent + analysis plan (shared code in agent/, analysis/)
-learsch/        # learsch — personal workspace
-changhu/        # changhu — personal workspace
+pvjthomas/      # Philip — bio QC, assay docs, local caches
+ml/             # Philip — ADK agent, analysis, compound-selection pipeline
+learsch/        # Rob — personal workspace
+changhu/        # Chang — personal workspace
 data/           # compounds, plate maps, kinetics, literature (shared)
-agent/          # ADK agent — Task 2 (TODO, shared)
-analysis/       # kinetics + IC50 — Task 2 (TODO, shared)
 workflows/      # Zeon robot workflows — Task 1 (TODO, shared)
 ```
 
