@@ -26,6 +26,7 @@ See **[PLAN.md](PLAN.md#two-main-tasks)** for details, owners, and how they conn
 
 ## Docs
 
+- **[ASSAY_WORKFLOW.md](ASSAY_WORKFLOW.md)** — three-assay pipeline (CFPS → GFP gate → nitrocefin screen)
 - **[PLAN.md](PLAN.md)** — full project plan, timeline, plate designs
 - **[ROLES.md](ROLES.md)** — ownership and handoffs
 - **[REQUIREMENTS.md](REQUIREMENTS.md)** — Paperclip, ADK, Python deps
