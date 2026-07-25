@@ -186,7 +186,7 @@ flowchart LR
   F[forward_agent<br/>literature → library] --> M[selection_merger]
   R[reverse_agent<br/>RDKit tags + GNINA rank] --> M
   B[bridge_agent<br/>Tanimoto + cluster] --> M
-  M --> D[ml/workflows/compound_selection/plate_map_r1_draft.json]
+  M --> D[ml/workflows/compound_selection/plate_map_r2_draft.json]
 ```
 
 | Pass | Agent | Key tools | Writes |
@@ -194,7 +194,7 @@ flowchart LR
 | **Forward** | `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library`, Paperclip | `reference_inhibitors.csv`, `compound_literature/refs/{id}.json` |
 | **Reverse** | `reverse_agent` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score` | `selection/state.json`, optional CSV patch |
 | **Bridge** | `bridge_agent` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` | `similarity/neighbors.json` |
-| **Merge** | `selection_merger` | `merge_tier_assignments`, `generate_round1_plate_draft` | `selection/plate_map_r1_draft.json` |
+| **Merge** | `selection_merger` | `merge_tier_assignments`, `generate_round2_plate_draft` | `selection/plate_map_r2_draft.json` |
 
 **Run offline:** `run_compound_selection_pipeline()` — see [agent README](ml/agent/README.md).
 
@@ -245,7 +245,7 @@ All cross-layer data uses fixed schemas. **Do not change field names after Phase
 | `data/compound_literature/refs/{id}.json` | Paperclip → agent | Philip | Curated per-compound literature |
 | `data/literature_summary.json` | Philip → agent | Philip | Structured priors + forward match metadata |
 | `ml/workflows/compound_selection/state.json` | internal | Philip | Tier assignments from Phase B pipeline |
-| `ml/workflows/compound_selection/plate_map_r1_draft.json` | draft → sign-off | Philip | Agent-generated R1 layout (not robot-active) |
+| `ml/workflows/compound_selection/plate_map_r2_draft.json` | draft → sign-off | Philip | Agent-generated R2 layout (not robot-active) |
 | `ml/workflows/compound_selection/neighbors.json` | internal | Philip | Tanimoto neighbors (Phase B bridge) |
 | `data/plate_map_r1.json` | out → robot | Philip | **Active** Round 1 plate (currently v2 validation) |
 | `data/screens/{round}/{version}/` | archive | Philip | Superseded plate designs + rationale |
@@ -564,7 +564,7 @@ Maps to optional field: `functional_class` (add to `compounds.csv` / `plate_map`
 
 ### Round 1 — Discovery (deferred until validation passes)
 
-Superseded v1 design: [`data/screens/1/v1/plate_map.json`](data/screens/1/v1/plate_map.json) · Draft from Phase B pipeline: [`ml/workflows/compound_selection/plate_map_r1_draft.json`](ml/workflows/compound_selection/plate_map_r1_draft.json)
+Superseded v1 design: [`data/screens/1/v1/plate_map.json`](data/screens/1/v1/plate_map.json) · Draft from Phase B pipeline: [`ml/workflows/compound_selection/plate_map_r2_draft.json`](ml/workflows/compound_selection/plate_map_r2_draft.json)
 
 | Wells | Content |
 |-------|---------|
@@ -641,11 +641,11 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 - [x] Paperclip batch searches → `data/compound_literature/*.txt` (tem1_inhibitors_nitrocefin.txt, clavulanate_class_inhibitors.txt; 2026-07-25)
 - [x] Forward agent test suite — Tier 1–2 (clavulanate fixture), Tier 2.5 (v3 screen subset), Tier 3 (105-compound pipeline + timing); 31 tests in `ml/agent/tests/`
 - [x] **P0 — Run forward agent live** — Paperclip batch + match + finalize v1 on full library (2026-07-25)
-- [x] Phase B pipeline (reverse → bridge → merge) → refreshed `state.json` + `plate_map_r1_draft.json` (2026-07-25)
+- [x] Phase B pipeline (reverse → bridge → merge) → refreshed `state.json` + `plate_map_r2_draft.json` (2026-07-25)
 - [ ] **P0 — Screening priors for every compound on the discovery plate** — Philip documents **recommended screen concentration (µM)**, **expected inhibition at that conc**, and **saved literature evidence** (PMID/DOI, Ki/IC50, assay conditions) in `data/compound_literature/refs/{id}.json` + `data/literature_summary.json` → `compound_assay_priors` (T19860 is the template; T1262, T1631/T6685, T14081, T14979 still thin)
 - [ ] Forward Tier 4 Paperclip integration in CI/nightly (`test_paperclip_clavulanic.py` — manual baseline recorded)
 - [ ] GNINA batch dock → merge `dock_score` into `compounds.csv`
-- [ ] Promote `selection/plate_map_r1_draft.json` → active plate after validation + sign-off
+- [ ] Promote `selection/plate_map_r2_draft.json` → `data/plate_map_r2.json` after validation + sign-off
 - [x] Analysis helpers → `ml/analysis/` (kinetics + plate DR)
 - [x] ML workspace consolidated → `ml/` (agent + analysis + workflows)
 
@@ -775,7 +775,7 @@ ML and you do not need separate hardware blocks except to observe.
 - [ ] Paperclip literature summary used in Round 1 compound selection
 
 ### Stretch
-- [x] Agent generates R1 plate map (draft — `ml/workflows/compound_selection/plate_map_r1_draft.json`)
+- [x] Agent generates R2 plate map (draft — `ml/workflows/compound_selection/plate_map_r2_draft.json`)
 - [ ] Live agent loop during demo
 - [ ] GNINA pose visualization
 - [x] Substrate vs inhibitor auto-classification (Phase A rules + Phase B RDKit tags)

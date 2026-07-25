@@ -344,7 +344,7 @@ Live forward pass + Paperclip batch ✓ (2026-07-25). **Screening priors curatio
    - **`entries[]`** — PMID/DOI, Ki/IC50, assay conditions (Paperclip map + full-text)
    - **`literature_summary.json` → `compound_assay_priors`** — `expected_at_50uM`, role, rationale
 2. **Update `pvjthomas/runs/1/v3/selection_rationale.md`** — cite priors per well before sign-off.
-3. **Then** promote v3 plate → `data/plate_map_r1.json` (after validation v2 passes).
+3. **Then** promote v3 plate → `data/plate_map_r2.json` (after Round 1 validation passes).
 
 **After P0 (lower priority)**
 

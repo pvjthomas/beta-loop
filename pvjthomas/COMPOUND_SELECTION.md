@@ -480,10 +480,10 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 | `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library` | `reference_inhibitors.csv`, `compound_literature/refs/*.json` |
 | `reverse_agent` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score` | `selection/state.json` |
 | `bridge_agent` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` | `similarity/neighbors.json` |
-| `selection_merger` | `merge_tier_assignments`, `generate_round1_plate_draft` | `selection/plate_map_r1_draft.json` |
+| `selection_merger` | `merge_tier_assignments`, `generate_round2_plate_draft` | `selection/plate_map_r2_draft.json` |
 
 **Run offline:** see [`agent/README.md`](agent/README.md).  
-**Promotion:** draft plate does not overwrite active `data/plate_map_r1.json` without Philip sign-off.
+**Promotion:** draft plate does not overwrite active `data/plate_map_r2.json` without Philip sign-off. Round 1 validation remains on `data/plate_map_r1.json`.
 
 ---
 
@@ -497,8 +497,9 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 | `data/compound_literature/refs/*.json` | Per-compound Paperclip curation + **screen conc priors** | Partial — **T19860 gold**; T1262/T14081/T1631/T6685 stubs need PMID evidence |
 | `data/compound_literature/*.txt` | Raw Paperclip batch outputs | Optional |
 | `data/literature_summary.json` | Structured priors for agent | ✓ |
-| `ml/workflows/compound_selection/plate_map_r1_draft.json` | Agent-generated 24-compound layout | ✓ draft |
-| `data/plate_map_r1.json` | **Active** robot plate | ✓ v2 validation (8 wells) |
+| `ml/workflows/compound_selection/plate_map_r2_draft.json` | Agent-generated 24-compound layout | ✓ draft |
+| `data/plate_map_r2.json` | **Active** Round 2 robot plate (after sign-off) | ✗ |
+| `data/plate_map_r1.json` | **Active** Round 1 validation plate (2 compounds) | ✓ |
 | `data/screens/1/v1/` | Archived v1 discovery + rationale | ✓ superseded |
 | `pvjthomas/runs/1/v1/selection_rationale.md` | Human-readable well picks | ✓ v1 |
 
@@ -517,7 +518,7 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 7. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
 8. [ ] Reverse: GNINA dock → `dock_score` column (stub only; defer until forward priors done)
 9. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
-10. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r1_draft.json` (24 compounds)
+10. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r2_draft.json` (24 compounds)
 11. [x] Validation plate v2 → active `data/plate_map_r1.json`
 12. [ ] Promote discovery v3 plate (`data/screens/1/v3/`) after validation passes + **Step F5 complete** + Philip sign-off
 13. [ ] Share full discovery plate with Chang for screen workflow

@@ -37,7 +37,7 @@ data/                              # GIT — team contract
 
 ml/workflows/compound_selection/  # GIT — Philip ADK pipeline workspace
 ├── state.json                     # forward/reverse/bridge/merge state
-├── plate_map_r1_draft.json        # draft plate (pre sign-off)
+├── plate_map_r2_draft.json        # Round 2 draft plate (pre sign-off)
 ├── neighbors.json                 # Tanimoto neighbors (bridge)
 └── snapshots/forward/v{N}/        # frozen per-agent runs
 

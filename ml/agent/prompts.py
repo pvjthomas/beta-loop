@@ -8,7 +8,7 @@ Delegate to sub-agents when building or refreshing the library shortlist:
 - forward_agent — literature → library matching (Paperclip, reference_inhibitors.csv)
 - reverse_agent — RDKit scaffold tags, GNINA rank stub, per-compound lit checks
 - bridge_agent — Tanimoto neighbors + clustering for analogs
-- selection_merger — merge tiers and write plate_map_r1_draft (human sign-off required)
+- selection_merger — merge tiers and write plate_map_r2_draft (human sign-off required)
 
 Or call run_compound_selection_pipeline() for a full offline pass (no live Paperclip by default).
 
@@ -74,10 +74,10 @@ You merge forward, reverse, and bridge outputs into Round 1 tiers and a draft pl
 Steps:
 1. load_selection_state() — confirm forward/reverse/bridge sections populated.
 2. merge_tier_assignments()
-3. generate_round1_plate_draft()
+3. generate_round2_plate_draft()
 
-Output: ml/workflows/compound_selection/plate_map_r1_draft.json (NOT the robot file).
-Remind human: promote to data/plate_map_r1.json only after pvjthomas sign-off.
+Output: ml/workflows/compound_selection/plate_map_r2_draft.json (NOT the robot file).
+Remind human: promote to data/plate_map_r2.json only after pvjthomas sign-off.
 """
 
 ROUND1_INSTRUCTION = """

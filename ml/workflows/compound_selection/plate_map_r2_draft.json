@@ -1,8 +1,8 @@
 {
-  "run": 1,
+  "run": 2,
   "version": "draft",
-  "version_label": "r1-selection-draft",
-  "round": 1,
+  "version_label": "r2-selection-draft",
+  "round": 2,
   "assay_type": "single_point",
   "final_volume_ul": 50,
   "compound_concentration_uM": 50,
@@ -13,7 +13,7 @@
     "T19709"
   ],
   "rationale_doc": "pvjthomas/selection_rationale.md",
-  "layout_notes": "96-well flat bottom: row A = 12 plate controls; rows B\u2013G = 23 test compounds \u00d7 3 triplicate (72 sample wells). Row H empty/reserved. ADK-generated draft \u2014 requires pvjthomas sign-off before replacing data/plate_map_r1.json.",
+  "layout_notes": "96-well flat bottom: row A = 12 plate controls; rows B\u2013G = 23 test compounds \u00d7 3 triplicate (72 sample wells). Row H empty/reserved. ADK-generated draft \u2014 requires pvjthomas sign-off before replacing data/plate_map_r2.json.",
   "wells": {
     "A1": {
       "compound_id": null,

@@ -63,5 +63,5 @@ After v2 validation passes and Philip signs off:
 ## Related files
 
 - Frozen plate map: [`data/screens/1/v3/plate_map.json`](../../../../data/screens/1/v3/plate_map.json)
-- Draft (same layout): [`ml/workflows/compound_selection/plate_map_r1_draft.json`](../../../../ml/workflows/compound_selection/plate_map_r1_draft.json)
+- Draft (same layout): [`ml/workflows/compound_selection/plate_map_r2_draft.json`](../../../../ml/workflows/compound_selection/plate_map_r2_draft.json)
 - Full compound rationale (v1 prose): [`../v1/selection_rationale.md`](../v1/selection_rationale.md)

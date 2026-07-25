@@ -12,7 +12,7 @@ beta_loop_coordinator (root_agent)          ← adk run / adk web entry point
 │   ├── forward_agent                       ← literature → library matching
 │   ├── reverse_agent                       ← RDKit scaffolds, GNINA rank stub
 │   ├── bridge_agent                        ← Tanimoto + clustering
-│   └── selection_merger                    ← tiers → plate_map_r1_draft.json
+│   └── selection_merger                    ← tiers → plate_map_r2_draft.json
 ├── Screening rounds
 │   ├── round1_planner                      ← literature + R1 plate confirmation
 │   └── round2_designer                     ← R1 analysis + R2 design
@@ -24,7 +24,7 @@ beta_loop_coordinator (root_agent)          ← adk run / adk web entry point
     └── analyze_kinetics() / design_next_plate()
 ```
 
-Human-in-the-loop: draft plates live in `ml/workflows/compound_selection/` until sign-off; then promote to `data/plate_map_r1.json`.
+Human-in-the-loop: draft plates live in `ml/workflows/compound_selection/` until sign-off; then promote to `data/plate_map_r2.json`. Round 1 used the simple validation plate in `data/plate_map_r1.json`.
 
 ## Run
 
@@ -72,7 +72,7 @@ print(json.dumps(run_compound_selection_pipeline(), indent=2))
 |------|------|-------------|
 | `data/reference_inhibitors.csv` | ✓ | Gold inhibitor list (forward) |
 | `ml/workflows/compound_selection/state.json` | ✓ | Pipeline state (forward/reverse/bridge/merge) |
-| `ml/workflows/compound_selection/plate_map_r1_draft.json` | ✓ | Draft plate — not for robot |
+| `ml/workflows/compound_selection/plate_map_r2_draft.json` | ✓ | Round 2 draft plate — not for robot |
 | `ml/workflows/compound_selection/neighbors.json` | ✓ | Tanimoto neighbor summary |
 | `data/compound_literature/refs/{id}.json` | ✓ | Per-compound lit refs (forward hits) |
 | `ml/workflows/compound_selection/snapshots/forward/v1/` | ✓ | Frozen forward research agent v1 snapshot + manifest |
@@ -89,7 +89,7 @@ print(json.dumps(run_compound_selection_pipeline(), indent=2))
 See [`tests/FORWARD_TEST_PLAN.md`](tests/FORWARD_TEST_PLAN.md) for v1 test plan. **Status (2026-07-25):** Tier 1–3 complete (31+ tests); live forward + Paperclip batch ✓. **Philip P0:** curate screen concentrations and literature evidence for discovery plate compounds (T19860 is the template).
 | `tools/reverse.py` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score`, … |
 | `tools/bridge.py` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` |
-| `tools/selection.py` | `run_compound_selection_pipeline`, `generate_round1_plate_draft`, … |
+| `tools/selection.py` | `run_compound_selection_pipeline`, `generate_round2_plate_draft`, … |
 | `tools/chem.py` | RDKit helpers (Tanimoto, SMARTS, name normalize) |
 
 ## File contract (screening rounds)

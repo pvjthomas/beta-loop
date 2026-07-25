@@ -2,7 +2,7 @@
 
 Philip's ADK pipeline workspace: forward → reverse → bridge → merger → draft plate.
 
-**Not** a physical screen round — only the **promoted plate** crosses into shared `data/` (`plate_map_r1.json`, `data/screens/`).
+**Not** a physical screen round — only the **promoted plate** crosses into shared `data/` (`plate_map_r2.json`, `data/screens/`). Round 1 was a simple 2-compound validation plate (`data/plate_map_r1.json`).
 
 **Agent code:** [`../../agent/README.md`](../../agent/README.md) · **Strategy:** [`../../COMPOUND_SELECTION.md`](../../COMPOUND_SELECTION.md)
 
@@ -13,8 +13,8 @@ flowchart LR
   F[forward_agent] --> M[selection_merger]
   R[reverse_agent] --> M
   B[bridge_agent] --> M
-  M --> D[plate_map_r1_draft.json]
-  D -->|"Philip sign-off"| P[data/plate_map_r1.json]
+  M --> D[plate_map_r2_draft.json]
+  D -->|"Philip sign-off"| P[data/plate_map_r2.json]
 ```
 
 ## Layout
@@ -22,8 +22,8 @@ flowchart LR
 ```
 workflows/compound_selection/
   state.json                    # live pipeline state (forward/reverse/bridge/merge)
-  plate_map_r1_draft.json       # merger output — NOT for robot until sign-off
-  plate_map_r1_draft.png        # wellmap visualization of draft
+  plate_map_r2_draft.json       # merger output — NOT for robot until sign-off
+  plate_map_r2_draft.png        # wellmap visualization of draft
   neighbors.json                # Tanimoto neighbors (bridge pass)
   snapshots/
     forward/
@@ -42,10 +42,11 @@ Future agent snapshots: `snapshots/reverse/v1/`, `snapshots/bridge/v1/`.
 | Purpose | Path |
 |---------|------|
 | Live pipeline state | `state.json` |
-| Draft plate (pre sign-off) | `plate_map_r1_draft.json` |
+| Draft plate (pre sign-off) | `plate_map_r2_draft.json` |
 | Frozen forward_agent v1 | `snapshots/forward/v1/` |
 | Team curated outputs (shared) | `data/reference_inhibitors.csv`, `data/compound_literature/refs/` |
-| Robot-active plate | `data/plate_map_r1.json` |
+| Robot-active Round 1 plate | `data/plate_map_r1.json` |
+| Robot-active Round 2 plate (after sign-off) | `data/plate_map_r2.json` |
 
 Run `finalize_forward_run(version=1)` after a forward pass to freeze a snapshot under `snapshots/forward/v1/`.
 
@@ -63,4 +64,4 @@ print(run_compound_selection_pipeline())
 
 Or via ADK: `adk run ml/agent` → "Run compound selection pipeline without live Paperclip."
 
-**Promote to robot:** copy draft → `data/plate_map_r1.json` and snapshot → `data/screens/{round}/v{N}/` only after pvjthomas approval.
+**Promote to robot:** copy draft → `data/plate_map_r2.json` and snapshot → `data/screens/{round}/v{N}/` only after pvjthomas approval.

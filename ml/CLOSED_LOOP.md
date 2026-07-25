@@ -30,7 +30,7 @@ Master timeline: [PLAN.md](../PLAN.md).
 | **Reverse / bridge agent tests** | ✗ Not started |
 | **R1 active plate** | ✓ Done — `data/plate_map_r1.json` v2 validation (8 wells) |
 | **Discovery layouts archived** | ✓ Done — `data/screens/1/v1`, `v2`, `v3` |
-| **R1 discovery draft** | ✓ Done — `ml/workflows/compound_selection/plate_map_r1_draft.json` (24 compounds) |
+| **R2 discovery draft** | ✓ Done — `ml/workflows/compound_selection/plate_map_r2_draft.json` (24 compounds) |
 | **Paperclip batch searches** | ✓ Done — `data/compound_literature/*.txt` (2026-07-25) |
 | **Forward Tier 4 Paperclip CI** | ✗ Optional — baseline logged; `test_paperclip_clavulanic.py` manual/nightly |
 | **GNINA docking** | ✗ Stub only — `run_gnina_batch()` not run |
@@ -53,7 +53,7 @@ Master timeline: [PLAN.md](../PLAN.md).
 | 2 | Curate inhibitor refs to T19860 quality (PMID, Ki/IC50, `assay_recommendations`) | T19860 ✓ · T1262/T14081/T1631 stubs |
 | 3 | Set **screen concentration (µM)** + rationale per forward hit | 50 µM project default · document per compound |
 | 4 | Patch `literature_summary.json` → `compound_assay_priors` for v3 plate | Partial |
-| 5 | Sign off discovery plate → promote to `data/plate_map_r1.json` | Blocked on steps 1–4 + validation v2 |
+| 5 | Sign off discovery plate → promote to `data/plate_map_r2.json` | Blocked on steps 1–4 + R1 validation |
 
 ---
 
@@ -93,7 +93,7 @@ data/literature_summary.json                    ✓
 data/literature/*.txt                           ✗ batch searches pending
 data/plate_map_r1.json                          ✓ v2 validation (active)
 data/screens/1/v1/                              ✓ archived discovery
-ml/workflows/compound_selection/plate_map_r1_draft.json  ✓ 24-compound draft
+ml/workflows/compound_selection/plate_map_r2_draft.json  ✓ 24-compound draft
 data/plate_map_r2.json                          ✗ after R1
 data/kinetics_r1.csv                            ✗ Chang
 data/kinetics_r2.csv                            ✗ Chang
@@ -132,7 +132,7 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 ### Round 1 plates
 - [x] **`data/plate_map_r1.json`** — v2 validation (clavulanic @ 50 µM)
 - [x] Discovery v1 archived — `data/screens/1/v1/`
-- [x] Phase B draft — `ml/workflows/compound_selection/plate_map_r1_draft.json`
+- [x] Phase B draft — `ml/workflows/compound_selection/plate_map_r2_draft.json`
 - [ ] Promote 24-compound discovery plate after validation sign-off
 
 ### Analysis

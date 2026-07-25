@@ -1,4 +1,4 @@
-"""Merge selection outputs into tiers and Round 1 plate draft."""
+"""Merge selection outputs into tiers and Round 2 plate draft."""
 
 from __future__ import annotations
 
@@ -171,8 +171,8 @@ def _add_triplicate_block(
             col += 1
 
 
-def generate_round1_plate_draft() -> dict[str, Any]:
-    """Build ml/workflows/compound_selection/plate_map_r1_draft.json from merged tiers (requires human sign-off to promote)."""
+def generate_round2_plate_draft() -> dict[str, Any]:
+    """Build ml/workflows/compound_selection/plate_map_r2_draft.json from merged tiers (requires human sign-off to promote)."""
     merge_result = merge_tier_assignments()
     tiers = merge_result["tiers"]
 
@@ -187,10 +187,10 @@ def generate_round1_plate_draft() -> dict[str, Any]:
     unique_compounds = len({w["compound_id"] for w in sample_wells})
 
     plate = {
-        "run": 1,
+        "run": 2,
         "version": "draft",
-        "version_label": "r1-selection-draft",
-        "round": 1,
+        "version_label": "r2-selection-draft",
+        "round": 2,
         "assay_type": "single_point",
         "final_volume_ul": 50,
         "compound_concentration_uM": 50,
@@ -202,7 +202,7 @@ def generate_round1_plate_draft() -> dict[str, Any]:
         "layout_notes": (
             f"96-well flat bottom: row A = 12 plate controls; rows B–G = {unique_compounds} test compounds "
             f"× {REPLICATES_PER_COMPOUND} triplicate ({len(sample_wells)} sample wells). "
-            "Row H empty/reserved. ADK-generated draft — requires pvjthomas sign-off before replacing data/plate_map_r1.json."
+            "Row H empty/reserved. ADK-generated draft — requires pvjthomas sign-off before replacing data/plate_map_r2.json."
         ),
         "wells": wells,
     }
@@ -250,7 +250,7 @@ def run_compound_selection_pipeline(
     steps.append(assign_tier2_analogs(max_analogs=4))
     steps.append(cluster_library())
 
-    draft = generate_round1_plate_draft()
+    draft = generate_round2_plate_draft()
     steps.append(draft)
 
     return {

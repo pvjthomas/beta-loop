@@ -32,8 +32,8 @@ flowchart TB
     F[forward_agent] --> M[selection_merger]
     R[reverse_agent] --> M
     B[bridge_agent] --> M
-    M --> DRAFT[plate_map_r1_draft.json]
-    DRAFT -->|Philip sign-off| R1MAP[data/plate_map_r1.json]
+    M --> DRAFT[plate_map_r2_draft.json]
+  DRAFT -->|Philip sign-off| R2MAP[data/plate_map_r2.json]
   end
 
   subgraph r1 [Phase 2 — Round 1]
@@ -92,7 +92,7 @@ flowchart TB
   F --> M
   R --> M
   B --> M
-  M --> DRAFT[ml/workflows/compound_selection/plate_map_r1_draft.json]
+  M --> DRAFT[ml/workflows/compound_selection/plate_map_r2_draft.json]
   R1P --> ACTIVE[data/plate_map_r1.json]
   R2D --> R2[data/plate_map_r2.json]
 ```
@@ -112,7 +112,7 @@ flowchart LR
   F[forward_agent<br/>literature → library] --> M[selection_merger]
   R[reverse_agent<br/>RDKit tags + GNINA rank] --> M
   B[bridge_agent<br/>Tanimoto + cluster] --> M
-  M --> D[ml/workflows/compound_selection/plate_map_r1_draft.json]
+  M --> D[ml/workflows/compound_selection/plate_map_r2_draft.json]
 ```
 
 With promotion gate ([`ml/workflows/compound_selection/README.md`](ml/workflows/compound_selection/README.md)):
@@ -122,8 +122,8 @@ flowchart LR
   F[forward_agent] --> M[selection_merger]
   R[reverse_agent] --> M
   B[bridge_agent] --> M
-  M --> D[plate_map_r1_draft.json]
-  D -->|"Philip sign-off"| P[data/plate_map_r1.json]
+  M --> D[plate_map_r2_draft.json]
+  D -->|"Philip sign-off"| P[data/plate_map_r2.json]
 ```
 
 | Pass | Agent | Key output |
@@ -131,7 +131,7 @@ flowchart LR
 | Forward | `forward_agent` | `reference_inhibitors.csv`, `compound_literature/refs/*.json` |
 | Reverse | `reverse_agent` | `selection/state.json`, optional `dock_score` |
 | Bridge | `bridge_agent` | `similarity/neighbors.json` |
-| Merge | `selection_merger` | `plate_map_r1_draft.json` |
+| Merge | `selection_merger` | `plate_map_r2_draft.json` |
 
 ---
 

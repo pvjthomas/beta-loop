@@ -44,7 +44,7 @@ def _patch_agent_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[
         "WORKFLOW_COMPOUND_SELECTION": workflow,
         "SELECTION_STATE_JSON": workflow / "state.json",
         "LITERATURE_SEARCH_CACHE_JSON": workflow / "literature_search_cache.json",
-        "SELECTION_DRAFT_PLATE_JSON": workflow / "plate_map_r1_draft.json",
+        "SELECTION_DRAFT_PLATE_JSON": workflow / "plate_map_r2_draft.json",
         "SIMILARITY_NEIGHBORS_JSON": workflow / "neighbors.json",
         "FORWARD_SNAPSHOTS_DIR": forward_snapshots,
         "FORWARD_RUNS_DIR": forward_snapshots,

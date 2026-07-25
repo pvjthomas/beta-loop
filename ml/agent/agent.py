@@ -42,7 +42,7 @@ from agent.tools.reverse import (
     run_gnina_batch,
 )
 from agent.tools.selection import (
-    generate_round1_plate_draft,
+    generate_round2_plate_draft,
     load_selection_state,
     merge_tier_assignments,
     run_compound_selection_pipeline,
@@ -84,7 +84,7 @@ BRIDGE_TOOLS = [
 MERGE_TOOLS = [
     load_selection_state,
     merge_tier_assignments,
-    generate_round1_plate_draft,
+    generate_round2_plate_draft,
     run_compound_selection_pipeline,
 ]
 COMPOUND_TOOLS = [load_compounds, prioritize_compounds]
@@ -118,7 +118,7 @@ bridge_agent = Agent(
 selection_merger = Agent(
     model=MODEL,
     name="selection_merger",
-    description="Merge forward/reverse/bridge into tiers and Round 1 plate draft.",
+    description="Merge forward/reverse/bridge into tiers and Round 2 plate draft.",
     instruction=MERGE_INSTRUCTION,
     tools=[*MERGE_TOOLS, load_compounds],
 )
