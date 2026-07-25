@@ -298,6 +298,61 @@ Implementation: `agent/tools/literature.py` (see repo structure below).
 
 ---
 
+## Assay validation — prove it works before Round 1
+
+**Antibiotics are not required to validate TEM-1 activity.** The nitrocefin assay only needs enzyme + substrate + controls. See [pvjthomas/NITROCEFIN_ASSAY.md](pvjthomas/NITROCEFIN_ASSAY.md).
+
+### What each proof demonstrates
+
+| Check | Wells | Pass criterion |
+|-------|-------|----------------|
+| **Enzyme active** | Vehicle (enzyme + DMSO + nitrocefin) | Strong, linear A490 slope |
+| **Signal is enzymatic** | No-enzyme (no TEM-1 + nitrocefin) | Slope ≈ background (flat) |
+| **Inhibition detectable** | Clavulanic acid T19860 @ 50 µM + enzyme | Slope << vehicle (≥50% inhibition) |
+| **GFP gate** (upstream) | CFPS TEM-1 fusion | sfGFP >> no-template |
+
+If vehicle is flat → enzyme prep or nitrocefin problem. If clavulanate doesn’t inhibit → assay conditions wrong. **Do not run Round 1 until all three nitrocefin checks pass.**
+
+### Minimal validation plate (run first — ~10 wells)
+
+Use before committing a full Round 1 plate. Can be a corner of the same 96-well plate or a dedicated short run.
+
+| Well(s) | Role | compound_id | Expected |
+|---------|------|-------------|----------|
+| 4× | **Vehicle** | — (DMSO matched) | Max slope |
+| 2× | **No-enzyme** | — | Min slope |
+| 2× | **Positive control** | T19860 Clavulanic Acid @ 50 µM | Strong inhibition |
+| 2× | *optional* | T1005 Ampicillin @ 50 µM | Low inhibition (substrate demo — **not required for pass**) |
+
+**Pass gate:** Philip signs off → Chang may run Round 1.
+
+---
+
+## Library: inhibitors vs antibiotics
+
+The [TargetMol library](https://docs.google.com/spreadsheets/d/1b7UuzXu_auqoq2hFT81X3UuRutxxWxZW/edit?gid=372192752#gid=372192752) (`data/compounds.csv`) is **mostly β-lactam antibiotics** (~97), not inhibitor hits.
+
+### What is clavulanate?
+
+**Clavulanic acid (clavulanate)** is a β-lactam **β-lactamase inhibitor** — it inactivates TEM-1 (suicide inhibitor), restoring penicillins in combo therapy (e.g. amoxicillin + clavulanate). In-library: **T19860**, **T14979**.
+
+### Two compound classes in the library
+
+| Class | Mechanism vs TEM-1 | Nitrocefin assay | Examples in library |
+|-------|-------------------|------------------|---------------------|
+| **β-lactamase inhibitor** | Blocks enzyme | **High % inhibition** | Clavulanate, sulbactam, tazobactam, enmetazobactam |
+| **β-lactam antibiotic** | **Substrate** — TEM-1 hydrolyzes it | **Low % inhibition** (usually) | Ampicillin, cephalexin, meropenem, ceftazidime, … |
+
+### Why include antibiotics in Round 1 (but not validation)?
+
+| Question | Answer |
+|----------|--------|
+| Need antibiotics to prove assay works? | **No** — vehicle + no-enzyme + clavulanate is enough |
+| Include antibiotics in Round 1? | **Yes, ~8 as substrate controls** — shows assay discriminates inhibitor vs substrate |
+| Hunt for inhibitors among antibiotics? | **No** — prioritize Tier 1 inhibitors; antibiotics are intentional negatives |
+
+---
+
 ## Plate designs
 
 ### Round 1 — Discovery (single-point @ 50 µM)

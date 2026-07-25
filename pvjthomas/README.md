@@ -4,11 +4,14 @@
 
 **Compound selection plan:** **[COMPOUND_SELECTION.md](COMPOUND_SELECTION.md)** — forward (literature → library), reverse (library → literature), Tanimoto bridge, tiers → Round 1 plate.
 
+**Assay cheat sheet:** **[NITROCEFIN_ASSAY.md](NITROCEFIN_ASSAY.md)** — what to mix, order, controls, DMSO rule, scoring.
+
 Personal workspace for scripts, notes, and artifacts you own. Shared deliverables still land in `data/`, `agent/`, and `workflows/` at repo root.
 
 ## Your lead tasks
 
-| **Compound selection pipeline** (see [COMPOUND_SELECTION.md](COMPOUND_SELECTION.md)) — library in [`data/compounds.csv`](../data/compounds.csv) |
+- [ ] **Compound selection** — see [COMPOUND_SELECTION.md](COMPOUND_SELECTION.md); library in [`data/compounds.csv`](../data/compounds.csv)
+- [ ] Sign off **minimal validation plate** before Round 1
 - [ ] Kickoff organizer questions
 - [ ] GFP / activity gate thresholds
 - [ ] Demo narrative & pitch

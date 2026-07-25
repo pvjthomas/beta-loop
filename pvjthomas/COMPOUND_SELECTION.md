@@ -46,6 +46,46 @@ Compound transfers use **plate + row + col** from `data/compounds.csv` (columns 
 
 ---
 
+## Clavulanate vs antibiotics (read this first)
+
+### What is clavulanate?
+
+**Clavulanic acid (clavulanate)** is a β-lactamase **inhibitor**, not a standalone antibiotic. It binds/inactivates TEM-1 so penicillins can work (e.g. Augmentin = amoxicillin + clavulanate). In our library: **T19860**, **T14979**.
+
+### Are antibiotics in the library?
+
+**Yes — ~97 of 105 compounds are β-lactam antibiotics** (penicillins, cephalosporins, carbapenems). TEM-1 **hydrolyzes** them as **substrates**; they usually do **not** inhibit nitrocefin cleavage.
+
+### Do we need antibiotics to prove the assay works?
+
+**No.**
+
+| To validate assay | Required? | Wells |
+|-------------------|-----------|-------|
+| TEM-1 + nitrocefin + vehicle | **Yes** | Max activity |
+| No-enzyme control | **Yes** | Background |
+| Clavulanate positive | **Yes** | Inhibition works |
+| Antibiotic (e.g. ampicillin) | **No** | Optional demo only |
+
+Run the **minimal validation plate** (below) before Round 1. Antibiotics enter at **Round 1 selection** as substrate controls, not for assay QC.
+
+---
+
+## Minimal validation plate (before Round 1)
+
+Philip sign-off required before Chang runs discovery screen. See also [NITROCEFIN_ASSAY.md](NITROCEFIN_ASSAY.md).
+
+| Well(s) | Role | compound_id | Pass if… |
+|---------|------|-------------|----------|
+| 4× | Vehicle | — | Strong A490 slope |
+| 2× | No-enzyme | — | Flat / background |
+| 2× | Positive | T19860 @ 50 µM | ≥50% inhibition vs vehicle |
+| 2× | Optional substrate demo | T1005 Ampicillin @ 50 µM | Low inhibition (not required to pass) |
+
+**If clavulanate fails but vehicle works → fix assay (DMSO, conc, pre-incubation), not compound selection.**
+
+---
+
 ## Goal
 
 Build a **defensible Round 1 plate (~24 compounds)** and **rules for Round 2** such that:
