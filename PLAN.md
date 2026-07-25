@@ -74,7 +74,8 @@ By demo time we show a real **data → decision → better result** story:
 | **Phase B** — ADK forward / reverse / bridge pipeline | ✓ scaffold in [`ml/agent/`](ml/agent/) |
 | [`data/reference_inhibitors.csv`](data/reference_inhibitors.csv) | ✓ seeded |
 | [`ml/workflows/compound_selection/state.json`](ml/workflows/compound_selection/state.json) + draft plate | ✓ offline run |
-| Forward Paperclip batch searches | Partial — T19860 curated; batch optional |
+| Forward Paperclip batch searches | ✓ batch `.txt` in `data/compound_literature/` + `state.forward.literature_searches` (2026-07-25) |
+| Forward agent test suite (Tier 1–3) | ✓ 31 tests — clavulanate fixture → v3 screen subset (23) → full library (105); see [`ml/agent/tests/FORWARD_TEST_PLAN.md`](ml/agent/tests/FORWARD_TEST_PLAN.md) |
 | GNINA docking + `dock_score` column | ✗ stub only |
 | Promote draft → active `plate_map_r1.json` for discovery | ✗ needs sign-off |
 
@@ -636,7 +637,9 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 - [x] `data/reference_inhibitors.csv` seeded
 - [x] Validation plate v2 → active `data/plate_map_r1.json`
 - [x] Discovery v1 archived → `data/screens/1/v1/`
-- [ ] Paperclip batch searches → `data/compound_literature/*.txt` (optional; per-compound refs partially done)
+- [x] Paperclip batch searches → `data/compound_literature/*.txt` (tem1_inhibitors_nitrocefin.txt, clavulanate_class_inhibitors.txt; 2026-07-25)
+- [x] Forward agent test suite — Tier 1–2 (clavulanate fixture), Tier 2.5 (v3 screen subset), Tier 3 (105-compound pipeline + timing); 31 tests in `ml/agent/tests/`
+- [ ] Forward Tier 4 Paperclip integration in CI/nightly (`test_paperclip_clavulanic.py` — manual baseline recorded)
 - [ ] GNINA batch dock → merge `dock_score` into `compounds.csv`
 - [ ] Promote `selection/plate_map_r1_draft.json` → active plate after validation + sign-off
 - [x] Analysis helpers → `ml/analysis/` (kinetics + plate DR)
@@ -840,19 +843,21 @@ zeon_hack/
 
 ---
 
-## Next actions (Sat ~14:46)
+## Next actions (Sat ~16:05)
 
 | Who | Task | Status |
 |-----|------|--------|
 | Rob + Chang | CFPS on hardware + GFP gate | In progress |
 | Rob + Chang | Run **validation v2** screen when gate passes | Blocked on GFP |
 | Philip | Validation sign-off after clavulanate inhibits | Waiting on data |
-| Philip | Optional: Paperclip batch → `data/compound_literature/*.txt` | Partial (T19860 done) |
+| Philip | Paperclip batch → `data/compound_literature/*.txt` | ✓ (2026-07-25) |
+| Philip | Forward agent tests (Tier 1–3) | ✓ 31 passing — clavulanate → screen v3 → full library |
+| Philip | Promote discovery v3 plate (`data/screens/1/v3/`) after validation passes | Draft ready; blocked on assay QC |
 | Philip | GNINA batch dock → `dock_score` column | Stub only |
-| Philip | Promote discovery draft after validation passes | Draft ready in `ml/workflows/compound_selection/` |
 | Philip | Demo outline + kickoff answers | In progress |
-| Philip (ML) | Synthetic kinetics test + demo plots while waiting for R1 CSV | In progress |
+| Philip (ML) | Synthetic kinetics test + demo plots while waiting for R1 CSV | **Next** |
+| Philip (ML) | Forward Tier 4 Paperclip CI/nightly (optional) | Baseline logged; wire into CI when ready |
 
 ---
 
-*Last updated: 2026-07-25 ~14:46 PT*
+*Last updated: 2026-07-25 ~16:05 PT*
