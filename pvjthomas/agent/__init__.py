@@ -7,4 +7,11 @@ for path in (REPO_ROOT, PVJ_ROOT):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
-from . import agent
+# ADK discovers root_agent via lazy import in agent.py — do not import agent here
+# (would load google-adk and all tools at package import time).
+
+def __getattr__(name: str):
+    if name == "root_agent":
+        from . import agent as agent_module
+        return agent_module.root_agent
+    raise AttributeError(name)

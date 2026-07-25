@@ -30,7 +30,10 @@
         "type": "TEM-1 nitrocefin inhibition",
         "enzyme_nM": 0.25,
         "nitrocefin_uM": 200,
-        "inhibitor_uM_range": [0.25, 5],
+        "inhibitor_uM_range": [
+          0.25,
+          5
+        ],
         "buffer": "100 mM NaPi pH 6.4",
         "temperature_C": 25,
         "read_nm": 486,
@@ -49,7 +52,10 @@
   "library_notes": {
     "total_compounds": 105,
     "mostly_antibiotic_substrates": true,
-    "exclude_compound_ids": ["T19709"]
+    "exclude_compound_ids": [
+      "T19709"
+    ],
+    "forward_match_count": 5
   },
   "sources": [
     {
@@ -57,7 +63,8 @@
       "pmid": "40484381",
       "pmcid": "PMC12274840",
       "doi": "10.1016/j.jbc.2025.110347",
-      "citation": "Radojković et al., J Biol Chem 2025 — TEM-1 clavulanic acid Ki = 0.85 µM (nitrocefin assay)"
+      "citation": "Radojkovi\u0107 et al., J Biol Chem 2025 \u2014 TEM-1 clavulanic acid Ki = 0.85 \u00b5M (nitrocefin assay)"
     }
-  ]
+  ],
+  "forward_updated_at": "2026-07-25T21:44:03Z"
 }

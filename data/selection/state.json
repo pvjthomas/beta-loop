@@ -1,0 +1,1189 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-07-25T21:44:03Z",
+  "forward": {
+    "library_matches": {
+      "ran_at": "2026-07-25T21:44:03Z",
+      "tanimoto_threshold": 0.85,
+      "matches": [
+        {
+          "reference_name": "clavulanic acid",
+          "match_type": "direct",
+          "compound_id": "T14979",
+          "compound_name": "Clavulanate lithium",
+          "tanimoto": 1.0
+        },
+        {
+          "reference_name": "sulbactam",
+          "match_type": "direct",
+          "compound_id": "T6685",
+          "compound_name": "Sulbactam sodium",
+          "tanimoto": 1.0
+        },
+        {
+          "reference_name": "tazobactam",
+          "match_type": "direct",
+          "compound_id": "T1262",
+          "compound_name": "Tazobactam",
+          "tanimoto": 1.0
+        },
+        {
+          "reference_name": "enmetazobactam",
+          "match_type": "direct",
+          "compound_id": "T1262",
+          "compound_name": "Tazobactam",
+          "tanimoto": 1.0
+        },
+        {
+          "reference_name": "clavulanate lithium",
+          "match_type": "direct",
+          "compound_id": "T14979",
+          "compound_name": "Clavulanate lithium",
+          "tanimoto": 1.0
+        }
+      ],
+      "literature_only": []
+    }
+  },
+  "reverse": {
+    "scaffold_classification": {
+      "ran_at": "2026-07-25T21:44:03Z",
+      "rdkit": {
+        "available": true
+      },
+      "counts": {
+        "antibiotic_substrate": 97,
+        "inhibitor": 7,
+        "exclude": 1
+      },
+      "compounds": [
+        {
+          "compound_id": "T0138",
+          "name": "Cefpiramide acid",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0198",
+          "name": "Ceftiofur sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0199",
+          "name": "Cephradine",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0234",
+          "name": "Methicillin sodium salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0366",
+          "name": "Cefadroxil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1001",
+          "name": "Dicloxacillin Sodium hydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1005",
+          "name": "Amoxicillin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1008",
+          "name": "Cephalexin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1031",
+          "name": "Cloxacillin sodium monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1063",
+          "name": "Ticarcillin disodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1122",
+          "name": "Cephalothin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1305",
+          "name": "Ceftazidime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0814L",
+          "name": "Ampicillin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1005L",
+          "name": "Amoxicillin trihydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1218",
+          "name": "Cefoperazone sodium salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1213",
+          "name": "Piperacillin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1224",
+          "name": "Cefuroxime sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1227",
+          "name": "Cefuroxime axetil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1262",
+          "name": "Tazobactam",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0911",
+          "name": "Cefotaxime sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0814",
+          "name": "Ampicillin Trihydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0827",
+          "name": "Cefsulodin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0868",
+          "name": "Cefepime Dihydrochloride Monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0953",
+          "name": "Cefazolin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0932",
+          "name": "Cefixime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1495",
+          "name": "Cefaclor monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1037",
+          "name": "Doripenem monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1023",
+          "name": "Cefoxitin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T3263",
+          "name": "(6R,7S)-Cefminox sodium heptahydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0049",
+          "name": "Azlocillin sodium salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6386",
+          "name": "Ampicillin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6437",
+          "name": "Cefoperazone",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4553",
+          "name": "Procaine penicillin G",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4270",
+          "name": "Cefquinome sulfate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7043",
+          "name": "Cefotetan",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5038",
+          "name": "Cephapirin Sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5022",
+          "name": "Ceforanide",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4998",
+          "name": "Cefpodoxime proxetil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5006",
+          "name": "Flucloxacillin sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6438",
+          "name": "Cefoselis Sulfate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7560",
+          "name": "Pivmecillinam hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7120",
+          "name": "Cefetamet pivoxil hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5570",
+          "name": "Cephalothin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7733",
+          "name": "Cefotaxime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8126",
+          "name": "Cefodizime Sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8134",
+          "name": "Cefathiamidine",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6385",
+          "name": "Amoxicillin Sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8062",
+          "name": "Cefazedone",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8063",
+          "name": "Cephapirin Benzathine",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5041",
+          "name": "Faropenem sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6685",
+          "name": "Sulbactam sodium",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8390",
+          "name": "Cefazolin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4405",
+          "name": "Ceftibuten dihydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8620",
+          "name": "piperacillin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6582",
+          "name": "Mezlocillin Sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T14081",
+          "name": "Enmetazobactam",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0141L",
+          "name": "Cefalonium Dihydrate(5575-21-3 free base)",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T12004",
+          "name": "Meropenem trihydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T11265",
+          "name": "Faropenem daloxate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7858",
+          "name": "Ceftezole sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "TQ0056",
+          "name": "Cefuracetime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T19709",
+          "name": "Nitrocefin",
+          "scaffold_class": "exclude",
+          "tier": null,
+          "exclude": true
+        },
+        {
+          "compound_id": "T8302",
+          "name": "Ceftiofur",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T10392",
+          "name": "Aspoxicillin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T14979",
+          "name": "Clavulanate lithium",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T17021",
+          "name": "Tebipenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6622",
+          "name": "Oxacillin sodium monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4984",
+          "name": "Cefozopran hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T8261",
+          "name": "Ceftazidime Pentahydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0989",
+          "name": "7-Aminocephalosporanic acid",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0141",
+          "name": "Cephalonium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T13926",
+          "name": "Tigemonam",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T14922",
+          "name": "Cefodizime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T67977",
+          "name": "Cefazaflur",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T124492",
+          "name": "Imipenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T19860",
+          "name": "Clavulanic Acid",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T20022",
+          "name": "Cephalexin monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T67978",
+          "name": "Cefuzonam",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T30787",
+          "name": "Cefetamet sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0868L",
+          "name": "Cefepime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T75295",
+          "name": "Ceftriaxone",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0224",
+          "name": "Meropenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0985",
+          "name": "Oxacillin sodium salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1029",
+          "name": "Aztreonam",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1070",
+          "name": "Cefmetazole sodium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1118",
+          "name": "Cefprozil monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1312",
+          "name": "Nafcillin sodium monohydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1190",
+          "name": "Cefmenoxime hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1631",
+          "name": "Sulbactam",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6231",
+          "name": "Tebipenem Pivoxil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T4501",
+          "name": "Ceftizoxime",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T5024",
+          "name": "Cefotiam Hexetil Hydrochloride",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7387",
+          "name": "Ceftaroline fosamil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T22314",
+          "name": "Doripenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T21369",
+          "name": "Mecillinam",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T40475",
+          "name": "Ceftobiprole medocaril",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T20643",
+          "name": "Cefoxitin",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1118L",
+          "name": "Cefprozil",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T13038",
+          "name": "Sultamicillin",
+          "scaffold_class": "inhibitor",
+          "tier": 1,
+          "exclude": false
+        },
+        {
+          "compound_id": "T0133",
+          "name": "Cefdinir",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1223",
+          "name": "Ceftriaxone sodium hydrate",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T7142",
+          "name": "Cephalosporin C zinc salt",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1364",
+          "name": "7-Aminodeacetoxycephalosporanic acid",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T6411",
+          "name": "Biapenem",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        },
+        {
+          "compound_id": "T1126",
+          "name": "Penicillin V Potassium",
+          "scaffold_class": "antibiotic_substrate",
+          "tier": 3,
+          "exclude": false
+        }
+      ],
+      "csv_updated": false
+    },
+    "dock_rank": {
+      "ran_at": "2026-07-25T21:44:03Z",
+      "status": "fallback_no_scores",
+      "tier3_candidates": [
+        "T0138",
+        "T0198",
+        "T0199",
+        "T0234",
+        "T0366",
+        "T1001",
+        "T1005",
+        "T1008"
+      ]
+    }
+  },
+  "bridge": {
+    "tanimoto_neighbors": {
+      "ran_at": "2026-07-25T21:43:56Z",
+      "threshold": 0.7,
+      "reference_count": 5,
+      "output": "/Users/fio/zeon_hack/data/similarity/neighbors.json"
+    },
+    "tier2_analogs": {
+      "ran_at": "2026-07-25T21:44:03Z",
+      "candidates": []
+    },
+    "clustering": {
+      "ran_at": "2026-07-25T21:44:03Z",
+      "tanimoto_threshold": 0.7,
+      "cluster_count": 64,
+      "representatives": [
+        {
+          "compound_id": "T0985",
+          "name": "Oxacillin sodium salt",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T30787",
+          "name": "Cefetamet sodium",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T67978",
+          "name": "Cefuzonam",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T0814",
+          "name": "Ampicillin Trihydrate",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T0366",
+          "name": "Cefadroxil",
+          "cluster_size": 5
+        },
+        {
+          "compound_id": "T6385",
+          "name": "Amoxicillin Sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1213",
+          "name": "Piperacillin sodium",
+          "cluster_size": 4
+        },
+        {
+          "compound_id": "TQ0056",
+          "name": "Cefuracetime",
+          "cluster_size": 3
+        },
+        {
+          "compound_id": "T8390",
+          "name": "Cefazolin",
+          "cluster_size": 3
+        },
+        {
+          "compound_id": "T1495",
+          "name": "Cefaclor monohydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0133",
+          "name": "Cefdinir",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T20643",
+          "name": "Cefoxitin",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T22314",
+          "name": "Doripenem",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T6231",
+          "name": "Tebipenem Pivoxil",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T1631",
+          "name": "Sulbactam",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T1070",
+          "name": "Cefmetazole sodium",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T0224",
+          "name": "Meropenem",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T19860",
+          "name": "Clavulanic Acid",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T0141",
+          "name": "Cephalonium",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T8302",
+          "name": "Ceftiofur",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T7858",
+          "name": "Ceftezole sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T8063",
+          "name": "Cephapirin Benzathine",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T8126",
+          "name": "Cefodizime Sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T5570",
+          "name": "Cephalothin",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T6437",
+          "name": "Cefoperazone",
+          "cluster_size": 2
+        },
+        {
+          "compound_id": "T1126",
+          "name": "Penicillin V Potassium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T6411",
+          "name": "Biapenem",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1364",
+          "name": "7-Aminodeacetoxycephalosporanic acid",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T7142",
+          "name": "Cephalosporin C zinc salt",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1223",
+          "name": "Ceftriaxone sodium hydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T13038",
+          "name": "Sultamicillin",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T40475",
+          "name": "Ceftobiprole medocaril",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T21369",
+          "name": "Mecillinam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T7387",
+          "name": "Ceftaroline fosamil",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T5024",
+          "name": "Cefotiam Hexetil Hydrochloride",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4501",
+          "name": "Ceftizoxime",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1312",
+          "name": "Nafcillin sodium monohydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1029",
+          "name": "Aztreonam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T124492",
+          "name": "Imipenem",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T67977",
+          "name": "Cefazaflur",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T13926",
+          "name": "Tigemonam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0989",
+          "name": "7-Aminocephalosporanic acid",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T8261",
+          "name": "Ceftazidime Pentahydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4984",
+          "name": "Cefozopran hydrochloride",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T10392",
+          "name": "Aspoxicillin",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T11265",
+          "name": "Faropenem daloxate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T14081",
+          "name": "Enmetazobactam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4405",
+          "name": "Ceftibuten dihydrate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T5041",
+          "name": "Faropenem sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T8134",
+          "name": "Cefathiamidine",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T7560",
+          "name": "Pivmecillinam hydrochloride",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T6438",
+          "name": "Cefoselis Sulfate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4998",
+          "name": "Cefpodoxime proxetil",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T5022",
+          "name": "Ceforanide",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T7043",
+          "name": "Cefotetan",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4270",
+          "name": "Cefquinome sulfate",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T4553",
+          "name": "Procaine penicillin G",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0827",
+          "name": "Cefsulodin sodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1262",
+          "name": "Tazobactam",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1305",
+          "name": "Ceftazidime",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T1063",
+          "name": "Ticarcillin disodium",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0234",
+          "name": "Methicillin sodium salt",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0199",
+          "name": "Cephradine",
+          "cluster_size": 1
+        },
+        {
+          "compound_id": "T0138",
+          "name": "Cefpiramide acid",
+          "cluster_size": 1
+        }
+      ],
+      "output_local": "/Users/fio/zeon_hack/pvjthomas/local/similarity/cluster_reps.json"
+    }
+  },
+  "merge": {
+    "ran_at": "2026-07-25T21:44:03Z",
+    "tier1_inhibitors": [
+      "T19860",
+      "T1262",
+      "T6685",
+      "T14081"
+    ],
+    "tier2_analogs": [
+      "T14979",
+      "T1631",
+      "T13038",
+      "T1213"
+    ],
+    "tier3_docking_or_diverse": [
+      "T0138",
+      "T0198",
+      "T0199",
+      "T0234",
+      "T0366",
+      "T1001",
+      "T1005",
+      "T1008"
+    ],
+    "tier4_substrate_controls": [
+      "T0985",
+      "T30787",
+      "T67978",
+      "T0814",
+      "T0366",
+      "T6385",
+      "TQ0056",
+      "T8390"
+    ],
+    "plate_draft": "/Users/fio/zeon_hack/data/selection/plate_map_r1_draft.json"
+  }
+}
