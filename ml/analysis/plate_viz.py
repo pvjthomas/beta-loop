@@ -11,7 +11,7 @@ import wellmap
 DEFAULT_COLS_BY_ASSAY = {
     "dose_response": ["compound_id", "concentration_uM"],
 }
-DEFAULT_COLS = ["role", "compound_id"]
+DEFAULT_COLS = ["role"]
 
 
 def plate_map_to_df(plate_map: dict) -> pd.DataFrame:

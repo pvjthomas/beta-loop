@@ -23,7 +23,7 @@
   "compound_assay_priors": {
     "T19860": {
       "name": "Clavulanic Acid",
-      "role": "positive_control",
+      "role": "pos-ctrl-clavaculin",
       "recommended_screen_uM": 50,
       "literature_ki_uM_tem1": 0.85,
       "literature_assay": {

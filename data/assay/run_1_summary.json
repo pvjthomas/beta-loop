@@ -10,13 +10,13 @@
   "source_csv_git": null,
   "normalization": {
     "vehicle_wells": ["A1", "A2", "A3", "A4"],
-    "positive_control_wells": ["A5", "A6", "A7", "A8"]
+    "pos-ctrl-clavaculin_wells": ["A5", "A6", "A7", "A8"]
   },
   "literature_ref": "data/compound_literature/refs/T19860.json",
   "compounds": {
     "T19860": {
       "wells": ["A5", "A6", "A7", "A8"],
-      "role": "positive_control",
+      "role": "pos-ctrl-clavaculin",
       "concentration_uM": 50,
       "literature_ki_uM_tem1": 0.85,
       "expected": ">=50% inhibition vs vehicle",

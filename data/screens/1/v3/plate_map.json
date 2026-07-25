@@ -53,37 +53,37 @@
     "A7": {
       "compound_id": null,
       "concentration_uM": 0,
-      "role": "no_enzyme",
+      "role": "no_tem1",
       "bucket": "control"
     },
     "A8": {
       "compound_id": null,
       "concentration_uM": 0,
-      "role": "no_enzyme",
+      "role": "no_tem1",
       "bucket": "control"
     },
     "A9": {
       "compound_id": null,
       "concentration_uM": 0,
-      "role": "no_enzyme",
+      "role": "no_tem1",
       "bucket": "control"
     },
     "A10": {
       "compound_id": null,
       "concentration_uM": 0,
-      "role": "no_enzyme",
+      "role": "no_tem1",
       "bucket": "control"
     },
     "A11": {
       "compound_id": "T19860",
       "concentration_uM": 50,
-      "role": "positive_control",
+      "role": "pos-ctrl-clavaculin",
       "bucket": "control"
     },
     "A12": {
       "compound_id": "T19860",
       "concentration_uM": 50,
-      "role": "positive_control",
+      "role": "pos-ctrl-clavaculin",
       "bucket": "control"
     },
     "B1": {

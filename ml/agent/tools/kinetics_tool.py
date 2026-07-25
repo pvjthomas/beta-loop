@@ -13,7 +13,7 @@ def analyze_kinetics(round_number: int = 1) -> dict[str, Any]:
     """Analyze kinetics CSV for a screening round and write round_summary JSON.
 
     Reads data/kinetics_r{N}.csv and data/plate_map_r{N}.json, computes
-    percent inhibition vs vehicle/no-enzyme controls, and writes
+    percent inhibition vs vehicle/no-TEM-1 controls, and writes
     data/round_summary_r{N}.json.
 
     Args:

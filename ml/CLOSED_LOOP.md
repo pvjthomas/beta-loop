@@ -91,7 +91,7 @@ ml/analysis/                                    ✓ (no ic50.py yet)
 Hit scoring (implemented in `ml/analysis/kinetics.py`):
 
 ```
-pct_inhibition = 100 * (1 - (slope_sample - slope_no_enzyme) / (slope_vehicle - slope_no_enzyme))
+pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - slope_no_tem1))
 ```
 
 - **Hit @ R1:** ≥ 50% inhibition at 50 µM

@@ -5,7 +5,7 @@
 **Frozen snapshot:** [`ml/workflows/compound_selection/snapshots/forward/v1/`](../../../ml/workflows/compound_selection/snapshots/forward/v1/manifest.json)  
 **Owner:** Philip (pvjthomas)
 
-This document is the v1 test plan for the forward pass (literature → library matching). Implementation: grouping + caps in `tools/forward.py`; pytest suite not yet added.
+This document is the v1 test plan for the forward pass (literature → library matching). Implementation: grouping + caps in `tools/forward.py`; pytest suite in `ml/agent/tests/` (run with `.venv/bin/python`, not system Python).
 
 ---
 
@@ -298,9 +298,9 @@ ml/agent/tests/
 
 | Query | elapsed_ms | result_id | limit | notes |
 |-------|------------|-----------|-------|-------|
-| TEM-1 beta-lactamase inhibitor IC50 nitrocefin | | | 15 | |
-| clavulanic acid sulbactam tazobactam … | | | 15 | |
-| TEM-1 clavulanic acid Ki nitrocefin (benchmark) | | | 15 | |
+| TEM-1 beta-lactamase inhibitor IC50 nitrocefin | 2087 | s_299e06c9 | 15 | batch query 1 (2026-07-25) |
+| clavulanic acid sulbactam tazobactam … | ~2030 | — | 15 | batch query 2; part of forward_batch (total 4058 ms for 2 queries) |
+| TEM-1 clavulanic acid Ki nitrocefin (benchmark) | 1970 | s_143e3578 | 15 | PMID 40484381 / DOI 10.1016/j.jbc.2025.110347 in top-15 |
 
 ---
 

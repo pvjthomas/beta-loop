@@ -11,9 +11,9 @@ CONTROL_WELLS = {
     "A1": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
     "A2": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
     "A3": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
-    "A4": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
-    "A5": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
-    "A6": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control", "bucket": "control"},
+    "A4": {"compound_id": None, "concentration_uM": 0, "role": "no_tem1", "bucket": "control"},
+    "A5": {"compound_id": None, "concentration_uM": 0, "role": "no_tem1", "bucket": "control"},
+    "A6": {"compound_id": "T19860", "concentration_uM": 50, "role": "pos-ctrl-clavaculin", "bucket": "control"},
 }
 
 

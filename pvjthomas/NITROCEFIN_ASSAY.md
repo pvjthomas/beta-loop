@@ -25,7 +25,7 @@ Nitrocefin is a chromogenic β-lactam **substrate**. TEM-1 cleaves it → color 
 | # | Component | Typical volume | Notes |
 |---|-----------|----------------|--------|
 | 1 | **Assay buffer (BLB)** | fills to volume | Na phosphate ~pH 7; often 0.1% BSA |
-| 2 | **TEM-1 enzyme** | ~20 µL | CFPS prep or purified dilution; **omit in no-enzyme wells** |
+| 2 | **TEM-1 enzyme** | ~20 µL | CFPS prep or purified dilution; **omit in no-TEM-1 wells** |
 | 3 | **Compound or vehicle** | 5 µL | From 10 mM DMSO library stock; working soln = **10× final conc** |
 | 4 | **Nitrocefin** | 25 µL | Add **last** — starts reaction |
 
@@ -58,7 +58,7 @@ Nitrocefin addition **starts the clock**. Staggered adds = staggered kinetics �
 | Well type | Enzyme | Compound | Expected slope |
 |-----------|--------|----------|----------------|
 | **Vehicle** | ✓ | DMSO only (matched %) | **Max** — normalization reference |
-| **No-enzyme** | ✗ | DMSO or compound | **Min** — background |
+| **No-TEM-1** | ✗ | DMSO or compound | **Min** — background |
 | **Positive** (recommended) | ✓ | Clavulanic acid @ 50 µM (T19860) | Strongly reduced vs vehicle |
 
 ---
@@ -70,11 +70,11 @@ Nitrocefin addition **starts the clock**. Staggered adds = staggered kinetics �
 | Well(s) | Role | What to prove |
 |---------|------|----------------|
 | 4× Vehicle | enzyme + DMSO + nitrocefin | TEM-1 is **active** |
-| 2× No-enzyme | nitrocefin, no enzyme | Signal is **enzymatic** |
+| 2× No-TEM-1 | nitrocefin, no enzyme | Signal is **enzymatic** |
 | 2× Clavulanate (T19860) @ 50 µM | known inhibitor | **Inhibition** is detectable |
 | 2× Ampicillin (T1005) @ 50 µM | *optional* | Substrate shows **low** inhibition (not required to pass) |
 
-**Pass gate:** vehicle slope high · no-enzyme flat · clavulanate ≥50% inhibition → Philip signs off → Round 1 OK.
+**Pass gate:** vehicle slope high · no-TEM-1 flat · clavulanate ≥50% inhibition → Philip signs off → Round 1 OK.
 
 ---
 
@@ -116,7 +116,7 @@ Nitrocefin addition **starts the clock**. Staggered adds = staggered kinetics �
 Normalize each well to controls on the **same plate**:
 
 ```
-pct_inhibition = 100 × (1 - (slope_sample - slope_no_enzyme) / (slope_vehicle - slope_no_enzyme))
+pct_inhibition = 100 × (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - slope_no_tem1))
 ```
 
 | Result | Interpretation |
@@ -132,7 +132,7 @@ pct_inhibition = 100 × (1 - (slope_sample - slope_no_enzyme) / (slope_vehicle -
 From `data/plate_map_r{N}.json`:
 
 - `compound_id` → lookup `plate`, `row`, `col` in [`data/compounds.csv`](../data/compounds.csv)
-- `role`: `sample` | `vehicle` | `no_enzyme` | `positive_control`
+- `role`: `sample` | `vehicle` | `no_tem1` | `pos-ctrl-clavaculin`
 - `concentration_uM`: final in-well concentration after all mixing
 
 ---

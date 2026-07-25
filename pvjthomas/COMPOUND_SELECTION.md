@@ -65,7 +65,7 @@ Compound transfers use **plate + row + col** from `data/compounds.csv` (columns 
 | To validate assay | Required? | Wells |
 |-------------------|-----------|-------|
 | TEM-1 + nitrocefin + vehicle | **Yes** | Max activity |
-| No-enzyme control | **Yes** | Background |
+| No-TEM-1 control | **Yes** | Background |
 | Clavulanate positive | **Yes** | Inhibition works |
 | Antibiotic (e.g. ampicillin) | **No** | Optional demo only |
 
@@ -80,7 +80,7 @@ Philip sign-off required before Chang runs discovery screen. See also [NITROCEFI
 | Well(s) | Role | compound_id | Pass if… |
 |---------|------|-------------|----------|
 | 4× | Vehicle | — | Strong A490 slope |
-| 2× | No-enzyme | — | Flat / background |
+| 2× | No-TEM-1 | — | Flat / background |
 | 2× | Positive | T19860 @ 50 µM | ≥50% inhibition vs vehicle |
 | 2× | Optional substrate demo | T1005 Ampicillin @ 50 µM | Low inhibition (not required to pass) |
 
@@ -101,13 +101,13 @@ Maps to `plate_map` field: `role`.
 | `role` | Enzyme? | Compound | Expected A490 slope | # wells (typical) | Purpose | Notes |
 |--------|---------|----------|---------------------|-------------------|---------|-------|
 | `vehicle` | ✓ | DMSO matched | **Max** | 4–6 | Normalization reference | _TBD: exact DMSO %_ |
-| `no_enzyme` | ✗ | DMSO or sample matched | **Min** | 2–4 | Background / non-enzymatic | _TBD_ |
-| `positive_control` | ✓ | Clavulanate T19860 @ 50 µM | **Low** | 1–2 | Prove inhibition detectable | _TBD: backup positive (sulbactam?)_ |
+| `no_tem1` | ✗ | DMSO or sample matched | **Min** | 2–4 | Background / non-enzymatic | _TBD_ |
+| `pos-ctrl-clavaculin` | ✓ | Clavulanate T19860 @ 50 µM | **Low** | 1–2 | Prove inhibition detectable | _TBD: backup positive (sulbactam?)_ |
 | `validation_substrate` | ✓ | e.g. Ampicillin T1005 @ 50 µM | **High** (like vehicle) | 0–2 | Optional substrate demo | Validation plate only |
 | _stub_ | | | | | | |
 
-**Minimal validation plate** uses: `vehicle`, `no_enzyme`, `positive_control`, optional `validation_substrate`.  
-**Round 1 / R2** require: `vehicle`, `no_enzyme`, `positive_control` on every screen plate.
+**Minimal validation plate** uses: `vehicle`, `no_tem1`, `pos-ctrl-clavaculin`, optional `validation_substrate`.  
+**Round 1 / R2** require: `vehicle`, `no_tem1`, `pos-ctrl-clavaculin` on every screen plate.
 
 ---
 
@@ -414,7 +414,7 @@ Use **substrate-class antibiotics as intentional negatives** in R1 — judges lo
 | **Tier 3 — docking** | 8 | GNINA top among non-Tier-1 |
 | **Tier 4 — substrate controls** | 8 | Diverse antibiotic_substrate (expect <10% inhibition) |
 
-Plus on-plate controls (vehicle, no-enzyme, clavulanate duplicate) — see [PLAN.md](../PLAN.md).
+Plus on-plate controls (vehicle, no-TEM-1, clavulanate duplicate) — see [PLAN.md](../PLAN.md).
 
 ### 5. Round 2 decision rules (for agent / Philip sign-off)
 

@@ -26,12 +26,12 @@ def _pick_column(df: pd.DataFrame, candidates: list[str]) -> str | None:
 def compute_pct_inhibition(
     slope_sample: float,
     slope_vehicle: float,
-    slope_no_enzyme: float,
+    slope_no_tem1: float,
 ) -> float:
-    denom = slope_vehicle - slope_no_enzyme
+    denom = slope_vehicle - slope_no_tem1
     if denom == 0:
         return 0.0
-    return 100.0 * (1.0 - (slope_sample - slope_no_enzyme) / denom)
+    return 100.0 * (1.0 - (slope_sample - slope_no_tem1) / denom)
 
 
 def analyze_kinetics_file(
@@ -74,15 +74,15 @@ def analyze_kinetics_file(
     vehicle_slopes = [
         s for w, s in slopes.items() if roles.get(w, {}).get("role") == "vehicle"
     ]
-    no_enzyme_slopes = [
-        s for w, s in slopes.items() if roles.get(w, {}).get("role") == "no_enzyme"
+    no_tem1_slopes = [
+        s for w, s in slopes.items() if roles.get(w, {}).get("role") == "no_tem1"
     ]
     slope_vehicle = sum(vehicle_slopes) / len(vehicle_slopes) if vehicle_slopes else max(
         slopes.values(), default=1.0
     )
-    slope_no_enzyme = (
-        sum(no_enzyme_slopes) / len(no_enzyme_slopes)
-        if no_enzyme_slopes
+    slope_no_tem1 = (
+        sum(no_tem1_slopes) / len(no_tem1_slopes)
+        if no_tem1_slopes
         else min(slopes.values(), default=0.0)
     )
 
@@ -90,9 +90,9 @@ def analyze_kinetics_file(
     failed_wells = []
     for well, slope in slopes.items():
         role = roles.get(well, {}).get("role", "sample")
-        if role in {"vehicle", "no_enzyme"}:
+        if role in {"vehicle", "no_tem1", "pos-ctrl-clavaculin"}:
             continue
-        pct = compute_pct_inhibition(slope, slope_vehicle, slope_no_enzyme)
+        pct = compute_pct_inhibition(slope, slope_vehicle, slope_no_tem1)
         if pct < 0 or pct > 150:
             failed_wells.append(well)
             continue
@@ -114,7 +114,7 @@ def analyze_kinetics_file(
         "failed_wells": failed_wells,
         "control_stats": {
             "mean_vehicle_slope": round(slope_vehicle, 4),
-            "mean_no_enzyme_slope": round(slope_no_enzyme, 4),
+            "mean_no_tem1_slope": round(slope_no_tem1, 4),
         },
         "next_plate_design": "dose_response" if hits else "none",
     }

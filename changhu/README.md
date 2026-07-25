@@ -26,13 +26,13 @@ Personal workspace for WIP. Promote finished workflows to shared `workflows/`.
 - [ ] `workflows/screen.json` — nitrocefin kinetic assay end-to-end
 - [ ] Read `data/plate_map_r{N}.json` → robot well assignments
 - [ ] Export `data/kinetics_r1.csv`, `data/kinetics_r2.csv` from plate reader
-- [ ] Vehicle + no-enzyme controls on every screen plate
+- [ ] Vehicle + no-TEM-1 controls on every screen plate
 - [ ] Book and run **Round 1 & Round 2** screen blocks
 
 ## Screen workflow steps
 
 1. Assay buffer
-2. Enzyme (skip no-enzyme wells)
+2. Enzyme (skip no-TEM-1 wells)
 3. Compound per well (from source plate)
 4. Pre-incubate RT
 5. Nitrocefin — track time

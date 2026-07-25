@@ -273,9 +273,9 @@ compound_id,name,rack_id,well,scaffold_class,functional_class,tier,dock_score,ex
   "assay_type": "single_point",
   "final_volume_ul": 50,
   "wells": {
-    "A1": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control"},
+    "A1": {"compound_id": "T19860", "concentration_uM": 50, "role": "pos-ctrl-clavaculin"},
     "A2": {"compound_id": null, "concentration_uM": 0, "role": "vehicle"},
-    "A3": {"compound_id": null, "concentration_uM": 0, "role": "no_enzyme"}
+    "A3": {"compound_id": null, "concentration_uM": 0, "role": "no_tem1"}
   }
 }
 ```
@@ -308,10 +308,10 @@ compound_id,name,rack_id,well,scaffold_class,functional_class,tier,dock_score,ex
 1. **CFPS:** sfGFP-TEM-1 fusion + positive (sfGFP) + negative (no template) controls
 2. **GFP gate:** TEM-1 well fluorescence >> no-template; positive control passes
 3. **Screen:** nitrocefin kinetics at A490; initial slope = enzyme velocity
-4. **Scoring:** normalize to vehicle (0% inhibition) and no-enzyme (100% inhibition)
+4. **Scoring:** normalize to vehicle (0% inhibition) and no-TEM-1 (100% inhibition)
 
 ```
-pct_inhibition = 100 * (1 - (slope_sample - slope_no_enzyme) / (slope_vehicle - slope_no_enzyme))
+pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - slope_no_tem1))
 ```
 
 - **Hit threshold (Round 1):** ≥ 50% inhibition at 50 µM
@@ -432,7 +432,7 @@ Implementation: `agent/tools/literature.py` (see repo structure below).
 | Check | Wells | Pass criterion |
 |-------|-------|----------------|
 | **Enzyme active** | Vehicle (enzyme + DMSO + nitrocefin) | Strong, linear A490 slope |
-| **Signal is enzymatic** | No-enzyme (no TEM-1 + nitrocefin) | Slope ≈ background (flat) |
+| **Signal is enzymatic** | No-TEM-1 (no TEM-1 + nitrocefin) | Slope ≈ background (flat) |
 | **Inhibition detectable** | Clavulanic acid T19860 @ 50 µM + enzyme | Slope << vehicle (≥50% inhibition) |
 | **GFP gate** (upstream) | CFPS TEM-1 fusion | sfGFP >> no-template |
 
@@ -445,7 +445,7 @@ Use before committing a full Round 1 plate. Can be a corner of the same 96-well 
 | Well(s) | Role | compound_id | Expected |
 |---------|------|-------------|----------|
 | 4× | **Vehicle** | — (DMSO matched) | Max slope |
-| 2× | **No-enzyme** | — | Min slope |
+| 2× | **No-TEM-1** | — | Min slope |
 | 2× | **Positive control** | T19860 Clavulanic Acid @ 50 µM | Strong inhibition |
 | 2× | *optional* | T1005 Ampicillin @ 50 µM | Low inhibition (substrate demo — **not required for pass**) |
 
@@ -474,7 +474,7 @@ The [TargetMol library](https://docs.google.com/spreadsheets/d/1b7UuzXu_auqoq2hF
 
 | Question | Answer |
 |----------|--------|
-| Need antibiotics to prove assay works? | **No** — vehicle + no-enzyme + clavulanate is enough |
+| Need antibiotics to prove assay works? | **No** — vehicle + no-TEM-1 + clavulanate is enough |
 | Include antibiotics in Round 1? | **Yes, ~8 as substrate controls** — shows assay discriminates inhibitor vs substrate |
 | Hunt for inhibitors among antibiotics? | **No** — prioritize Tier 1 inhibitors; antibiotics are intentional negatives |
 
@@ -493,13 +493,13 @@ Maps to `plate_map` field: `role`.
 | `role` | Enzyme? | Compound | Expected A490 slope | # wells (typical) | Purpose | Notes |
 |--------|---------|----------|---------------------|-------------------|---------|-------|
 | `vehicle` | ✓ | DMSO matched | **Max** | 4–6 | Normalization reference | _TBD: exact DMSO %_ |
-| `no_enzyme` | ✗ | DMSO or sample matched | **Min** | 2–4 | Background / non-enzymatic | _TBD_ |
-| `positive_control` | ✓ | Clavulanate T19860 @ 50 µM | **Low** | 1–2 | Prove inhibition detectable | _TBD: backup positive (sulbactam?)_ |
+| `no_tem1` | ✗ | DMSO or sample matched | **Min** | 2–4 | Background / non-enzymatic | _TBD_ |
+| `pos-ctrl-clavaculin` | ✓ | Clavulanate T19860 @ 50 µM | **Low** | 1–2 | Prove inhibition detectable | _TBD: backup positive (sulbactam?)_ |
 | `validation_substrate` | ✓ | e.g. Ampicillin T1005 @ 50 µM | **High** (like vehicle) | 0–2 | Optional substrate demo | Validation plate only |
 | _stub_ | | | | | | |
 
-**Minimal validation plate:** `vehicle`, `no_enzyme`, `positive_control`, optional `validation_substrate`.  
-**Round 1 / R2:** `vehicle`, `no_enzyme`, `positive_control` on every screen plate.
+**Minimal validation plate:** `vehicle`, `no_tem1`, `pos-ctrl-clavaculin`, optional `validation_substrate`.  
+**Round 1 / R2:** `vehicle`, `no_tem1`, `pos-ctrl-clavaculin` on every screen plate.
 
 ### Library compound classes
 
@@ -555,7 +555,7 @@ Maps to optional field: `functional_class` (add to `compounds.csv` / `plate_map`
 | Wells | Content | Notes |
 |-------|---------|-------|
 | 4 | Vehicle (DMSO) | Normalization |
-| 2 | No-enzyme | Background |
+| 2 | No-TEM-1 | Background |
 | 2 | Clavulanic acid T19860 @ 50 µM | Positive control |
 
 **File:** [`data/plate_map_r1.json`](data/plate_map_r1.json) · **Literature:** [T19860.json](data/compound_literature/refs/T19860.json) (Ki 0.85 µM → 50 µM screen conc)
@@ -567,7 +567,7 @@ Superseded v1 design: [`data/screens/1/v1/plate_map.json`](data/screens/1/v1/pla
 | Wells | Content |
 |-------|---------|
 | 6 | Vehicle (DMSO-matched) |
-| 4 | No-enzyme |
+| 4 | No-TEM-1 |
 | 2 | Clavulanic acid @ 50 µM (on-plate positive) |
 | 24 | Agent-selected compounds @ 50 µM |
 | *remaining* | Empty or reserved |
@@ -586,7 +586,7 @@ Superseded v1 design: [`data/screens/1/v1/plate_map.json`](data/screens/1/v1/pla
 | Wells | Content |
 |-------|---------|
 | 6 | Vehicle |
-| 4 | No-enzyme |
+| 4 | No-TEM-1 |
 | 24 | Clavulanate 8-point DR (3 → 100 µM) |
 | 24 | Sulbactam 8-point DR |
 | 24 | Tazobactam 8-point DR |
@@ -613,13 +613,13 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 
 **Screen workflow steps (per brief):**
 1. Fill wells with assay buffer
-2. Add enzyme (skip no-enzyme wells)
+2. Add enzyme (skip no-TEM-1 wells)
 3. Add one compound per well (from source plate, 10 µL pipette)
 4. Pre-incubate RT
 5. Add nitrocefin (track time)
 6. Read A490 every 30 s for several minutes
 
-**Controls on every screen plate:** vehicle (max velocity) + no-enzyme (background).
+**Controls on every screen plate:** vehicle (max velocity) + no-TEM-1 (background).
 
 ---
 
