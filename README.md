@@ -76,4 +76,4 @@ Low-level robotic skills (pipetting, sealing, shaking, etc.) are **provided by Z
 
 > Which compounds meaningfully reduce TEM-1 β-lactamase activity, and what dose-response patterns do they show?
 
-TargetMol β-lactam library (~95 compounds) · nitrocefin kinetic read @ A490 · two closed-loop screening rounds.
+TargetMol β-lactam library (**105 compounds**, [`data/compounds.csv`](data/compounds.csv)) · nitrocefin kinetic read @ A490 · two closed-loop screening rounds.

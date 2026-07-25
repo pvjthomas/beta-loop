@@ -3,7 +3,46 @@
 **Owner:** Philip (pvjthomas) · **Task 2:** Compound screening (prioritization + closed-loop design)  
 **Outputs:** `data/compounds.csv`, `data/literature_summary.json`, `data/plate_map_r1.json`, agent priors for R2
 
-This library is unusual: ~95 **β-lactam** compounds from TargetMol — mostly **antibiotics (TEM-1 substrates)** plus a few **true β-lactamase inhibitors**. Selection is not “dock everything and hope”; it is **find inhibitors, confirm substrates as controls, and bridge gaps with similarity when literature and library don’t overlap**.
+This library is unusual: **105 β-lactam** compounds from TargetMol — mostly **antibiotics (TEM-1 substrates)** plus a few **true β-lactamase inhibitors**. Selection is not “dock everything and hope”; it is **find inhibitors, confirm substrates as controls, and bridge gaps with similarity when literature and library don’t overlap**.
+
+---
+
+## Compound library (source of truth)
+
+**Google Sheet:** [TargetMol Beta-Lactam Compound Library-A](https://docs.google.com/spreadsheets/d/1b7UuzXu_auqoq2hFT81X3UuRutxxWxZW/edit?gid=372192752#gid=372192752)
+
+**Local copy:** [`data/compounds.csv`](../data/compounds.csv) — parsed from sheet gid `372192752` (Index, Plate, Row, Col, SMILES, etc.)
+
+| Stat | Value |
+|------|-------|
+| Total compounds | **105** |
+| Source plates | PHD215176 (80), PHD215177 (22), PHD215178 (3) |
+| Stock | 10 mM in DMSO, 50 µL per well |
+| **Tier 1 inhibitors (pre-tagged)** | **7** |
+| **Exclude from screening** | **1** (nitrocefin T19709 — assay substrate) |
+| Antibiotic / substrate (pre-tagged) | ~97 |
+
+### Tier 1 — β-lactamase inhibitors in library
+
+| compound_id | name | plate | well |
+|-------------|------|-------|------|
+| T19860 | Clavulanic Acid | PHD215176 | h2 |
+| T14979 | Clavulanate lithium | PHD215176 | g6 |
+| T6685 | Sulbactam sodium | PHD215176 | f2 |
+| T1631 | Sulbactam | PHD215177 | a10 |
+| T1262 | Tazobactam | PHD215176 | b10 |
+| T14081 | Enmetazobactam | PHD215176 | f7 |
+| T13038 | Sultamicillin | PHD215177 | b10 |
+
+### Exclude — do not screen
+
+| compound_id | name | reason |
+|-------------|------|--------|
+| T19709 | Nitrocefin | Chromogenic **assay substrate** (yellow → red with TEM-1) |
+
+### Rob / Chang: source plate lookup
+
+Compound transfers use **plate + row + col** from `data/compounds.csv` (columns `plate`, `row`, `col`). Example: clavulanic acid = `PHD215176`, row `h`, col `2`.
 
 ---
 
@@ -30,7 +69,7 @@ flowchart TB
   end
 
   subgraph reverse [Reverse — library first]
-    R1[Parse all 95 library SMILES]
+    R1[Parse all 105 library SMILES from compounds.csv]
     R2[Tag scaffold class: inhibitor vs antibiotic]
     R3[GNINA dock vs TEM-1 1JQL]
     R4[Paperclip: any literature on these compounds?]
@@ -60,20 +99,24 @@ flowchart TB
 
 ### 0.1 Library inventory
 
-- [ ] Parse TargetMol sheet → `data/compounds.csv`
-- [ ] Columns: `compound_id`, `name`, `smiles`, `rack_id`, `well`, `scaffold_class`, `tier`, `dock_score`, `exclude`
-- [ ] **Exclude:** nitrocefin (T19709) — assay substrate, not a test compound
-- [ ] Resolve SMILES: PubChem / RDKit from compound names where needed
+- [x] Parse TargetMol sheet → `data/compounds.csv` ([source sheet](https://docs.google.com/spreadsheets/d/1b7UuzXu_auqoq2hFT81X3UuRutxxWxZW/edit?gid=372192752#gid=372192752))
+- [ ] Review / refine `scaffold_class` tags (RDKit SMARTS + manual)
+- [ ] Add `dock_score` column after GNINA batch
+- [ ] Columns in CSV: `compound_id`, `name`, `smiles`, `plate`, `row`, `col`, `scaffold_class`, `tier`, `exclude`
+- [x] **Exclude:** nitrocefin (T19709)
+- [x] SMILES included from sheet (verify salts / protonation with RDKit if docking odd)
 
-**Known inhibitor IDs to flag immediately (in-library):**
+**Tier 1 inhibitor IDs (confirmed in-library):**
 
 | compound_id | name |
 |-------------|------|
-| T19860 | Clavulanic acid |
+| T19860 | Clavulanic Acid |
 | T14979 | Clavulanate lithium |
-| T6231 / T1118 | Sulbactam |
+| T6685 | Sulbactam sodium |
+| T1631 | Sulbactam |
 | T1262 | Tazobactam |
 | T14081 | Enmetazobactam |
+| T13038 | Sultamicillin (ampicillin/sulbactam prodrug) |
 
 ### 0.2 Reference set — “gold” inhibitors from literature
 
@@ -206,7 +249,7 @@ Update `compounds.csv` with `literature_support`: strong / weak / none / substra
 
 Also compute **internal** library similarity:
 
-- Cluster all 95 compounds (Butina or hierarchical, Tanimoto > 0.7)
+- Cluster all 105 compounds (Butina or hierarchical, Tanimoto > 0.7)
 - Pick **one representative per cluster** for diversity in Round 1
 
 ### Step B3 — When literature has no inhibitor overlap at all
@@ -301,7 +344,7 @@ Shows the selection plan **worked**, even if total hits are few.
 
 ## Execution order (Philip — tonight / Sat AM)
 
-1. [ ] Parse library SMILES → `compounds.csv`
+1. [x] Parse library SMILES → `data/compounds.csv`
 2. [ ] Forward: Paperclip searches + `reference_inhibitors.csv`
 3. [ ] Match literature → library (exact + Tanimoto 0.85)
 4. [ ] Reverse: RDKit scaffold tags + GNINA dock

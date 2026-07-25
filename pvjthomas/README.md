@@ -8,7 +8,7 @@ Personal workspace for scripts, notes, and artifacts you own. Shared deliverable
 
 ## Your lead tasks
 
-- [ ] **Compound selection pipeline** (see COMPOUND_SELECTION.md)
+| **Compound selection pipeline** (see [COMPOUND_SELECTION.md](COMPOUND_SELECTION.md)) — library in [`data/compounds.csv`](../data/compounds.csv) |
 - [ ] Kickoff organizer questions
 - [ ] GFP / activity gate thresholds
 - [ ] Demo narrative & pitch

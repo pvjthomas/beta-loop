@@ -36,7 +36,7 @@ By demo time we show a real **data → decision → better result** story:
 ## What we are NOT doing
 
 - Molecular dynamics / FEP (too slow, not needed for demo)
-- Screening all 95 compounds in Round 1 (won't fit; not required)
+- Screening all 105 compounds in Round 1 (won't fit; not required)
 - Letting file formats drift between rounds (breaks the loop)
 
 ---
@@ -173,7 +173,7 @@ compound_id,name,rack_id,well,scaffold_class,tier,dock_score,exclude
 
 ### Library facts (TargetMol β-Lactam Library)
 
-- ~95 compounds in source plates (10 mM in DMSO, 50 µL)
+- **105 compounds** in source plates (10 mM in DMSO, 50 µL) — see [`data/compounds.csv`](data/compounds.csv) and [library sheet](https://docs.google.com/spreadsheets/d/1b7UuzXu_auqoq2hFT81X3UuRutxxWxZW/edit?gid=372192752#gid=372192752)
 - **Known inhibitors to prioritize:** clavulanic acid, clavulanate lithium, sulbactam, tazobactam, enmetazobactam
 - **Most compounds are β-lactam antibiotics** (TEM-1 substrates, not inhibitors) — useful as negative controls
 - **Exclude:** nitrocefin (T19709) — chromogenic substrate
