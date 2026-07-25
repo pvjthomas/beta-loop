@@ -8,7 +8,15 @@
 
 **Assay cheat sheet:** **[NITROCEFIN_ASSAY.md](NITROCEFIN_ASSAY.md)** — what to mix, order, controls, DMSO rule, scoring.
 
-Personal workspace for scripts, notes, and artifacts you own. Shared deliverables still land in `data/`, `agent/`, and `workflows/` at repo root.
+Personal workspace for scripts, notes, and artifacts you own. Shared deliverables still land in `data/` and `workflows/` at repo root; ML ships the team agent under `agent/` when ready.
+
+### Experimental agent (pvjthomas only)
+
+| Path | Purpose |
+|------|---------|
+| [`agent/`](agent/) | ADK closed-loop sandbox (`adk run pvjthomas/agent`) |
+| [`analysis/`](analysis/) | Kinetics + plate helpers used by the sandbox |
+| [`.claude/skills/paperclip/`](.claude/skills/paperclip/SKILL.md) | Paperclip skill stub for Claude Code |
 
 ## Your lead tasks
 
