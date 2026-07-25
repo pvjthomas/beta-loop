@@ -45,11 +45,12 @@ By demo time we show a real **data → decision → better result** story:
 | Assay docs | ✓ Done | [pvjthomas/NITROCEFIN_ASSAY.md](pvjthomas/NITROCEFIN_ASSAY.md) |
 | Automation split | ✓ Draft | [learsch/](learsch/), [changhu/](changhu/) — Rob/Chang to agree |
 | ML workspace + plan | ✓ Done | [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md) |
-| Paperclip install | ✓ Partial | CLI + SDK in venv, auth working; searches not run |
+| Paperclip install | ✓ Done | CLI + SDK in venv, auth working; searches not run |
+| Python env (`.venv`) | ✓ Done | Full `requirements.txt` + paperclip — see [REQUIREMENTS.md](REQUIREMENTS.md#installed-versions) |
 | `.env.example` | ✓ Done | Vertex AI + Paperclip template |
 | `data/literature/` | ✗ Empty | Paperclip searches pending |
-| `data/literature_summary.json` | ✗ Missing | ML |
-| `data/plate_map_r1.json` | ✗ Missing | **ML P0** — blocks Round 1 screen |
+| `data/literature_summary.json` | ✓ Done | Hardcoded priors; refine after Paperclip searches |
+| `data/plate_map_r1.json` | ✓ Done | Run 1 v1 — see [`data/runs/1/v1/`](data/runs/1/v1/) |
 | `agent/`, `analysis/` | ✗ Missing | ML |
 | `workflows/` | ✗ Missing | Rob + Chang |
 | GNINA docking | ✗ Not started | Optional |
@@ -73,7 +74,7 @@ Zeon provides a **skills library** — pre-built robotic primitives (e.g. `plate
 | # | Task | Status | Owner | Deliverable |
 |---|------|--------|-------|-------------|
 | **1** | **Program the assay on robotics** | In progress (Sat AM) | Rob + Chang (+ pvjthomas QC) | Three Zeon workflows: CFPS → GFP gate → nitrocefin screen |
-| **2** | **Compound screening (closed loop)** | In progress — Phase 0 partial | ML (+ pvjthomas sign-off) | ADK agent: prioritize → R1 → analyze → R2 plate design |
+| **2** | **Compound screening (closed loop)** | In progress — env done, artifacts pending | ML (+ pvjthomas sign-off) | ADK agent: prioritize → R1 → analyze → R2 plate design |
 
 **ML plan:** [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)
 
@@ -517,13 +518,13 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 ### ML
 - [x] **Paperclip:** install CLI + SDK (see [Paperclip section](#paperclip--literature-search))
 - [ ] **Paperclip:** run 3 Phase 0 searches → `data/literature/`
-- [ ] **Paperclip:** write `data/literature_summary.json` from search results
-- [ ] Install deps: `pip install -r requirements.txt` (partial — `gxl-paperclip` only)
-- [ ] Install Google ADK; basic `LlmAgent` + `LoopAgent` running
+- [ ] **Paperclip:** write `data/literature_summary.json` from search results (hardcoded v1 shipped)
+- [x] Install deps: `pip install -r requirements.txt` (google-adk 2.5.0, numpy, pandas, scipy, rdkit)
+- [ ] ADK agent code: `LlmAgent` + `LoopAgent` in `agent/` (package installed; skeleton pending)
 - [x] Parse compound library → `data/compounds.csv` (team; ML consumes)
 - [ ] GNINA batch dock all compounds → merge `dock_score`
 - [ ] Implement `analyze_kinetics()` on synthetic CSV
-- [ ] Generate hardcoded `data/plate_map_r1.json` (don't wait for agent on first run) ← **P0 now**
+- [x] Generate hardcoded `data/plate_map_r1.json` (run 1 v1 — see `data/runs/1/v1/`)
 - [ ] Wrap tools as ADK function tools (include `search_literature` via Paperclip SDK)
 - [x] ML workspace + closed-loop plan → [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)
 
@@ -545,7 +546,7 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 
 ### All (15-min sync)
 - [x] Agree file schemas above (documented; encode in JSON as artifacts land)
-- [ ] Lock Round 1 compound list (pending `plate_map_r1.json`)
+- [x] Lock Round 1 compound list (`plate_map_r1.json` run 1 v1)
 - [ ] Assign Phase 1 booking priorities
 
 ---
@@ -730,13 +731,13 @@ zeon_hack/
 
 | Who | Task | Status |
 |-----|------|--------|
-| ML | **`plate_map_r1.json` + `literature_summary.json`** | **Not started — P0** |
-| ML | `pip install -r requirements.txt` + ADK skeleton + `analyze_kinetics()` | Partial (paperclip only) |
+| ML | **`plate_map_r1.json` + `literature_summary.json`** | **Done** (run 1 v1; hardcoded priors) |
+| ML | ADK skeleton + `analyze_kinetics()` | Env ready; code not started |
 | ML | Paperclip searches → `data/literature/` | CLI ready, searches pending |
 | Rob + Chang | CFPS on hardware + GFP gate + screen workflow | In progress (Sat AM) |
 | pvjthomas | GFP/validation sign-off, kickoff answers, demo outline | In progress |
-| All | Lock R1 compound list when `plate_map_r1.json` lands | Blocked on ML P0 |
+| All | Lock R1 compound list when `plate_map_r1.json` lands | Done (run 1 v1) |
 
 ---
 
-*Last updated: 2026-07-25 ~13:45 PT*
+*Last updated: 2026-07-25 ~14:06 PT*

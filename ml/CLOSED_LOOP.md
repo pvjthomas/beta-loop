@@ -7,21 +7,41 @@ Philip ([pvjthomas/COMPOUND_SELECTION.md](../pvjthomas/COMPOUND_SELECTION.md)) o
 
 ---
 
-## Progress snapshot (Sat ~13:45)
+## Progress snapshot (Sat ~14:06)
 
 | Area | Status |
 |------|--------|
 | **Planning & schemas** | Done — `ml/` workspace, file contract in [PLAN.md](../PLAN.md), ML scope boundary documented |
 | **Compound library** | Done — `data/compounds.csv` (105 compounds, tier/scaffold tags, nitrocefin excluded) |
-| **Paperclip env** | Partial — CLI + SDK installed, auth working; searches not run yet |
-| **Python deps** | Partial — `gxl-paperclip` only; ADK, RDKit, numpy/pandas/scipy not installed |
-| **Literature priors** | Not started — `data/literature/` empty, no `literature_summary.json` |
-| **R1 plate map** | Not started — `data/plate_map_r1.json` missing (**P0 blocker for Chang ~15:00**) |
+| **Python env** | Done — `.venv` with full `requirements.txt` (see [Installed stack](#installed-stack) below) |
+| **Paperclip env** | Done — CLI + SDK installed, auth working; searches not run yet |
+| **Literature priors** | Done — hardcoded `data/literature_summary.json` (Paperclip raw files pending) |
+| **R1 plate map** | Done — `data/plate_map_r1.json` run 1 v1 ([`data/runs/1/v1/`](../data/runs/1/v1/)) |
 | **Analysis code** | Not started — no `analysis/` directory |
-| **ADK agent** | Not started — no `agent/` directory |
+| **ADK agent** | Not started — package installed; no `agent/` code yet |
 | **GNINA / docking** | Not started — optional |
 
-**You are here:** Phase 1 Sat AM — ship R1 plate map + analysis skeleton while Rob/Chang handle GFP (not your job).
+**You are here:** Phase 1 Sat AM — ship `analysis/kinetics.py` + ADK skeleton while Rob/Chang handle GFP.
+
+### Installed stack (`.venv`, verified Sat ~14:06)
+
+| Package | Version | Source |
+|---------|---------|--------|
+| `google-adk` | 2.5.0 | `requirements.txt` |
+| `gxl-paperclip` | 0.7.11 | `scripts/install-paperclip.sh` |
+| `numpy` | 2.4.6 | `requirements.txt` |
+| `pandas` | 3.0.5 | `requirements.txt` |
+| `scipy` | 1.17.1 | `requirements.txt` |
+| `rdkit` | 2025.9.3 | `requirements.txt` |
+
+Install / verify:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+bash scripts/install-paperclip.sh   # if paperclip missing
+python -c "import google.adk; from gxl_paperclip import PaperclipClient; import numpy, pandas, scipy; from rdkit import Chem; print('ok')"
+```
 
 ---
 
@@ -59,8 +79,8 @@ Schemas in [PLAN.md](../PLAN.md#file-contract-freeze-before-hackathon). Key file
 ```
 data/compounds.csv              ✓ exists — consume tier/scaffold_class
 data/literature/*.txt           ✗ empty — Paperclip searches pending
-data/literature_summary.json    ✗ you write
-data/plate_map_r1.json          ✗ you write (hardcode first) — P0
+data/literature_summary.json    ✓ hardcoded v1
+data/plate_map_r1.json          ✓ run 1 v1 (see data/runs/1/v1/)
 data/plate_map_r2.json          ✗ agent writes after R1
 data/kinetics_r1.csv            ✗ Chang writes
 data/kinetics_r2.csv            ✗ Chang writes
@@ -88,16 +108,16 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_enzyme) / (slope_vehicle - 
 ### 0.1 Environment
 
 - [x] `python -m venv .venv && source .venv/bin/activate`
-- [ ] `pip install -r requirements.txt` (only `gxl-paperclip` installed so far)
-- [x] Paperclip CLI authenticated (`paperclip config` ✓)
-- [ ] `.env` filled — Vertex AI / `PAPERCLIP_API_KEY` (see `.env.example`)
-- [ ] Verify full stack: ADK + RDKit after `pip install -r requirements.txt`
+- [x] `pip install -r requirements.txt` (google-adk, numpy, pandas, scipy, rdkit)
+- [x] Paperclip CLI + SDK (`bash scripts/install-paperclip.sh`; auth ✓)
+- [x] `.env` present (Vertex AI / Paperclip — see `.env.example`)
+- [x] Verify full stack: ADK + RDKit + analysis imports OK
 - [ ] Verify: `paperclip search "TEM-1 beta-lactamase inhibitor" -n 3` → save to `data/literature/`
 
 ### 0.2 Literature (Paperclip)
 
 - [ ] Run searches below → `data/literature/`
-- [ ] Write `data/literature_summary.json`
+- [x] Write `data/literature_summary.json` (hardcoded v1)
 
 Run and save under `data/literature/`:
 
@@ -116,7 +136,7 @@ Write `data/literature_summary.json` (minimal template in PLAN.md). **If Papercl
 
 ### 0.3 Round 1 plate map — **critical path**
 
-- [ ] **`data/plate_map_r1.json`** — not yet created
+- [x] **`data/plate_map_r1.json`** — run 1 v1 shipped
 
 **Hardcode `data/plate_map_r1.json` now.** Do not wait for full agent or GNINA.
 
@@ -161,11 +181,10 @@ Philip signs off science; you encode JSON.
 
 | Priority | Task | Status |
 |----------|------|--------|
-| **P0** | Ship `data/plate_map_r1.json` | **Not started** — do now |
-| **P0** | Ship `data/literature_summary.json` | **Not started** — hardcode OK |
-| **P1** | `pip install -r requirements.txt` (ADK, RDKit, analysis stack) | **Partial** — paperclip only |
+| **P0** | Ship `data/plate_map_r1.json` | **Done** (run 1 v1) |
+| **P0** | Ship `data/literature_summary.json` | **Done** (hardcoded v1) |
 | **P1** | `analyze_kinetics()` passes on synthetic CSV | **Not started** |
-| **P1** | ADK tools registered; R1 path returns hardcoded map | **Not started** |
+| **P1** | ADK tools registered; R1 path returns hardcoded map | **Not started** (ADK package installed) |
 | **P2** | Paperclip raw files in `data/literature/` | **Not started** (CLI ready) |
 | **P2** | GNINA scores in `compounds.csv` | **Not started** (optional) |
 
@@ -218,10 +237,10 @@ Sync with Chang: confirm `plate_map_r1.json` schema matches what `screen.json` e
 1. [x] Repo scaffold + ML plan (`ml/`, schemas, scope boundary)
 2. [x] Compound library ready (`data/compounds.csv` — team; you consume)
 3. [x] Paperclip CLI + SDK installed and authenticated
-4. [ ] `pip install -r requirements.txt` (finish ADK, RDKit, analysis deps)
-5. [ ] **`plate_map_r1.json`** (hardcoded — do not block on agent) ← **you are here**
-6. [ ] `literature_summary.json` (hardcoded OK initially)
-7. [ ] `analysis/kinetics.py` + synthetic test
+4. [x] `pip install -r requirements.txt` + paperclip (full stack verified)
+5. [x] **`plate_map_r1.json`** (run 1 v1)
+6. [x] `literature_summary.json` (hardcoded v1)
+7. [ ] `analysis/kinetics.py` + synthetic test ← **you are here**
 8. [ ] ADK skeleton + tool stubs
 9. [ ] Paperclip searches → `data/literature/`
 10. [ ] GNINA / RDKit similarity (optional)
@@ -252,4 +271,4 @@ Sync with Chang: confirm `plate_map_r1.json` schema matches what `screen.json` e
 
 ---
 
-*Last updated: 2026-07-25 ~13:45 PT*
+*Last updated: 2026-07-25 ~14:06 PT*

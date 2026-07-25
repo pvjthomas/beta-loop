@@ -21,9 +21,9 @@ These are **pvjthomas + Rob/Chang** — do not block your work on them:
 
 - [x] ML workspace + closed-loop plan ([CLOSED_LOOP.md](CLOSED_LOOP.md))
 - [x] Paperclip CLI + SDK installed and authenticated
-- [ ] `pip install -r requirements.txt` (finish ADK, RDKit, analysis stack)
-- [ ] Paperclip searches → `data/literature/` + `data/literature_summary.json`
-- [ ] **`data/plate_map_r1.json`** — hardcode for first run; don't wait on full agent ← **P0**
+- [x] `pip install -r requirements.txt` (google-adk 2.5.0, numpy, pandas, scipy, rdkit)
+- [x] Paperclip searches → `data/literature/` + `data/literature_summary.json` (hardcoded priors shipped; raw searches pending)
+- [x] **`data/plate_map_r1.json`** — run 1 v1 shipped
 - [ ] ADK agent skeleton (`agent/`) with function tools
 - [ ] `analyze_kinetics()` on synthetic CSV → `analysis/`
 - [ ] After R1: `round_summary_r1.json` + `plate_map_r2.json` within 20 min of export

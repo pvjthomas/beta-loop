@@ -167,13 +167,33 @@ GOOGLE_API_KEY=...
 
 | Who | Task | Done |
 |-----|------|:----:|
-| ML | `pip install -r requirements.txt` | ☐ partial |
+| ML | `pip install -r requirements.txt` | ☑ |
 | ML | Paperclip CLI or API key configured | ☑ |
 | ML | Run TEM-1 literature searches → `data/literature/` | ☐ |
 | ML | ADK agent with `search_literature` tool | ☐ |
 | ML | GNINA batch dock (optional) | ☐ |
 | Robotics | Zeon sim + workflow drafts | ☐ |
 | You | `.env` template shared with team (secrets excluded) | ☑ |
+
+### Installed versions (`.venv`, Sat ~14:06)
+
+Verified with `pip install -r requirements.txt` + `scripts/install-paperclip.sh`:
+
+| Package | Version |
+|---------|---------|
+| `google-adk` | 2.5.0 |
+| `gxl-paperclip` | 0.7.11 |
+| `numpy` | 2.4.6 |
+| `pandas` | 3.0.5 |
+| `scipy` | 1.17.1 |
+| `rdkit` | 2025.9.3 |
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+bash scripts/install-paperclip.sh
+python -c "import google.adk; from gxl_paperclip import PaperclipClient; import numpy, pandas, scipy; from rdkit import Chem; print('ok')"
+```
 
 ---
 

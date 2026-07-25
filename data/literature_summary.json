@@ -1,0 +1,29 @@
+{
+  "known_inhibitors": [
+    "clavulanic acid",
+    "clavulanate lithium",
+    "sulbactam",
+    "tazobactam",
+    "enmetazobactam"
+  ],
+  "expected_substrates_low_inhibition": [
+    "ampicillin",
+    "cephalexin",
+    "penicillins",
+    "cephalosporins",
+    "carbapenems"
+  ],
+  "assay_notes": {
+    "typical_screen_conc_uM": 50,
+    "pre_incubation_min": 10,
+    "read_wavelength_nm": 490,
+    "metric": "initial slope A490 vs time",
+    "hit_threshold_pct": 50
+  },
+  "library_notes": {
+    "total_compounds": 105,
+    "mostly_antibiotic_substrates": true,
+    "exclude_compound_ids": ["T19709"]
+  },
+  "sources": []
+}
