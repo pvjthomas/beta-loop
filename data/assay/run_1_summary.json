@@ -1,39 +1,37 @@
 {
   "run": 1,
   "round": 1,
+  "plan_version": 2,
+  "plan_label": "r1-validation-v2",
   "status": "pending",
-  "plate_map": "data/runs/1/v1/plate_map.json",
+  "plate_map_active": "data/plate_map_r1.json",
+  "plate_map_snapshot": "data/runs/1/v2/plate_map.json",
   "source_csv_local": "pvjthomas/local/kinetics/kinetics_r1.csv",
   "source_csv_git": null,
   "normalization": {
-    "vehicle_wells": ["A1", "A2", "A3", "A4", "A5", "A6"],
-    "no_enzyme_wells": ["A7", "A8", "A9", "A10"],
-    "positive_control_wells": ["A11", "A12"]
+    "vehicle_wells": ["A1", "A2", "A3", "A4"],
+    "positive_control_wells": ["A5", "A6", "A7", "A8"]
   },
+  "literature_ref": "data/literature/refs/T19860.json",
   "compounds": {
-    "T19860": {"well": "B1", "bucket": "tier1_inhibitor", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1262": {"well": "B2", "bucket": "tier1_inhibitor", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T6685": {"well": "B3", "bucket": "tier1_inhibitor", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T14081": {"well": "B4", "bucket": "tier1_inhibitor", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T14979": {"well": "C1", "bucket": "inhibitor_analog", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1631": {"well": "C2", "bucket": "inhibitor_analog", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T13038": {"well": "C3", "bucket": "inhibitor_analog", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1213": {"well": "C4", "bucket": "inhibitor_analog", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1005": {"well": "D1", "bucket": "substrate_control", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1008": {"well": "D2", "bucket": "substrate_control", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1305": {"well": "D3", "bucket": "substrate_control", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T0814L": {"well": "D4", "bucket": "substrate_control", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1122": {"well": "D5", "bucket": "substrate_control", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1063": {"well": "D6", "bucket": "substrate_control", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T0199": {"well": "D7", "bucket": "substrate_control", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T0198": {"well": "D8", "bucket": "substrate_control", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T0224": {"well": "E1", "bucket": "diverse_pick", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1029": {"well": "E2", "bucket": "diverse_pick", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T7387": {"well": "E3", "bucket": "diverse_pick", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T1037": {"well": "E4", "bucket": "diverse_pick", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T13926": {"well": "E5", "bucket": "diverse_pick", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T0989": {"well": "E6", "bucket": "diverse_pick", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T21369": {"well": "E7", "bucket": "diverse_pick", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null},
-    "T124492": {"well": "E8", "bucket": "diverse_pick", "concentration_uM": 50, "slope_a490_per_min": null, "pct_inhibition": null, "label": null}
+    "T19860": {
+      "wells": ["A5", "A6", "A7", "A8"],
+      "role": "positive_control",
+      "concentration_uM": 50,
+      "literature_ki_uM_tem1": 0.85,
+      "expected": ">=50% inhibition vs vehicle",
+      "slope_a490_per_min": null,
+      "pct_inhibition": null,
+      "label": null
+    }
+  },
+  "controls": {
+    "vehicle": {
+      "wells": ["A1", "A2", "A3", "A4"],
+      "role": "negative",
+      "concentration_uM": 0,
+      "mean_slope_a490_per_min": null,
+      "mean_pct_inhibition": null
+    }
   }
 }

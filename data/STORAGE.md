@@ -1,6 +1,6 @@
 # Data storage policy — Git vs local
 
-**Owner:** Philip (pvjthomas) · **Index:** [`compounds.csv`](compounds.csv) · **Summaries:** [`compound_dossiers.json`](compound_dossiers.json)
+**Teammate index:** [`README.md`](README.md) · **Owner:** Philip (pvjthomas) · **Index:** [`compounds.csv`](compounds.csv) · **Summaries:** [`compound_dossiers.json`](compound_dossiers.json)
 
 This repo splits **team contract** (small, final, shared) from **Philip workspace** (large, intermediate, regeneratable).
 

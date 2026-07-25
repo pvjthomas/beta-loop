@@ -2,24 +2,42 @@
 
 Versioned plate maps and selection rationale for each physical screen run.
 
+**Teammate index:** [`../README.md`](../README.md) · **Storage policy:** [`../STORAGE.md`](../STORAGE.md)
+
+## Rounds vs versions
+
+| Term | Meaning | Example |
+|------|---------|---------|
+| **Round** | Closed-loop screening iteration | `plate_map_r**1**.json`, `assay/run_**1**_summary.json` |
+| **Version** | Plate-design revision within a round | `runs/1/v**2**/plate_map.json` |
+
+Version numbers are **assay-plan revisions**, not round numbers. Round is always in the filename (`_r1`, `_r2`).
+
 ## Layout
 
 ```
 runs/
-  {run}/           # screen execution number (1, 2, …)
-    v{version}/    # plate-design revision within that run
+  {run}/           # matches round number (1, 2, …)
+    v{version}/    # plate-design revision within that round
       plate_map.json
       manifest.json
 ```
 
 Selection rationale mirrors the same `{run}/v{version}/` path under `pvjthomas/runs/`.
 
-## Active vs versioned
+## Active vs frozen
 
 | Purpose | Path |
 |---------|------|
-| Robot / workflow consumer | `data/plate_map_r1.json` (points at latest approved v*) |
-| Human-readable rationale | `pvjthomas/selection_rationale.md` |
+| Robot / workflow consumer | `data/plate_map_r{N}.json` (latest approved version for round *N*) |
+| Human-readable rationale | `pvjthomas/selection_rationale.md` → points at active `v*` |
 | Immutable snapshot | `data/runs/{run}/v{version}/plate_map.json` |
 
-When a plate design changes, add a new `v{N+1}` directory; do not edit prior versions.
+When a plate design changes, add a new `v{N+1}` directory; **do not edit** prior versions.
+
+## Current state (Round 1)
+
+| Version | Label | Status |
+|---------|-------|--------|
+| v1 | `r1-discovery-v1` | Superseded (24-compound layout, not run) |
+| **v2** | `r1-validation-v2` | **Active** — clavulanic + DMSO @ 50 µM |
