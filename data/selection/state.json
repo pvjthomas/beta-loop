@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-25T21:44:03Z",
+  "updated_at": "2026-07-25T21:48:41Z",
   "forward": {
     "library_matches": {
-      "ran_at": "2026-07-25T21:44:03Z",
+      "ran_at": "2026-07-25T21:48:41Z",
       "tanimoto_threshold": 0.85,
       "matches": [
         {
@@ -30,8 +30,8 @@
         {
           "reference_name": "enmetazobactam",
           "match_type": "direct",
-          "compound_id": "T1262",
-          "compound_name": "Tazobactam",
+          "compound_id": "T14081",
+          "compound_name": "Enmetazobactam",
           "tanimoto": 1.0
         },
         {
@@ -43,7 +43,11 @@
         }
       ],
       "literature_only": []
-    }
+    },
+    "agent_version": "v1",
+    "run_label": "forward-research-agent-v1",
+    "manifest": "data/runs/forward/v1/manifest.json",
+    "finalized_at": "2026-07-25T21:48:41Z"
   },
   "reverse": {
     "scaffold_classification": {

@@ -24,15 +24,16 @@ Rules:
 """
 
 FORWARD_INSTRUCTION = """
-You run the **forward** compound selection pass: literature → library.
+You run the **forward research agent** (forward_agent) compound selection pass: literature → library.
 
 Steps:
 1. seed_reference_inhibitors()
 2. Optionally run_forward_literature_searches() if live Paperclip is needed (≤2 queries).
 3. match_literature_to_library()
 4. write_literature_summary_from_forward()
+5. finalize_forward_run(version=1) — snapshot outputs to data/runs/forward/v1/
 
-Report: direct library hits, literature-only structures (hand off to bridge_agent), and paths written.
+Report: direct library hits, literature-only structures (hand off to bridge_agent), manifest path, and paths written.
 Do not design plates — selection_merger owns that.
 """
 

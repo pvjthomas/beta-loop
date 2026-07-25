@@ -59,7 +59,7 @@ print(json.dumps(run_compound_selection_pipeline(), indent=2))
 | Phase | Prompt |
 |-------|--------|
 | **Phase B full** | "Run compound selection pipeline without live Paperclip searches." |
-| **Forward only** | "Delegate to forward_agent: seed references and match literature to library." |
+| **Forward only** | "Delegate to forward_agent: seed references, match literature to library, and finalize v1." |
 | **Reverse only** | "Delegate to reverse_agent: classify scaffolds with RDKit and rank Tier 3." |
 | **Bridge only** | "Delegate to bridge_agent: find Tanimoto neighbors and Tier 2 analogs." |
 | **Merge** | "Delegate to selection_merger: merge tiers and write plate draft." |
@@ -75,6 +75,7 @@ print(json.dumps(run_compound_selection_pipeline(), indent=2))
 | `data/selection/plate_map_r1_draft.json` | ✓ | Draft plate — not for robot |
 | `data/similarity/neighbors.json` | ✓ | Tanimoto neighbor summary |
 | `data/literature/refs/{id}.json` | ✓ | Per-compound lit refs (forward hits) |
+| `data/runs/forward/v1/` | ✓ | Frozen forward research agent v1 snapshot + manifest |
 | `pvjthomas/local/literature/` | ✗ | Raw Paperclip dumps |
 | `pvjthomas/local/docking/` | ✗ | GNINA poses (when run) |
 | `pvjthomas/local/similarity/` | ✗ | Cluster debug / FP caches |
@@ -83,7 +84,7 @@ print(json.dumps(run_compound_selection_pipeline(), indent=2))
 
 | Module | Tools |
 |--------|-------|
-| `tools/forward.py` | `seed_reference_inhibitors`, `match_literature_to_library`, … |
+| `tools/forward.py` | `seed_reference_inhibitors`, `match_literature_to_library`, `finalize_forward_run`, … |
 | `tools/reverse.py` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score`, … |
 | `tools/bridge.py` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` |
 | `tools/selection.py` | `run_compound_selection_pipeline`, `generate_round1_plate_draft`, … |

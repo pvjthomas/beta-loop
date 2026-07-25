@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import csv
 import json
+import shutil
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from agent.paths import (
+    FORWARD_RUNS_DIR,
     LITERATURE_REFS_DIR,
     LITERATURE_SUMMARY_JSON,
     LOCAL_LITERATURE,
@@ -17,6 +20,9 @@ from agent.paths import (
 from agent.tools.chem import normalize_name, tanimoto_smiles
 from agent.tools.compounds import load_compounds
 from agent.tools.literature import load_literature_summary, save_literature_search
+
+FORWARD_AGENT_VERSION = "v1"
+FORWARD_AGENT_LABEL = "forward-research-agent-v1"
 
 FORWARD_QUERIES = [
     ("TEM-1 beta-lactamase inhibitor IC50 nitrocefin", "pmc"),
@@ -85,16 +91,63 @@ def load_reference_inhibitors() -> dict[str, Any]:
     return {"status": "seed", "source": "built_in", "count": len(SEED_INHIBITORS), "inhibitors": SEED_INHIBITORS}
 
 
-def _name_match(ref_name: str, compound: dict[str, Any]) -> bool:
-    ref_norm = normalize_name(ref_name)
+def _compound_names(compound: dict[str, Any]) -> list[str]:
     names = [str(compound.get("name") or "")]
     synonyms = compound.get("synonyms")
     if synonyms and isinstance(synonyms, str):
         names.extend(synonyms.split(";"))
-    for name in names:
-        if normalize_name(name) == ref_norm:
-            return True
-        if ref_norm in normalize_name(name) or normalize_name(name) in ref_norm:
+    return names
+
+
+def _name_match_score(ref_name: str, compound: dict[str, Any]) -> int:
+    """Score name overlap; 100 = exact normalized match."""
+    ref_norm = normalize_name(ref_name)
+    best = 0
+    for name in _compound_names(compound):
+        name_norm = normalize_name(name)
+        if name_norm == ref_norm:
+            return 100
+        if ref_norm in name_norm:
+            overlap = len(ref_norm)
+            longer = max(len(ref_norm), len(name_norm))
+            if longer and overlap / longer >= 0.9:
+                best = max(best, overlap)
+        elif name_norm in ref_norm:
+            overlap = len(name_norm)
+            longer = max(len(ref_norm), len(name_norm))
+            if longer and overlap / longer >= 0.9:
+                best = max(best, overlap)
+    return best
+
+
+def _name_match(ref_name: str, compound: dict[str, Any]) -> bool:
+    return _name_match_score(ref_name, compound) >= 100 or _name_match_score(ref_name, compound) >= 8
+
+
+def _best_name_match(ref_name: str, compounds: list[dict[str, Any]]) -> dict[str, Any] | None:
+    best_compound = None
+    best_score = 0
+    for compound in compounds:
+        if compound.get("exclude"):
+            continue
+        score = _name_match_score(ref_name, compound)
+        if score > best_score:
+            best_score = score
+            best_compound = compound
+    if best_score >= 100 or best_score >= 8:
+        return best_compound
+    return None
+
+
+def _ref_file_is_curated(path: Path) -> bool:
+    if not path.exists():
+        return False
+    try:
+        payload = json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return False
+    for entry in payload.get("entries", []):
+        if entry.get("source") == "paperclip" or entry.get("pmid") or entry.get("pmcid"):
             return True
     return False
 
@@ -178,21 +231,19 @@ def match_literature_to_library(tanimoto_threshold: float = 0.85) -> dict[str, A
     for ref in refs_payload["inhibitors"]:
         ref_name = ref.get("name", "")
         ref_smiles = ref.get("smiles") or ""
-        direct = None
+        direct = _best_name_match(ref_name, compounds)
         analog = None
         best_tanimoto = 0.0
 
-        for compound in compounds:
-            if compound.get("exclude"):
-                continue
-            if _name_match(ref_name, compound):
-                direct = compound
-                break
-            if ref_smiles and compound.get("smiles"):
-                score = tanimoto_smiles(ref_smiles, compound["smiles"])
-                if score is not None and score >= tanimoto_threshold and score > best_tanimoto:
-                    best_tanimoto = score
-                    analog = compound
+        if not direct and ref_smiles:
+            for compound in compounds:
+                if compound.get("exclude"):
+                    continue
+                if compound.get("smiles"):
+                    score = tanimoto_smiles(ref_smiles, compound["smiles"])
+                    if score is not None and score >= tanimoto_threshold and score > best_tanimoto:
+                        best_tanimoto = score
+                        analog = compound
 
         if direct:
             match_type = "direct"
@@ -215,15 +266,16 @@ def match_literature_to_library(tanimoto_threshold: float = 0.85) -> dict[str, A
 
         LITERATURE_REFS_DIR.mkdir(parents=True, exist_ok=True)
         ref_path = LITERATURE_REFS_DIR / f"{target['compound_id']}.json"
-        payload = {
-            "compound_id": target["compound_id"],
-            "match": "yes" if match_type == "direct" else "analog",
-            "support": "strong" if match_type == "direct" else "weak",
-            "reference_inhibitor": ref_name,
-            "entries": [ref],
-            "raw_local": str(LOCAL_LITERATURE / target["compound_id"] / ""),
-        }
-        ref_path.write_text(json.dumps(payload, indent=2) + "\n")
+        if not _ref_file_is_curated(ref_path):
+            payload = {
+                "compound_id": target["compound_id"],
+                "match": "yes" if match_type == "direct" else "analog",
+                "support": "strong" if match_type == "direct" else "weak",
+                "reference_inhibitor": ref_name,
+                "entries": [ref],
+                "raw_local": str(LOCAL_LITERATURE / target["compound_id"] / ""),
+            }
+            ref_path.write_text(json.dumps(payload, indent=2) + "\n")
 
     state = _load_selection_state()
     state["forward"]["library_matches"] = {
@@ -268,3 +320,98 @@ def write_literature_summary_from_forward() -> dict[str, Any]:
     LITERATURE_SUMMARY_JSON.write_text(json.dumps(summary, indent=2) + "\n")
 
     return {"status": "ok", "path": str(LITERATURE_SUMMARY_JSON), "known_inhibitors": known}
+
+
+def finalize_forward_run(version: int = 1, author: str = "pvjthomas") -> dict[str, Any]:
+    """Snapshot forward-agent outputs to data/runs/forward/v{version}/ and write manifest."""
+    state = _load_selection_state()
+    forward = state.get("forward", {})
+    if not forward.get("library_matches"):
+        return {
+            "status": "error",
+            "message": "forward.library_matches missing — run match_literature_to_library() first",
+        }
+
+    version_label = f"v{version}"
+    run_dir = FORWARD_RUNS_DIR / version_label
+    refs_dir = run_dir / "refs"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    refs_dir.mkdir(parents=True, exist_ok=True)
+
+    rel_prefix = f"data/runs/forward/{version_label}"
+    manifest_rel = f"{rel_prefix}/manifest.json"
+
+    if REFERENCE_INHIBITORS_CSV.exists():
+        shutil.copy2(REFERENCE_INHIBITORS_CSV, run_dir / "reference_inhibitors.csv")
+
+    forward_snapshot = {
+        "schema_version": 1,
+        "agent": "forward_agent",
+        "agent_version": version_label,
+        "run_label": FORWARD_AGENT_LABEL if version == 1 else f"forward-research-agent-{version_label}",
+        "forward": forward,
+    }
+    (run_dir / "state_forward.json").write_text(json.dumps(forward_snapshot, indent=2) + "\n")
+
+    summary_patch: dict[str, Any] = {}
+    if LITERATURE_SUMMARY_JSON.exists():
+        summary = json.loads(LITERATURE_SUMMARY_JSON.read_text())
+        summary_patch = {
+            "known_inhibitors": summary.get("known_inhibitors", []),
+            "library_notes": summary.get("library_notes", {}),
+            "forward_updated_at": summary.get("forward_updated_at"),
+        }
+        (run_dir / "literature_summary_patch.json").write_text(json.dumps(summary_patch, indent=2) + "\n")
+
+    copied_refs: list[str] = []
+    for match in forward.get("library_matches", {}).get("matches", []):
+        compound_id = match.get("compound_id")
+        if not compound_id:
+            continue
+        src = LITERATURE_REFS_DIR / f"{compound_id}.json"
+        if src.exists():
+            dst = refs_dir / f"{compound_id}.json"
+            shutil.copy2(src, dst)
+            copied_refs.append(compound_id)
+
+    created_at = _utc_now()
+    manifest = {
+        "agent": "forward_agent",
+        "version": version,
+        "label": FORWARD_AGENT_LABEL if version == 1 else f"forward-research-agent-{version_label}",
+        "created_at": created_at,
+        "author": author,
+        "status": "complete",
+        "description": (
+            f"Forward research agent {version_label} — Phase B literature → library inhibitor matching"
+        ),
+        "files": {
+            "manifest": manifest_rel,
+            "reference_inhibitors": f"{rel_prefix}/reference_inhibitors.csv",
+            "state_forward": f"{rel_prefix}/state_forward.json",
+            "literature_summary_patch": f"{rel_prefix}/literature_summary_patch.json",
+            "refs": f"{rel_prefix}/refs/",
+            "active_reference_inhibitors": "data/reference_inhibitors.csv",
+            "active_selection_state": "data/selection/state.json",
+        },
+        "match_count": len(forward.get("library_matches", {}).get("matches", [])),
+        "literature_only_count": len(forward.get("library_matches", {}).get("literature_only", [])),
+        "ref_compound_ids": sorted(copied_refs),
+    }
+    (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+
+    state.setdefault("forward", {})
+    state["forward"]["agent_version"] = version_label
+    state["forward"]["run_label"] = manifest["label"]
+    state["forward"]["manifest"] = manifest_rel
+    state["forward"]["finalized_at"] = created_at
+    selection_path = _save_selection_state(state)
+
+    return {
+        "status": "ok",
+        "manifest": str(run_dir / "manifest.json"),
+        "run_dir": str(run_dir),
+        "selection_state": selection_path,
+        "match_count": manifest["match_count"],
+        "ref_compound_ids": copied_refs,
+    }

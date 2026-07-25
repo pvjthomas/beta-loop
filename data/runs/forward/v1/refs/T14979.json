@@ -1,0 +1,17 @@
+{
+  "compound_id": "T14979",
+  "match": "yes",
+  "support": "strong",
+  "reference_inhibitor": "clavulanate lithium",
+  "entries": [
+    {
+      "name": "clavulanate lithium",
+      "smiles": "",
+      "ic50_uM": "",
+      "assay": "nitrocefin",
+      "source": "literature_summary",
+      "pmid_or_chembl_id": ""
+    }
+  ],
+  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T14979"
+}

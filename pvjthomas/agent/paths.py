@@ -14,6 +14,7 @@ REFERENCE_INHIBITORS_CSV = DATA_DIR / "reference_inhibitors.csv"
 SELECTION_STATE_JSON = DATA_DIR / "selection" / "state.json"
 SIMILARITY_NEIGHBORS_JSON = DATA_DIR / "similarity" / "neighbors.json"
 SELECTION_DRAFT_PLATE_JSON = DATA_DIR / "selection" / "plate_map_r1_draft.json"
+FORWARD_RUNS_DIR = DATA_DIR / "runs" / "forward"
 
 LOCAL_ROOT = PVJ_ROOT / "local"
 LOCAL_LITERATURE = LOCAL_ROOT / "literature"

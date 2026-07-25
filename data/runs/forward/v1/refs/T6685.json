@@ -1,0 +1,17 @@
+{
+  "compound_id": "T6685",
+  "match": "yes",
+  "support": "strong",
+  "reference_inhibitor": "sulbactam",
+  "entries": [
+    {
+      "name": "sulbactam",
+      "smiles": "[Na+].[H][C@@]12CC(=O)N1[C@@]([H])(C([O-])=O)C(C)(C)S2(=O)=O",
+      "ic50_uM": "",
+      "assay": "nitrocefin",
+      "source": "manual_seed",
+      "pmid_or_chembl_id": ""
+    }
+  ],
+  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T6685"
+}

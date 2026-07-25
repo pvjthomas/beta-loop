@@ -19,6 +19,7 @@ from agent.prompts import (
 from agent.tools.bridge import assign_tier2_analogs, cluster_library, find_tanimoto_neighbors
 from agent.tools.compounds import load_compounds, prioritize_compounds
 from agent.tools.forward import (
+    finalize_forward_run,
     load_reference_inhibitors,
     match_literature_to_library,
     run_forward_literature_searches,
@@ -64,6 +65,7 @@ FORWARD_TOOLS = [
     run_forward_literature_searches,
     match_literature_to_library,
     write_literature_summary_from_forward,
+    finalize_forward_run,
 ]
 REVERSE_TOOLS = [
     classify_scaffolds_rdkit,
@@ -90,7 +92,7 @@ PLATE_TOOLS = [load_plate_map, design_next_plate]
 forward_agent = Agent(
     model=MODEL,
     name="forward_agent",
-    description="Phase B forward pass: Paperclip literature → library inhibitor matching.",
+    description="Phase B forward research pass: Paperclip literature → library inhibitor matching.",
     instruction=FORWARD_INSTRUCTION,
     tools=[*LITERATURE_TOOLS, *FORWARD_TOOLS],
 )

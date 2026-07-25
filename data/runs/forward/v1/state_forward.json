@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "agent": "forward_agent",
+  "agent_version": "v1",
+  "run_label": "forward-research-agent-v1",
+  "forward": {
+    "library_matches": {
+      "ran_at": "2026-07-25T21:48:41Z",
+      "tanimoto_threshold": 0.85,
+      "matches": [
+        {
+          "reference_name": "clavulanic acid",
+          "match_type": "direct",
+          "compound_id": "T14979",
+          "compound_name": "Clavulanate lithium",
+          "tanimoto": 1.0
+        },
+        {
+          "reference_name": "sulbactam",
+          "match_type": "direct",
+          "compound_id": "T6685",
+          "compound_name": "Sulbactam sodium",
+          "tanimoto": 1.0
+        },
+        {
+          "reference_name": "tazobactam",
+          "match_type": "direct",
+          "compound_id": "T1262",
+          "compound_name": "Tazobactam",
+          "tanimoto": 1.0
+        },
+        {
+          "reference_name": "enmetazobactam",
+          "match_type": "direct",
+          "compound_id": "T14081",
+          "compound_name": "Enmetazobactam",
+          "tanimoto": 1.0
+        },
+        {
+          "reference_name": "clavulanate lithium",
+          "match_type": "direct",
+          "compound_id": "T14979",
+          "compound_name": "Clavulanate lithium",
+          "tanimoto": 1.0
+        }
+      ],
+      "literature_only": []
+    }
+  }
+}
