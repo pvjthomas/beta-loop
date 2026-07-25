@@ -13,7 +13,9 @@ Quick reference for who does what during the hackathon.
 | Task | Lead | Support | Folder / path |
 |------|------|---------|---------------|
 | **1. Program assay on robotics** | Rob + Chang (see folder plans) | pvjthomas (QC) | `workflows/` |
-| **2. Compound screening (closed loop)** | pvjthomas (agent + analysis) | Chang (plate map ↔ robot) | `agent/`, `analysis/`, `data/` |
+| **2. Compound screening (closed loop)** | Philip (compound selection + agent) | Chang (plate map ↔ robot) | `agent/`, `analysis/`, `data/` |
+
+**Philip's plan:** [pvjthomas/COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md)
 
 **Proposed automation split:** Rob = CFPS + GFP gate · Chang = screen + kinetics export.  
 **TODO — Rob & Chang:** Modify and agree on split in [learsch/README.md](learsch/README.md) and [changhu/README.md](changhu/README.md).

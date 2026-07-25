@@ -1,0 +1,328 @@
+# Compound selection plan — Philip
+
+**Owner:** Philip (pvjthomas) · **Task 2:** Compound screening (prioritization + closed-loop design)  
+**Outputs:** `data/compounds.csv`, `data/literature_summary.json`, `data/plate_map_r1.json`, agent priors for R2
+
+This library is unusual: ~95 **β-lactam** compounds from TargetMol — mostly **antibiotics (TEM-1 substrates)** plus a few **true β-lactamase inhibitors**. Selection is not “dock everything and hope”; it is **find inhibitors, confirm substrates as controls, and bridge gaps with similarity when literature and library don’t overlap**.
+
+---
+
+## Goal
+
+Build a **defensible Round 1 plate (~24 compounds)** and **rules for Round 2** such that:
+
+1. We **enrich for real inhibitors** (clavulanate-class) if they exist in-library
+2. We **expect negatives** (antibiotic substrates) and use them to validate the assay story
+3. We can **explain every well** to judges: literature, structure, similarity, or docking
+4. R1 data **changes** R2 in a visible way (hits → dose-response; substrates → drop)
+
+---
+
+## Strategy overview: forward + reverse + bridge
+
+```mermaid
+flowchart TB
+  subgraph forward [Forward — literature first]
+    L1[Paperclip / ChEMBL: TEM-1 inhibitors]
+    L2[Extract names + SMILES + IC50 priors]
+    L3[Match to library by name / InChIKey / SMILES]
+    L4{Direct hit in library?}
+  end
+
+  subgraph reverse [Reverse — library first]
+    R1[Parse all 95 library SMILES]
+    R2[Tag scaffold class: inhibitor vs antibiotic]
+    R3[GNINA dock vs TEM-1 1JQL]
+    R4[Paperclip: any literature on these compounds?]
+  end
+
+  subgraph bridge [Bridge — when no overlap]
+    B1[Tanimoto similarity vs literature inhibitors]
+    B2[Nearest neighbors in library]
+    B3[Cluster by Morgan FP — pick diverse reps]
+  end
+
+  L4 -->|yes| T1[Tier 1: must-test]
+  L4 -->|no| B1
+  B2 --> T2[Tier 2: similarity analogs]
+  R2 --> T1
+  R3 --> T3[Tier 3: dock score rank]
+  R2 --> T4[Tier 4: substrate controls]
+  T1 --> PLATE[Round 1 plate map]
+  T2 --> PLATE
+  T3 --> PLATE
+  T4 --> PLATE
+```
+
+---
+
+## Phase 0 — Data prep (do first)
+
+### 0.1 Library inventory
+
+- [ ] Parse TargetMol sheet → `data/compounds.csv`
+- [ ] Columns: `compound_id`, `name`, `smiles`, `rack_id`, `well`, `scaffold_class`, `tier`, `dock_score`, `exclude`
+- [ ] **Exclude:** nitrocefin (T19709) — assay substrate, not a test compound
+- [ ] Resolve SMILES: PubChem / RDKit from compound names where needed
+
+**Known inhibitor IDs to flag immediately (in-library):**
+
+| compound_id | name |
+|-------------|------|
+| T19860 | Clavulanic acid |
+| T14979 | Clavulanate lithium |
+| T6231 / T1118 | Sulbactam |
+| T1262 | Tazobactam |
+| T14081 | Enmetazobactam |
+
+### 0.2 Reference set — “gold” inhibitors from literature
+
+Build `data/reference_inhibitors.csv` (may extend beyond library):
+
+| Source | What to pull |
+|--------|----------------|
+| **Paperclip** | TEM-1 / class A β-lactamase inhibitors, nitrocefin IC50 |
+| **ChEMBL** (via Paperclip SQL or web) | Target = TEM-1, activity type IC50/Ki |
+| **Manual seed** | Clavulanate, sulbactam, tazobactam, avibactam (if mentioned) |
+
+Columns: `name`, `smiles`, `ic50_uM`, `assay`, `source`, `pmid_or_chembl_id`
+
+---
+
+## Forward direction — literature → library
+
+**Question:** *Which published inhibitors do we already have on the shelf?*
+
+### Step F1 — Literature search (Paperclip)
+
+Run and save under `data/literature/`:
+
+```bash
+paperclip search "TEM-1 beta-lactamase inhibitor IC50 nitrocefin" -n 30
+paperclip search "clavulanic acid sulbactam tazobactam beta-lactamase inhibitor" -n 20
+paperclip map --from s_<id> "List compound names, SMILES if given, and IC50 values for TEM-1 inhibitors"
+```
+
+Optional: Paperclip → ChEMBL/PDB for structured affinities.
+
+### Step F2 — Normalize hits
+
+From papers, extract:
+
+- Common names (clavulanic acid, sulbactam, …)
+- SMILES or InChI if available
+- Activity (IC50, % inhibition at X µM)
+- Mechanism note (suicide inhibitor vs substrate)
+
+Write `data/literature_summary.json` (see [PLAN.md](../PLAN.md)).
+
+### Step F3 — Match literature → library
+
+For each literature inhibitor, try in order:
+
+1. **Exact name match** (case-insensitive, strip salts: “sodium”, “hydrate”)
+2. **Synonym match** (PubChem synonyms for library compound names)
+3. **SMILES / InChIKey exact match** (RDKit canonical SMILES)
+4. **Tanimoto ≥ 0.85** to library compound → “probable same compound, different salt/name”
+
+Record in `data/compounds.csv`:
+
+- `literature_match`: yes / no / analog
+- `literature_ref`: source id
+- `tier`: 1 if direct literature inhibitor in library
+
+### Step F4 — Interpret forward results
+
+| Outcome | Action |
+|---------|--------|
+| **Hits found** (clavulanate-class in library) | Tier 1 must-test; use as **on-plate positive controls** @ 50 µM |
+| **Partial overlap** | Direct hits Tier 1; literature-only structures → **bridge** (below) |
+| **No overlap** | Rely on reverse + similarity; literature still informs assay conc and IC50 expectations |
+
+**Expected for this library:** forward search **will** hit clavulanate/sulbactam/tazobactam — that validates the pipeline.
+
+---
+
+## Reverse direction — library → literature / mechanism
+
+**Question:** *What is each library compound, and could it inhibit TEM-1 even if never published as an inhibitor?*
+
+### Step R1 — Scaffold classification (RDKit)
+
+Tag every library SMILES:
+
+| Class | Substructure / rule | Expected nitrocefin assay |
+|-------|---------------------|---------------------------|
+| **inhibitor** | Clavulanate / penicillanic acid warhead + minimal side chain; sulbactam/tazobactam scaffolds | High % inhibition |
+| **antibiotic_substrate** | Penicillin / cephalosporin / carbapenem (full acyl side chains) | Low inhibition (hydrolyzed as substrate) |
+| **other_β_lactam** | 7-ACA, 7-ADCA, nitrocefin-like | Manual review |
+| **exclude** | Nitrocefin | Do not test |
+
+Use SMARTS patterns + manual override for edge cases. Store in `scaffold_class`.
+
+### Step R2 — Docking (GNINA)
+
+- Receptor: **TEM-1** (PDB **1JQL** or prepped structure)
+- Dock all non-excluded library compounds
+- Score with CNN affinity; keep top poses for demo slides
+
+**Interpretation:**
+
+- High GNINA score on **inhibitor-class** → reinforces Tier 1
+- High score on **antibiotic** → suspect (may bind but as substrate); don’t over-prioritize for “inhibition”
+- Use docking to **rank Tier 3** unknowns, not to override clavulanate priors
+
+### Step R3 — Reverse literature check
+
+For each **Tier 1 / Tier 2** candidate, quick Paperclip grep:
+
+```bash
+paperclip search "<compound name> beta-lactamase" -n 5
+```
+
+Ask: published as inhibitor, substrate, or not tested?
+
+Update `compounds.csv` with `literature_support`: strong / weak / none / substrate_expected.
+
+---
+
+## Bridge — Tanimoto similarity (when forward ≠ library)
+
+**Question:** *Literature has inhibitor X; we don’t have X. What in our library is closest?*
+
+### Step B1 — Fingerprints
+
+- **Morgan fingerprint** (radius 2, 2048 bits), RDKit
+- **Tanimoto coefficient** between each library compound and each reference inhibitor SMILES
+
+### Step B2 — Rules
+
+| Tanimoto to nearest reference inhibitor | Label | Round 1 use |
+|----------------------------------------|-------|-------------|
+| ≥ 0.85 | Probable analog | Strong candidate |
+| 0.70 – 0.85 | Scaffold neighbor | Include 2–4 diverse clusters |
+| 0.50 – 0.70 | Weak analog | Optional wildcard |
+| < 0.50 | Unrelated | Rank by docking or substrate control bucket |
+
+Also compute **internal** library similarity:
+
+- Cluster all 95 compounds (Butina or hierarchical, Tanimoto > 0.7)
+- Pick **one representative per cluster** for diversity in Round 1
+
+### Step B3 — When literature has no inhibitor overlap at all
+
+Still valuable:
+
+1. Tier 1 = RDKit **inhibitor-class** tags in library (if any beyond clavulanate)
+2. Tier 3 = GNINA top 8 not yet in Tier 1
+3. Tier 4 = 8 diverse **antibiotic_substrate** controls (expect low inhibition — proves assay discriminates)
+4. Document: “No literature overlap; selection by scaffold + docking + diversity”
+
+---
+
+## What else to do (beyond forward / reverse / Tanimoto)
+
+### 1. Assay-interference filters
+
+Before putting a compound on the plate:
+
+- [ ] **GFP fusion:** compound doesn’t quench A490 or fluoresce at 490 nm (flag from literature or structural alert)
+- [ ] **Aggregation:** PAINS / colloidal aggregators (RDKit filters)
+- [ ] **Reactive electrophiles** unrelated to β-lactam mechanism — may give false positives
+- [ ] **DMSO solubility:** source is 10 mM in DMSO; final DMSO must match vehicle wells
+
+### 2. Mechanism-aware expectations
+
+| Mechanism | Examples in library | What to expect |
+|-----------|---------------------|----------------|
+| Suicide / covalent inhibitor | Clavulanate, sulbactam, tazobactam | Strong inhibition; pre-incubation helps |
+| Substrate (competitive) | Ampicillin, cephalexin, meropenem | Weak or no nitrocefin inhibition |
+| Slow-binding | Some boronic acids (if any) | Time-dependent — note if kinetics weird |
+
+Use **substrate-class antibiotics as intentional negatives** in R1 — judges love “we predicted no inhibition and were right.”
+
+### 3. Concentration strategy
+
+- **Round 1 single-point:** 50 µM final (matches brief / HTS convention)
+- Working solution = 10× (500 µM) given 5 µL into 50 µL assay
+- **Round 2 dose-response:** 8-point log scale 3 – 100 µM on Tier 1 hits only
+- Literature IC50 priors in `literature_summary.json` — compare after R1
+
+### 4. Confidence tiers → Round 1 plate (24 wells)
+
+| Bucket | Count | Selection rule |
+|--------|-------|----------------|
+| **Tier 1 — must test** | 4 | Known inhibitors (forward + reverse agree) |
+| **Tier 2 — analogs** | 4 | Tanimoto ≥ 0.70 to Tier 1 scaffolds, diverse clusters |
+| **Tier 3 — docking** | 8 | GNINA top among non-Tier-1 |
+| **Tier 4 — substrate controls** | 8 | Diverse antibiotic_substrate (expect <10% inhibition) |
+
+Plus on-plate controls (vehicle, no-enzyme, clavulanate duplicate) — see [PLAN.md](../PLAN.md).
+
+### 5. Round 2 decision rules (for agent / Philip sign-off)
+
+After R1 kinetics:
+
+| R1 result | R2 action |
+|-----------|-----------|
+| ≥50% inhibition @ 50 µM | 8-point dose-response |
+| 20–50% | Retest single-point @ 10 µM or add to DR if scarce hits |
+| <20% + substrate class | Drop; document as substrate control confirmed |
+| Tier 1 fails but assay works | Assay debug — clavulanate must inhibit or fix protocol |
+
+Also: Tanimoto neighbors of **confirmed R1 hits** → add to R2 singles if wells allow.
+
+### 6. Enrichment metric (for pitch)
+
+> “Forward search identified N literature inhibitors; M were in-library (M/N). Round 1 tested 24 compounds; hit rate among Tier 1 was X% vs Y% among substrate controls.”
+
+Shows the selection plan **worked**, even if total hits are few.
+
+### 7. Optional stretch (time permitting)
+
+- **Boltz-2 / affinity** on top 10 — compare to GNINA
+- **3D similarity** (shape) if 2D Tanimoto ambiguous
+- **ADK tool** `prioritize_compounds()` wrapping this pipeline as deterministic code + LLM rationale layer
+
+---
+
+## Deliverables checklist
+
+| File | Description |
+|------|-------------|
+| `data/compounds.csv` | Full library + tags, tiers, scores |
+| `data/reference_inhibitors.csv` | Literature / ChEMBL gold set |
+| `data/literature/*.txt` | Raw Paperclip outputs |
+| `data/literature_summary.json` | Structured priors for agent |
+| `data/plate_map_r1.json` | 24 compounds + controls |
+| `pvjthomas/selection_rationale.md` | 1-page human-readable: why each well (for demo) |
+
+---
+
+## Execution order (Philip — tonight / Sat AM)
+
+1. [ ] Parse library SMILES → `compounds.csv`
+2. [ ] Forward: Paperclip searches + `reference_inhibitors.csv`
+3. [ ] Match literature → library (exact + Tanimoto 0.85)
+4. [ ] Reverse: RDKit scaffold tags + GNINA dock
+5. [ ] Bridge: Tanimoto neighbors for literature-only structures
+6. [ ] Apply interference filters; assign tiers
+7. [ ] Pick 24 for R1 → `plate_map_r1.json`
+8. [ ] Write `selection_rationale.md` + `literature_summary.json`
+9. [ ] Share with Chang for screen workflow validation; sign-off before hardware
+
+---
+
+## Open questions (confirm at kickoff)
+
+- Full SMILES list available from TargetMol sheet or need PubChem lookup?
+- Final assay uses CFPS lysate directly — any compounds incompatible with lysate?
+- Max DMSO % in assay wells?
+
+---
+
+## Related docs
+
+- [PLAN.md](../PLAN.md) — plate layouts, two-round loop
+- [REQUIREMENTS.md](../REQUIREMENTS.md) — Paperclip, RDKit, GNINA setup
+- [ROLES.md](../ROLES.md) — Philip sign-off on R2 plate map

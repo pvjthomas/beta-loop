@@ -1,11 +1,14 @@
-# pvjthomas
+# Philip (pvjthomas)
 
-**Primary role:** Bio / hardware / integration (see [ROLES.md](../ROLES.md))
+**Primary role:** Bio / hardware / integration + **compound selection (Task 2)** (see [ROLES.md](../ROLES.md))
+
+**Compound selection plan:** **[COMPOUND_SELECTION.md](COMPOUND_SELECTION.md)** — forward (literature → library), reverse (library → literature), Tanimoto bridge, tiers → Round 1 plate.
 
 Personal workspace for scripts, notes, and artifacts you own. Shared deliverables still land in `data/`, `agent/`, and `workflows/` at repo root.
 
 ## Your lead tasks
 
+- [ ] **Compound selection pipeline** (see COMPOUND_SELECTION.md)
 - [ ] Kickoff organizer questions
 - [ ] GFP / activity gate thresholds
 - [ ] Demo narrative & pitch
