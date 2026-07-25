@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""Render nitrocefin plate map JSON files as PNG images."""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT / "pvjthomas"))
+
+from analysis.plate_viz import load_and_render  # noqa: E402
+
+
+def _collect_all_runs(data_dir: Path) -> list[Path]:
+    paths: list[Path] = []
+    paths.extend(sorted(data_dir.glob("runs/**/plate_map.json")))
+    paths.extend(sorted(data_dir.glob("plate_map_r*.json")))
+    paths.extend(sorted(data_dir.glob("selection/plate_map_r*_draft.json")))
+    return paths
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Render plate map JSON as PNG (uses wellmap)."
+    )
+    parser.add_argument(
+        "plate_map",
+        nargs="?",
+        help="Path to plate_map.json or plate_map_r{N}.json",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="Output PNG path (default: alongside input JSON)",
+    )
+    parser.add_argument(
+        "--cols",
+        nargs="+",
+        help="Columns to project onto the plate (passed to wellmap.show_df)",
+    )
+    parser.add_argument(
+        "--all-runs",
+        action="store_true",
+        help="Render all versioned snapshots, active maps, and drafts under data/",
+    )
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        default=REPO_ROOT / "data",
+        help="Data directory root (default: repo data/)",
+    )
+    args = parser.parse_args()
+
+    if args.all_runs:
+        paths = _collect_all_runs(args.data_dir)
+        if not paths:
+            print("No plate map JSON files found.", file=sys.stderr)
+            return 1
+        for path in paths:
+            out = load_and_render(path, cols=args.cols)
+            print(out)
+        return 0
+
+    if not args.plate_map:
+        parser.error("plate_map path is required unless --all-runs is set")
+
+    out = load_and_render(args.plate_map, args.output, cols=args.cols)
+    print(out)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -62,3 +62,23 @@ Active working copies remain in `data/reference_inhibitors.csv`, `data/selection
 | v1 | `r1-discovery-v1` | Superseded (24-compound single-replicate, not run) |
 | **v2** | `r1-validation-v2` | **Active on robot** — clavulanic + DMSO @ 50 µM (8 wells) |
 | v3 | `r1-discovery-v3` | Pending sign-off — 24 compound slots × triplicate on 96-well plate (84 wells) |
+
+## Plate map visualization
+
+Render a PNG grid from any plate map JSON (uses [wellmap](https://wellmap.readthedocs.io/)):
+
+```bash
+python scripts/render_platemap.py data/runs/1/v2/plate_map.json
+```
+
+Writes `plate_map.png` alongside the JSON (e.g. `data/runs/1/v2/plate_map.png`). Regenerate after plate design changes. Use `--all-runs` to refresh every versioned snapshot, active map, and draft under `data/`.
+
+```bash
+# Batch: all runs/ snapshots + plate_map_r*.json + selection drafts
+python scripts/render_platemap.py --all-runs
+
+# Override projected columns (default: role + compound_id, or compound_id + concentration_uM for dose-response)
+python scripts/render_platemap.py data/plate_map_r1.json --cols role compound_id bucket
+```
+
+Adapter source: [`pvjthomas/analysis/plate_viz.py`](../../pvjthomas/analysis/plate_viz.py)

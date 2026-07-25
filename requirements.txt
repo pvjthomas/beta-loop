@@ -14,6 +14,7 @@ google-adk
 numpy
 pandas
 scipy
+wellmap
 
 # Cheminformatics (compound tagging, fingerprints)
 rdkit
