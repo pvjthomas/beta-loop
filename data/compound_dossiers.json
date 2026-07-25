@@ -3162,9 +3162,11 @@
         "storage": "git"
       },
       "literature": {
-        "match": null,
-        "support": null,
+        "match": "yes",
+        "support": "strong",
+        "ki_uM_prior_tem1": 0.85,
         "ic50_uM_prior": null,
+        "recommended_screen_uM": 50,
         "refs_summary_storage": "git",
         "refs_summary_file": "data/literature/refs/T19860.json",
         "raw_storage": "local",
@@ -3178,6 +3180,8 @@
         "poses_local": "pvjthomas/local/docking/T19860/"
       },
       "assay": {
+        "recommended_screen_uM": 50,
+        "literature_ki_uM_tem1": 0.85,
         "expected_at_50uM": ">=50% inhibition",
         "summary_storage": "git",
         "summary_file": "data/assay/run_1_summary.json",
