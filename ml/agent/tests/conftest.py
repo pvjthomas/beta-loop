@@ -54,11 +54,14 @@ def _patch_agent_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[
     import agent.tools.compounds as compounds_mod
     import agent.tools.forward as forward_mod
     import agent.tools.literature as literature_mod
+    import agent.tools.reverse as reverse_mod
 
     for key, value in paths.items():
         monkeypatch.setattr(agent_paths, key, value)
         if hasattr(forward_mod, key):
             monkeypatch.setattr(forward_mod, key, value)
+        if hasattr(reverse_mod, key):
+            monkeypatch.setattr(reverse_mod, key, value)
         if key == "COMPOUNDS_CSV":
             monkeypatch.setattr(compounds_mod, "COMPOUNDS_CSV", value)
         if key in ("LITERATURE_SUMMARY_JSON", "LITERATURE_DIR"):

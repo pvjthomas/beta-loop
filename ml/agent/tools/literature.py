@@ -104,3 +104,37 @@ def save_literature_search(
     out_path.write_text(result.get("output", ""))
     result["saved_path"] = str(out_path)
     return result
+
+
+def map_literature_results(question: str, from_results: str) -> dict[str, Any]:
+    """Run Paperclip map against a prior search result set (Ki/IC50 extraction)."""
+    try:
+        from gxl_paperclip import MapResultEvent
+
+        client = _paperclip_client()
+        result_event: MapResultEvent | None = None
+        for event in client.map_(question, from_results=from_results):
+            if isinstance(event, MapResultEvent):
+                result_event = event
+        if result_event is None:
+            return {
+                "status": "error",
+                "question": question,
+                "from_results": from_results,
+                "error": "Paperclip map returned no result event",
+            }
+        return {
+            "status": "ok",
+            "question": question,
+            "from_results": from_results,
+            "result_id": result_event.result_id,
+            "output": result_event.output,
+            "elapsed_ms": result_event.elapsed_ms,
+        }
+    except Exception as exc:  # noqa: BLE001 — surface tool errors to the agent
+        return {
+            "status": "error",
+            "question": question,
+            "from_results": from_results,
+            "error": str(exc),
+        }

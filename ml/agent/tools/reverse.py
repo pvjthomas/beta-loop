@@ -3,18 +3,30 @@
 from __future__ import annotations
 
 import json
+import re
+import time
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from agent.paths import (
     COMPOUNDS_CSV,
     COMPOUND_DOSSIERS_JSON,
+    LITERATURE_REFS_DIR,
+    LITERATURE_SUMMARY_JSON,
     LOCAL_DOCKING,
+    LOCAL_LITERATURE,
+    REPO_ROOT,
     SELECTION_STATE_JSON,
 )
 from agent.tools.chem import RDKIT_AVAILABLE, normalize_name, rdkit_status, smarts_match
 from agent.tools.compounds import load_compounds
-from agent.tools.literature import search_literature
+from agent.tools.forward import (
+    _apply_entry_caps,
+    _ref_file_is_curated,
+    _write_json_capped,
+)
+from agent.tools.literature import map_literature_results, search_literature
 
 # Phase A bootstrap IDs — always inhibitor / exclude regardless of SMARTS.
 TIER1_INHIBITOR_IDS = {
@@ -29,6 +41,25 @@ TIER1_INHIBITOR_IDS = {
 EXCLUDE_IDS = {"T19709"}
 
 INHIBITOR_NAME_FRAGMENTS = ("clavulan", "sulbactam", "tazobactam", "enmetazobactam", "sultamicillin")
+
+# Reverse literature check caps (Step R3) — see pvjthomas/COMPOUND_SELECTION.md
+MAX_REVERSE_LITERATURE_COMPOUNDS = 10
+MAX_REVERSE_QUERY_LIMIT = 5
+MAX_REVERSE_MAP_PER_RUN = 10
+DEFAULT_REVERSE_TIERS = (1, 2)
+REVERSE_MAP_QUESTION = (
+    "For {name} against TEM-1 beta-lactamase in a nitrocefin colorimetric assay: "
+    "report Ki or IC50 in µM, the inhibitor concentration(s) used in the assay "
+    "(µM; single-point screen concentration preferred, or the full tested range), "
+    "nitrocefin substrate concentration (µM), TEM-1 enzyme concentration (nM), "
+    "PMID or PMCID, and whether the compound acts as an inhibitor or substrate."
+)
+
+DEFAULT_PROJECT_SCREEN_U_M = 50
+ACTIVITY_MULTIPLIER = 10
+ASSAY_COMPOUND_VOLUME_UL = 5
+ASSAY_FINAL_VOLUME_UL = 50
+DEFAULT_STOCK_M_M = 10
 
 
 def _utc_now() -> str:
@@ -46,6 +77,356 @@ def _save_selection_state(state: dict[str, Any]) -> str:
     state["updated_at"] = _utc_now()
     SELECTION_STATE_JSON.write_text(json.dumps(state, indent=2) + "\n")
     return str(SELECTION_STATE_JSON)
+
+
+def _normalize_tier(tier: Any) -> int | None:
+    """Normalize compounds.csv tier values (float 1.0, int, str) to int."""
+    if tier is None or tier == "" or str(tier).lower() == "nan":
+        return None
+    try:
+        return int(float(tier))
+    except (TypeError, ValueError):
+        return None
+
+
+def _select_literature_targets(
+    compounds: list[dict[str, Any]],
+    compound_ids: list[str] | None,
+    tiers: tuple[int, ...] | list[int] | None,
+) -> list[dict[str, Any]]:
+    if compound_ids:
+        id_set = set(compound_ids)
+        return [c for c in compounds if c["compound_id"] in id_set and not c.get("exclude")]
+    tier_set = set(tiers or DEFAULT_REVERSE_TIERS)
+    return [
+        c
+        for c in compounds
+        if _normalize_tier(c.get("tier")) in tier_set and not c.get("exclude")
+    ]
+
+
+def _round_conc_uM(value: float) -> float:
+    if value >= 100:
+        return float(round(value))
+    if value >= 10:
+        return round(value, 1)
+    return round(value, 2)
+
+
+def _max_assay_conc_uM(compound: dict[str, Any]) -> float:
+    """Max final assay concentration from library stock (5 µL into 50 µL)."""
+    try:
+        stock_mM = float(compound.get("concentration_mM") or DEFAULT_STOCK_M_M)
+    except (TypeError, ValueError):
+        stock_mM = DEFAULT_STOCK_M_M
+    stock_uM = stock_mM * 1000
+    return stock_uM * (ASSAY_COMPOUND_VOLUME_UL / ASSAY_FINAL_VOLUME_UL)
+
+
+def _parse_inhibitor_concentrations(map_output: str, compound_name: str) -> dict[str, Any]:
+    """Extract nitrocefin-assay concentrations from Paperclip map text."""
+    parsed: dict[str, Any] = {}
+
+    nitrocefin_match = re.search(
+        r"(\d+(?:\.\d+)?)\s*(?:µM|uM|microM|μM)\s+nitrocefin",
+        map_output,
+        re.I,
+    )
+    if not nitrocefin_match:
+        nitrocefin_match = re.search(
+            r"nitrocefin\s*(?:at\s*)?(\d+(?:\.\d+)?)\s*(?:µM|uM|microM|μM)",
+            map_output,
+            re.I,
+        )
+    if nitrocefin_match:
+        parsed["nitrocefin_uM"] = float(nitrocefin_match.group(1))
+
+    enzyme_match = re.search(
+        r"(?:TEM-1|enzyme)[^.\n]{0,40}?(\d+(?:\.\d+)?)\s*nM",
+        map_output,
+        re.I,
+    )
+    if not enzyme_match:
+        enzyme_match = re.search(
+            r"(\d+(?:\.\d+)?)\s*nM[^.\n]{0,40}?(?:TEM-1|enzyme)",
+            map_output,
+            re.I,
+        )
+    if enzyme_match:
+        parsed["enzyme_nM"] = float(enzyme_match.group(1))
+
+    screen_match = re.search(
+        r"(?:screen(?:ed|ing)?(?:\s+at)?|single[- ]?point|tested at|at a concentration of)"
+        r"\s*(?:of\s*)?(\d+(?:\.\d+)?)\s*(?:µM|uM|microM|μM)",
+        map_output,
+        re.I,
+    )
+    if screen_match:
+        parsed["literature_inhibitor_uM"] = float(screen_match.group(1))
+        parsed["literature_inhibitor_source"] = "explicit_screen"
+
+    if "literature_inhibitor_uM" not in parsed:
+        name_pattern = re.escape(compound_name.split()[0])
+        named_match = re.search(
+            rf"{name_pattern}[^.\n]{{0,50}}?(\d+(?:\.\d+)?)\s*(?:µM|uM|microM|μM)",
+            map_output,
+            re.I,
+        )
+        if named_match:
+            parsed["literature_inhibitor_uM"] = float(named_match.group(1))
+            parsed["literature_inhibitor_source"] = "named_single_point"
+
+    range_match = re.search(
+        r"(?:inhibitor|compound|concentration)[^.\n]{0,40}?"
+        r"(\d+(?:\.\d+)?)\s*[–\-—to]\s*(\d+(?:\.\d+)?)\s*(?:µM|uM|microM|μM)",
+        map_output,
+        re.I,
+    )
+    if not range_match:
+        range_match = re.search(
+            r"(\d+(?:\.\d+)?)\s*[–\-—to]\s*(\d+(?:\.\d+)?)\s*(?:µM|uM|microM|μM)",
+            map_output,
+            re.I,
+        )
+    if range_match:
+        low = float(range_match.group(1))
+        high = float(range_match.group(2))
+        parsed["inhibitor_uM_range"] = [low, high]
+        if "literature_inhibitor_uM" not in parsed:
+            parsed["literature_inhibitor_uM"] = high
+            parsed["literature_inhibitor_source"] = "assay_range_max"
+
+    return parsed
+
+
+def _recommend_screen_conc_uM(entry: dict[str, Any], compound: dict[str, Any]) -> dict[str, Any]:
+    """Pick a screen concentration: literature assay conc, else 10× IC50/Ki capped at solubility."""
+    max_uM = _max_assay_conc_uM(compound)
+
+    literature_uM = entry.get("literature_inhibitor_uM")
+    if literature_uM and literature_uM > 0:
+        capped = min(literature_uM, max_uM)
+        source = entry.get("literature_inhibitor_source") or "literature"
+        rationale = f"Literature nitrocefin assay inhibitor concentration ({literature_uM} µM)."
+        if capped < literature_uM:
+            rationale += f" Capped at library solubility limit ({max_uM:g} µM final)."
+        return {
+            "screen_conc_uM": _round_conc_uM(capped),
+            "screen_rationale": rationale,
+            "screen_conc_source": "literature",
+            "literature_inhibitor_uM": literature_uM,
+            "literature_inhibitor_source": source,
+            "max_assay_conc_uM": max_uM,
+        }
+
+    ic50_uM = entry.get("ic50_uM")
+    ki_uM = entry.get("ki_uM")
+    activity_uM = ic50_uM or ki_uM
+    activity_metric = "IC50" if ic50_uM else "Ki"
+    if activity_uM and activity_uM > 0:
+        target = ACTIVITY_MULTIPLIER * activity_uM
+        capped = min(target, max_uM)
+        rationale = f"{ACTIVITY_MULTIPLIER}× literature {activity_metric} ({activity_uM} µM)"
+        if capped < target:
+            rationale += f", capped at library solubility ({max_uM:g} µM final from {DEFAULT_STOCK_M_M:g} mM stock)."
+        else:
+            rationale += "."
+        return {
+            "screen_conc_uM": _round_conc_uM(capped),
+            "screen_rationale": rationale,
+            "screen_conc_source": f"{ACTIVITY_MULTIPLIER}x_{activity_metric.lower()}",
+            "activity_uM": activity_uM,
+            "activity_metric": activity_metric,
+            "max_assay_conc_uM": max_uM,
+        }
+
+    return {
+        "screen_conc_uM": DEFAULT_PROJECT_SCREEN_U_M,
+        "screen_rationale": (
+            "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted."
+        ),
+        "screen_conc_source": "project_default",
+        "max_assay_conc_uM": max_uM,
+    }
+
+
+def _assay_recommendations_from_entry(
+    entry: dict[str, Any],
+    compound: dict[str, Any],
+) -> dict[str, Any]:
+    screen = _recommend_screen_conc_uM(entry, compound)
+    block: dict[str, Any] = {
+        "screen_conc_uM": screen["screen_conc_uM"],
+        "screen_rationale": screen["screen_rationale"],
+        "screen_conc_source": screen["screen_conc_source"],
+        "max_assay_conc_uM": screen["max_assay_conc_uM"],
+        "metric": "relative nitrocefin hydrolysis vs no-inhibitor control",
+    }
+    for key in (
+        "literature_inhibitor_uM",
+        "literature_inhibitor_source",
+        "inhibitor_uM_range",
+        "activity_uM",
+        "activity_metric",
+        "nitrocefin_uM",
+        "enzyme_nM",
+    ):
+        if entry.get(key) is not None:
+            block[key] = entry[key]
+    return {"tem1_nitrocefin": block}
+
+
+def _parse_activity_entry(
+    map_output: str,
+    *,
+    compound_name: str,
+    search_id: str | None,
+    map_id: str | None,
+) -> dict[str, Any]:
+    """Best-effort structured entry from Paperclip map text."""
+    entry: dict[str, Any] = {
+        "source": "paperclip",
+        "target": "TEM-1",
+        "assay": "nitrocefin",
+        "note": map_output.strip()[:2000],
+    }
+    if search_id:
+        entry["paperclip_search_id"] = search_id
+    if map_id:
+        entry["paperclip_map_id"] = map_id
+
+    ki_match = re.search(r"Ki\s*[=≈:]?\s*([\d.]+)\s*(?:µM|uM|microM|μM)", map_output, re.I)
+    ic50_match = re.search(r"IC50\s*[=≈:]?\s*([\d.]+)\s*(?:µM|uM|microM|μM)", map_output, re.I)
+    pmid_match = re.search(r"PMID[:\s#]*(\d+)", map_output, re.I)
+    pmcid_match = re.search(r"(PMC\d+)", map_output, re.I)
+    doi_match = re.search(r"(10\.\d{4,9}/[^\s\])]+)", map_output, re.I)
+
+    if ki_match:
+        entry["ki_uM"] = float(ki_match.group(1))
+    else:
+        entry["ki_uM"] = None
+    if ic50_match:
+        entry["ic50_uM"] = float(ic50_match.group(1))
+    else:
+        entry["ic50_uM"] = None
+    if pmid_match:
+        entry["pmid"] = pmid_match.group(1)
+    if pmcid_match:
+        entry["pmcid"] = pmcid_match.group(1)
+    if doi_match:
+        entry["doi"] = doi_match.group(1)
+
+    title_match = re.search(r"title[:\s]+(.+)", map_output, re.I)
+    if title_match:
+        entry["title"] = title_match.group(1).strip()[:300]
+
+    entry.update(_parse_inhibitor_concentrations(map_output, compound_name))
+
+    entry["note"] = (
+        f"Reverse literature check for {compound_name}. "
+        + (map_output.strip()[:1500] if map_output else "No map output.")
+    )
+    return entry
+
+
+def _merge_reverse_ref(
+    compound: dict[str, Any],
+    entry: dict[str, Any],
+    *,
+    skip_curated: bool,
+) -> dict[str, Any]:
+    compound_id = str(compound["compound_id"])
+    ref_path = LITERATURE_REFS_DIR / f"{compound_id}.json"
+    if skip_curated and _ref_file_is_curated(ref_path):
+        return {"status": "skipped_curated", "ref_path": str(ref_path)}
+
+    if ref_path.exists():
+        payload = json.loads(ref_path.read_text())
+    else:
+        payload = {
+            "compound_id": compound_id,
+            "name": compound.get("name"),
+            "match": "yes",
+            "support": "weak",
+            "entries": [],
+            "raw_local": str(LOCAL_LITERATURE / compound_id / ""),
+        }
+
+    entries = list(payload.get("entries", []))
+    entries.append(entry)
+    entries, truncated = _apply_entry_caps(entries)
+    payload["entries"] = entries
+    if truncated:
+        payload["cap_truncated"] = True
+
+    if not payload.get("assay_recommendations"):
+        payload["assay_recommendations"] = _assay_recommendations_from_entry(entry, compound)
+        if entry.get("ki_uM") or entry.get("ic50_uM") or entry.get("literature_inhibitor_uM"):
+            payload["support"] = "strong"
+
+    LITERATURE_REFS_DIR.mkdir(parents=True, exist_ok=True)
+    _write_json_capped(ref_path, payload)
+    screen_rec = _recommend_screen_conc_uM(entry, compound)
+    return {
+        "status": "written",
+        "ref_path": str(ref_path),
+        "ki_uM": entry.get("ki_uM"),
+        "ic50_uM": entry.get("ic50_uM"),
+        "screen_conc_uM": screen_rec["screen_conc_uM"],
+        "screen_conc_source": screen_rec["screen_conc_source"],
+    }
+
+
+def _patch_literature_summary_prior(compound: dict[str, Any], entry: dict[str, Any], ref_path: str) -> None:
+    if not LITERATURE_SUMMARY_JSON.exists():
+        return
+    summary = json.loads(LITERATURE_SUMMARY_JSON.read_text())
+    priors = summary.setdefault("compound_assay_priors", {})
+    compound_id = str(compound["compound_id"])
+    if compound_id in priors and priors[compound_id].get("literature_ki_uM_tem1"):
+        return
+
+    screen_rec = _recommend_screen_conc_uM(entry, compound)
+    prior: dict[str, Any] = {
+        "name": compound.get("name"),
+        "recommended_screen_uM": screen_rec["screen_conc_uM"],
+        "screen_conc_source": screen_rec["screen_conc_source"],
+        "refs_file": str(Path(ref_path).relative_to(REPO_ROOT)),
+    }
+    ki_uM = entry.get("ki_uM")
+    ic50_uM = entry.get("ic50_uM")
+    if ki_uM:
+        prior["literature_ki_uM_tem1"] = ki_uM
+    if ic50_uM:
+        prior["literature_ic50_uM_tem1"] = ic50_uM
+    if ki_uM or ic50_uM or entry.get("literature_inhibitor_uM"):
+        prior["expected_at_recommended_uM"] = ">=50% inhibition"
+    if entry.get("assay"):
+        prior["literature_assay"] = {"type": f"TEM-1 {entry.get('assay')} inhibition"}
+    priors[compound_id] = prior
+    summary["reverse_literature_updated_at"] = _utc_now()
+    LITERATURE_SUMMARY_JSON.write_text(json.dumps(summary, indent=2) + "\n")
+
+
+def _run_reverse_search(
+    query: str,
+    *,
+    source: str,
+    limit: int,
+    save_raw: bool,
+    compound_id: str,
+) -> dict[str, Any]:
+    started = time.perf_counter()
+    result = search_literature(query=query, source=source, limit=limit)
+    result["elapsed_ms"] = int((time.perf_counter() - started) * 1000)
+    if save_raw and result.get("status") == "ok" and result.get("output"):
+        save_dir = LOCAL_LITERATURE / compound_id
+        save_dir.mkdir(parents=True, exist_ok=True)
+        safe = f"reverse_{abs(hash(query)) % 10_000_000}.txt"
+        out_path = save_dir / safe
+        out_path.write_text(result["output"])
+        result["saved_path"] = str(out_path)
+    return result
 
 
 def _classify_compound(compound: dict[str, Any]) -> tuple[str, int | None]:
@@ -179,7 +560,7 @@ def load_dock_scores() -> dict[str, Any]:
 def rank_by_dock_score(top_n: int = 8) -> dict[str, Any]:
     """Rank non-Tier-1 library compounds by GNINA score for Tier 3 picks (Phase B reverse R2)."""
     compounds = load_compounds()
-    tier1_ids = {c["compound_id"] for c in compounds if str(c.get("tier")) == "1"}
+    tier1_ids = {c["compound_id"] for c in compounds if _normalize_tier(c.get("tier")) == 1}
     dock = load_dock_scores()
 
     if dock["count"] == 0:
@@ -210,21 +591,127 @@ def rank_by_dock_score(top_n: int = 8) -> dict[str, Any]:
     return {"status": "ok", "selection_state": path, "tier3_candidates": ranked}
 
 
-def reverse_literature_check(compound_ids: list[str] | None = None, limit_per_compound: int = 3) -> dict[str, Any]:
-    """Quick Paperclip search per Tier-1/2 candidate (Phase B reverse R3). Caps live API calls."""
-    compounds = load_compounds()
-    if compound_ids:
-        targets = [c for c in compounds if c["compound_id"] in compound_ids]
-    else:
-        targets = [c for c in compounds if str(c.get("tier")) == "1"]
+def reverse_literature_check(
+    compound_ids: list[str] | None = None,
+    tiers: list[int] | None = None,
+    limit_per_compound: int = MAX_REVERSE_QUERY_LIMIT,
+    extract_activity: bool = True,
+    write_refs: bool = True,
+    save_raw: bool = True,
+    skip_curated: bool = True,
+) -> dict[str, Any]:
+    """Paperclip search + optional map per Tier-1/2 candidate (Phase B reverse R3).
 
-    results = []
-    for compound in targets[:10]:
-        query = f"{compound.get('name')} beta-lactamase inhibitor TEM-1"
-        hit = search_literature(query=query, source="pmc", limit=limit_per_compound)
-        results.append({"compound_id": compound["compound_id"], "name": compound.get("name"), "search": hit})
+    Writes structured evidence to data/compound_literature/refs/{id}.json when write_refs=True.
+    Skips already-curated refs (e.g. T19860 gold) when skip_curated=True.
+    Logs elapsed_ms, result_id, and caps under state.reverse.literature_checks.
+    """
+    limit_per_compound = max(1, min(limit_per_compound, MAX_REVERSE_QUERY_LIMIT))
+    compounds = load_compounds()
+    targets = _select_literature_targets(compounds, compound_ids, tiers)
+    truncated_ids: list[str] = []
+    if len(targets) > MAX_REVERSE_LITERATURE_COMPOUNDS:
+        truncated_ids = [c["compound_id"] for c in targets[MAX_REVERSE_LITERATURE_COMPOUNDS :]]
+        targets = targets[:MAX_REVERSE_LITERATURE_COMPOUNDS]
+
+    results: list[dict[str, Any]] = []
+    refs_written: list[str] = []
+    refs_skipped: list[str] = []
+    map_count = 0
+
+    for compound in targets:
+        compound_id = str(compound["compound_id"])
+        name = str(compound.get("name") or compound_id)
+        query = f"{name} beta-lactamase inhibitor TEM-1 nitrocefin"
+        search = _run_reverse_search(
+            query,
+            source="pmc",
+            limit=limit_per_compound,
+            save_raw=save_raw,
+            compound_id=compound_id,
+        )
+
+        row: dict[str, Any] = {
+            "compound_id": compound_id,
+            "name": name,
+            "query": query,
+            "search": search,
+        }
+
+        entry: dict[str, Any] | None = None
+        if extract_activity and search.get("status") == "ok" and search.get("result_id"):
+            if map_count < MAX_REVERSE_MAP_PER_RUN:
+                map_started = time.perf_counter()
+                map_result = map_literature_results(
+                    REVERSE_MAP_QUESTION.format(name=name),
+                    from_results=str(search["result_id"]),
+                )
+                map_result["elapsed_ms"] = int((time.perf_counter() - map_started) * 1000)
+                row["map"] = map_result
+                map_count += 1
+                if map_result.get("status") == "ok":
+                    entry = _parse_activity_entry(
+                        map_result.get("output") or "",
+                        compound_name=name,
+                        search_id=search.get("result_id"),
+                        map_id=map_result.get("result_id"),
+                    )
+            else:
+                row["map_skipped"] = "map cap reached"
+
+        if entry is None and search.get("status") == "ok":
+            entry = {
+                "source": "paperclip",
+                "target": "TEM-1",
+                "assay": "nitrocefin",
+                "paperclip_search_id": search.get("result_id"),
+                "note": f"Search-only reverse check for {name}; map unavailable or capped.",
+            }
+
+        if entry is not None:
+            screen_rec = _recommend_screen_conc_uM(entry, compound)
+            row["screen_recommendation"] = {
+                "screen_conc_uM": screen_rec["screen_conc_uM"],
+                "screen_conc_source": screen_rec["screen_conc_source"],
+                "screen_rationale": screen_rec["screen_rationale"],
+            }
+
+        if write_refs and entry is not None:
+            ref_outcome = _merge_reverse_ref(compound, entry, skip_curated=skip_curated)
+            row["ref"] = ref_outcome
+            if ref_outcome["status"] == "written":
+                refs_written.append(compound_id)
+                _patch_literature_summary_prior(compound, entry, ref_outcome["ref_path"])
+            elif ref_outcome["status"] == "skipped_curated":
+                refs_skipped.append(compound_id)
+
+        results.append(row)
 
     state = _load_selection_state()
-    state["reverse"]["literature_checks"] = {"ran_at": _utc_now(), "results": results}
+    state.setdefault("reverse", {})
+    state["reverse"]["literature_checks"] = {
+        "ran_at": _utc_now(),
+        "caps": {
+            "max_compounds": MAX_REVERSE_LITERATURE_COMPOUNDS,
+            "query_limit": MAX_REVERSE_QUERY_LIMIT,
+            "max_map_per_run": MAX_REVERSE_MAP_PER_RUN,
+        },
+        "targets_requested": len(targets) + len(truncated_ids),
+        "search_count": len(results),
+        "map_count": map_count,
+        "truncated_compound_ids": truncated_ids,
+        "results": results,
+        "refs_written": refs_written,
+        "refs_skipped_curated": refs_skipped,
+    }
     path = _save_selection_state(state)
-    return {"status": "ok", "selection_state": path, "checked": len(results), "results": results}
+    return {
+        "status": "ok",
+        "selection_state": path,
+        "checked": len(results),
+        "map_count": map_count,
+        "refs_written": refs_written,
+        "refs_skipped_curated": refs_skipped,
+        "truncated_compound_ids": truncated_ids,
+        "results": results,
+    }

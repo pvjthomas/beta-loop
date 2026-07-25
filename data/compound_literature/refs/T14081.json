@@ -12,6 +12,17 @@
       "assay": "nitrocefin",
       "source": "manual_seed",
       "pmid_or_chembl_id": ""
+    },
+    {
+      "source": "paperclip",
+      "target": "TEM-1",
+      "assay": "nitrocefin",
+      "note": "Reverse literature check for Enmetazobactam. Map complete: 5/5 tasks succeeded in 3238ms\nResults ID: m_7e377496\nFull results: /.gxl/map_m_7e377496.txt\n\n  [success] Mechanistic basis for inhibition of the extended\u2010spectrum \u03b2\u2010lactamase   (PMC12643063)\n    Based on the provided paper content, there is no information regarding the IC50, Ki, inhibitor concentrations, TEM-1 enzyme concentration, or PMID/PMC\n  [success] Cefepime-enmetazobactam: first approved cefepime-\u03b2- lactamase inhibito  (PMC11938971)\n    Based on the provided paper content, there is no information regarding $K_i$, $\\text{IC}_{50}$, inhibitor concentrations, substrate concentrations, or\n  [success] Molecular Basis of Class A \u03b2-Lactamase Inhibition by Relebactam  (PMC6761529)\n    Based on the provided paper content, there is no information regarding Enmetazobactam against TEM-1 beta-lactamase. The paper discusses relebactam and\n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    Based on the provided paper content, there is no mention of a nitrocefin colorimetric assay, Ki, IC50 values, inhibitor concentrations, substrate conc\n  [success] Studies on enmetazobactam clarify mechanisms of widely used \u03b2-lactamas  (PMC9170034)\n    Based on the provided paper, here is the information for **TEM-116** (referred to as TEM-1 in the context of the reported assay values):  * **$IC_{50}\n\nFull results: /.gxl/map_m_7e377496.txt",
+      "paperclip_search_id": "s_db29de97",
+      "paperclip_map_id": "m_7e377496",
+      "ki_uM": null,
+      "ic50_uM": null,
+      "pmcid": "PMC12643063"
     }
   ],
   "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T14081",
@@ -19,5 +30,14 @@
   "related_forms": [
     "T14081"
   ],
-  "canonical_compound_id": "T14081"
+  "canonical_compound_id": "T14081",
+  "assay_recommendations": {
+    "tem1_nitrocefin": {
+      "screen_conc_uM": 50,
+      "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted.",
+      "screen_conc_source": "project_default",
+      "max_assay_conc_uM": 1000.0,
+      "metric": "relative nitrocefin hydrolysis vs no-inhibitor control"
+    }
+  }
 }

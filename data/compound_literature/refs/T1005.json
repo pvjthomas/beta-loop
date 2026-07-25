@@ -1,0 +1,29 @@
+{
+  "compound_id": "T1005",
+  "name": "Amoxicillin",
+  "match": "yes",
+  "support": "weak",
+  "entries": [
+    {
+      "source": "paperclip",
+      "target": "TEM-1",
+      "assay": "nitrocefin",
+      "note": "Reverse literature check for Amoxicillin. Map complete: 5/5 tasks succeeded in 2054ms\nResults ID: m_0bbb5712\nFull results: /.gxl/map_m_0bbb5712.txt\n\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided paper content, there is no mention of a nitrocefin colorimetric assay, $K_i$ or $\\mathrm{IC}_{50}$ values for amoxicillin agains\n  [success] Reversible inactivation of a peptidoglycan transpeptidase by a \u03b2-lacta  (PMC5567249)\n    Based on the provided research paper content, there is no information regarding Amoxicillin against TEM-1 beta-lactamase, Ki, IC50 values, or assays i\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper content, there is no mention of Amoxicillin, nitrocefin colorimetric assays, Ki, IC50 values, inhibitor concentrations, ni\n  [success] Effect of Lactamase Inhibitors on the Biosensor Penp during the Measur  (PMC6427286)\n    Based on the provided paper content, there is no information regarding a nitrocefin colorimetric assay, IC50, Ki, enzyme concentrations, or substrate \n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    Based on the provided paper, there is no mention of Amoxicillin, TEM-1 beta-lactamase, nitrocefin colorimetric assays, Ki, IC50 values, enzyme concent\n\nFull results: /.gxl/map_m_0bbb5712.txt",
+      "paperclip_search_id": "s_20332041",
+      "paperclip_map_id": "m_0bbb5712",
+      "ki_uM": null,
+      "ic50_uM": null,
+      "pmcid": "PMC12484619"
+    }
+  ],
+  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T1005",
+  "assay_recommendations": {
+    "tem1_nitrocefin": {
+      "screen_conc_uM": 50,
+      "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted.",
+      "screen_conc_source": "project_default",
+      "max_assay_conc_uM": 1000.0,
+      "metric": "relative nitrocefin hydrolysis vs no-inhibitor control"
+    }
+  }
+}

@@ -12,6 +12,27 @@
   "group_id": "clavulanate",
   "reference_inhibitor": "clavulanate lithium",
   "note": "Li+ salt of clavulanic acid (T19860 core); use same assay priors as T19860.",
-  "entries": [],
-  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T14979"
+  "entries": [
+    {
+      "source": "paperclip",
+      "target": "TEM-1",
+      "assay": "nitrocefin",
+      "note": "Reverse literature check for Clavulanate lithium. Map complete: 5/5 tasks succeeded in 1604ms\nResults ID: m_a095ce5d\nFull results: /.gxl/map_m_a095ce5d.txt\n\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper content, there is no information regarding experimental assays (such as a nitrocefin colorimetric assay), Ki or IC50 value\n  [success] Molecular Basis of Class A \u03b2-Lactamase Inhibition by Relebactam  (PMC6761529)\n    Based on the provided paper, there is no information regarding the use of \"Clavulanate lithium against TEM-1 beta-lactamase\" or its $K_i$ / $\\text{IC}\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided paper content, there is no mention of a nitrocefin colorimetric assay, Clavulanate lithium, Ki, IC50 values, inhibitor concentra\n  [success] Phosphate Promotes the Recovery of  Mycobacterium\ntuberculosis  \u03b2-Lact  (PMC5707625)\n    Based on the provided paper, there is no information regarding the interaction of Clavulanate lithium with TEM-1 beta-lactamase. The paper focuses exc\n  [success] In Vitro Activity of Cefaclor/Beta-Lactamases Inhibitors (Clavulanic A  (PMC12189933)\n    Based on the provided paper, there is no mention of Clavulanate lithium, TEM-1 beta-lactamase, a nitrocefin colorimetric assay, $K_i$, $IC_{50}$, or r\n\nFull results: /.gxl/map_m_a095ce5d.txt",
+      "paperclip_search_id": "s_910214ba",
+      "paperclip_map_id": "m_a095ce5d",
+      "ki_uM": null,
+      "ic50_uM": null,
+      "pmcid": "PMC11229569"
+    }
+  ],
+  "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T14979",
+  "assay_recommendations": {
+    "tem1_nitrocefin": {
+      "screen_conc_uM": 50,
+      "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted.",
+      "screen_conc_source": "project_default",
+      "max_assay_conc_uM": 1000.0,
+      "metric": "relative nitrocefin hydrolysis vs no-inhibitor control"
+    }
+  }
 }

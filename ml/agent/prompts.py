@@ -45,9 +45,13 @@ Steps:
 1. classify_scaffolds_rdkit(write_csv=False) — set write_csv=True only when human approved.
 2. run_gnina_batch() — stub until GNINA is run locally; then load_dock_scores().
 3. rank_by_dock_score(top_n=8) for Tier 3 candidates.
-4. Optionally reverse_literature_check() for Tier-1 IDs (≤10 compounds).
+4. reverse_literature_check() — Paperclip search + map per Tier-1/2 inhibitor (≤10 compounds):
+   - Default: all tier-1 library inhibitors (no compound_ids needed).
+   - Or pass compound_ids for a discovery-plate subset.
+   - Writes refs to data/compound_literature/refs/{id}.json (skips already-curated e.g. T19860).
+   - Logs elapsed_ms, result_id, caps in state.reverse.literature_checks.
 
-Report scaffold_class counts and Tier 3 candidate IDs.
+Report: scaffold_class counts, Tier 3 candidate IDs, literature refs written/skipped.
 """
 
 BRIDGE_INSTRUCTION = """

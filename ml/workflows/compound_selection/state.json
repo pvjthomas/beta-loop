@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-25T23:04:06Z",
+  "updated_at": "2026-07-25T23:22:40Z",
   "forward": {
     "library_matches": {
       "ran_at": "2026-07-25T23:04:06Z",
@@ -197,7 +197,7 @@
   },
   "reverse": {
     "scaffold_classification": {
-      "ran_at": "2026-07-25T23:04:06Z",
+      "ran_at": "2026-07-25T23:11:13Z",
       "rdkit": {
         "available": true
       },
@@ -946,7 +946,7 @@
       "csv_updated": false
     },
     "dock_rank": {
-      "ran_at": "2026-07-25T23:04:06Z",
+      "ran_at": "2026-07-25T23:11:13Z",
       "status": "fallback_no_scores",
       "tier3_candidates": [
         "T0138",
@@ -958,6 +958,134 @@
         "T1005",
         "T1008"
       ]
+    },
+    "literature_checks": {
+      "ran_at": "2026-07-25T23:22:40Z",
+      "caps": {
+        "max_compounds": 10,
+        "query_limit": 5,
+        "max_map_per_run": 10
+      },
+      "targets_requested": 3,
+      "search_count": 3,
+      "map_count": 3,
+      "truncated_compound_ids": [],
+      "results": [
+        {
+          "compound_id": "T6385",
+          "name": "Amoxicillin Sodium",
+          "query": "Amoxicillin Sodium beta-lactamase inhibitor TEM-1 nitrocefin",
+          "search": {
+            "status": "ok",
+            "query": "Amoxicillin Sodium beta-lactamase inhibitor TEM-1 nitrocefin",
+            "source": "pmc",
+            "limit": 5,
+            "result_id": "s_a8fe9233",
+            "output": "Found 5 papers  [s_a8fe9233]\n\n  1. Escherichia coli  phylogeny drives co-amoxiclav resistance through variable expression of TEM-1 beta-lactamase\n     William Matlock, Gillian Rodger, Emma Pritchard, Matthew Colpus, Natalia Kapel, Lucinda Barrett, Mar...\n     PMC12484619 \u00b7 PMC \u00b7 2025-09-30\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12484619/\n     \"This study investigated how *E. coli* phylogeny influences co-amoxiclav resistance. Resistance levels are significantly driven by phylogenetic variation in *bla TEM-1* beta-lactamase expression.\"\n\n  2. Effect of Lactamase Inhibitors on the Biosensor Penp during the Measurement of Lactam Antibiotics Concentration\n     Dagoberto Soto, Camila Silva, Cristian Ugalde, Kwok-Yin Wong, Yun-Chung Leung, Lok-Yan So, Max Andre...\n     PMC6427286 \u00b7 biomedrxiv \u00b7 2019-03-12\n     https://doi.org/10.3390/s19051237\n     \"This study investigated the impact of lactamase inhibitors on the PenP biosensor's ability to measure lactam antibiotics. The findings indicate that lactamase inhibitors have a minimal effect on PenP's detection capabilities.\"\n\n  3. In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-Lactamase Inhibitor against Extended-Spectrum Beta-Lactamase-Encoding Genes\n     Dwi Krihariyani, Evy Diah Woelansari, Edy Haryanto, Retno Sasongkowati, Anik Handayati, Sri Sulami E...\n     PMC11229569 \u00b7 PMC \u00b7 2024-06-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11229569/\n     \"This study investigated brazilein from sappan wood as a potential inhibitor of extended-spectrum beta-lactamases. Brazilein showed significant potential to block the beta-lactamase activity of the blaCTX-M gene.\"\n\n  4. In vitro  and  in vivo  Inhibitory Activity of NADPH Against the AmpC BER Class C \u03b2-Lactamase\n     Jung-Hyun Na, Tae Hee Lee, Soo-Bong Park, Min-Kyu Kim, Bo-Gyeong Jeong, Kyung Min Chung, Sun-Shin Ch...\n     PMC6308799 \u00b7 PMC \u00b7 2018-12-21\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6308799/\n     \"NADPH was studied for its inhibitory activity against the AmpC BER class C \u03b2-lactamase. NADPH restored ceftazidime's antibacterial activity in vitro and in vivo, showing potential for novel \u03b2-lactamase inhibitor development.\"\n\n  5. Classification and applicability of new beta-lactamase inhibitors\n     Emilia Cercenado, Francisco Javier Candel\n     PMC12584905 \u00b7 PMC \u00b7 2025-10-24\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12584905/\n     \"This review classifies new beta-lactamase inhibitors and their characteristics. Their applicability depends on the specific beta-lactamase/carbapenemase, microorganism, and resistance mechanisms.\"\n\n[335ms, saved to s_a8fe9233]\n\n\ud83d\udca1 Extract data across these results with: map --from s_a8fe9233 \"your question\"\n[335ms, saved to s_a8fe9233]\n",
+            "elapsed_ms": 1759,
+            "saved_path": "/Users/fio/zeon_hack/pvjthomas/local/literature/T6385/reverse_4383627.txt"
+          },
+          "map": {
+            "status": "ok",
+            "question": "For Amoxicillin Sodium against TEM-1 beta-lactamase in a nitrocefin colorimetric assay: report Ki or IC50 in \u00b5M, the inhibitor concentration(s) used in the assay (\u00b5M; single-point screen concentration preferred, or the full tested range), nitrocefin substrate concentration (\u00b5M), TEM-1 enzyme concentration (nM), PMID or PMCID, and whether the compound acts as an inhibitor or substrate.",
+            "from_results": "s_a8fe9233",
+            "result_id": "m_0d446648",
+            "output": "Map complete: 5/5 tasks succeeded in 1330ms\nResults ID: m_0d446648\nFull results: /.gxl/map_m_0d446648.txt\n\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided research paper content, there is no information regarding the use of Amoxicillin Sodium against TEM-1 beta-lactamase in a nitroc\n  [success] Effect of Lactamase Inhibitors on the Biosensor Penp during the Measur  (PMC6427286)\n    Based on the provided paper content, the text does not contain information regarding a nitrocefin colorimetric assay, IC50/Ki values, TEM-1 enzyme con\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper content, there is no mention of Amoxicillin Sodium, TEM-1 beta-lactamase nitrocefin colorimetric assays, $K_i$, $IC_{50}$,\n  [success] In vitro  and  in vivo  Inhibitory Activity of NADPH Against the AmpC   (PMC6308799)\n    Based on the provided paper, there is no mention of Amoxicillin Sodium, TEM-1 beta-lactamase, or their evaluation in a nitrocefin colorimetric assay. \n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    Based on the provided paper, there is no mention of Amoxicillin Sodium, TEM-1 beta-lactamase, nitrocefin colorimetric assays, $K_i$, $IC_{50}$, enzyme\n\nFull results: /.gxl/map_m_0d446648.txt",
+            "elapsed_ms": 2516
+          },
+          "screen_recommendation": {
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default",
+            "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted."
+          },
+          "ref": {
+            "status": "written",
+            "ref_path": "/Users/fio/zeon_hack/data/compound_literature/refs/T6385.json",
+            "ki_uM": null,
+            "ic50_uM": null,
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default"
+          }
+        },
+        {
+          "compound_id": "T8390",
+          "name": "Cefazolin",
+          "query": "Cefazolin beta-lactamase inhibitor TEM-1 nitrocefin",
+          "search": {
+            "status": "ok",
+            "query": "Cefazolin beta-lactamase inhibitor TEM-1 nitrocefin",
+            "source": "pmc",
+            "limit": 5,
+            "result_id": "s_99b9dbdb",
+            "output": "Found 5 papers  [s_99b9dbdb]\n\n  1. Escherichia coli  phylogeny drives co-amoxiclav resistance through variable expression of TEM-1 beta-lactamase\n     William Matlock, Gillian Rodger, Emma Pritchard, Matthew Colpus, Natalia Kapel, Lucinda Barrett, Mar...\n     PMC12484619 \u00b7 PMC \u00b7 2025-09-30\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12484619/\n     \"This study investigated how *E. coli* phylogeny influences co-amoxiclav resistance. Resistance levels are significantly driven by phylogenetic variation in *bla TEM-1* beta-lactamase expression.\"\n\n  2. Effect of Lactamase Inhibitors on the Biosensor Penp during the Measurement of Lactam Antibiotics Concentration\n     Dagoberto Soto, Camila Silva, Cristian Ugalde, Kwok-Yin Wong, Yun-Chung Leung, Lok-Yan So, Max Andre...\n     PMC6427286 \u00b7 biomedrxiv \u00b7 2019-03-12\n     https://doi.org/10.3390/s19051237\n     \"This study investigated the impact of lactamase inhibitors on the PenP biosensor's ability to measure lactam antibiotics. The findings indicate that lactamase inhibitors have a minimal effect on PenP's detection capabilities.\"\n\n  3. In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-Lactamase Inhibitor against Extended-Spectrum Beta-Lactamase-Encoding Genes\n     Dwi Krihariyani, Evy Diah Woelansari, Edy Haryanto, Retno Sasongkowati, Anik Handayati, Sri Sulami E...\n     PMC11229569 \u00b7 PMC \u00b7 2024-06-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11229569/\n     \"This study investigated brazilein from sappan wood as a potential inhibitor of extended-spectrum beta-lactamases. Brazilein showed significant potential to block the beta-lactamase activity of the blaCTX-M gene.\"\n\n  4. Kinetic and Structural Requirements for Carbapenemase\nActivity in GES-Type \u03b2-Lactamases\n     Nichole\nK. Stewart, Clyde A. Smith, Hilary Frase, D. J. Black, Sergei B. Vakulenko\n     PMC4303295 \u00b7 PMC \u00b7 2015-12-08\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4303295/\n     \"This study investigated the kinetic and structural basis for carbapenemase activity in GES-type \u03b2-lactamases. A single amino acid change significantly enhances carbapenem hydrolysis, primarily by increasing the acylation rate.\"\n\n  5. Classification and applicability of new beta-lactamase inhibitors\n     Emilia Cercenado, Francisco Javier Candel\n     PMC12584905 \u00b7 PMC \u00b7 2025-10-24\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12584905/\n     \"This review classifies new beta-lactamase inhibitors and their characteristics. Their applicability depends on the specific beta-lactamase/carbapenemase, microorganism, and resistance mechanisms.\"\n\n[274ms, saved to s_99b9dbdb]\n\n\ud83d\udca1 Extract data across these results with: map --from s_99b9dbdb \"your question\"\n[274ms, saved to s_99b9dbdb]\n",
+            "elapsed_ms": 1755,
+            "saved_path": "/Users/fio/zeon_hack/pvjthomas/local/literature/T8390/reverse_5934055.txt"
+          },
+          "map": {
+            "status": "ok",
+            "question": "For Cefazolin against TEM-1 beta-lactamase in a nitrocefin colorimetric assay: report Ki or IC50 in \u00b5M, the inhibitor concentration(s) used in the assay (\u00b5M; single-point screen concentration preferred, or the full tested range), nitrocefin substrate concentration (\u00b5M), TEM-1 enzyme concentration (nM), PMID or PMCID, and whether the compound acts as an inhibitor or substrate.",
+            "from_results": "s_99b9dbdb",
+            "result_id": "m_1e6dd5c9",
+            "output": "Map complete: 5/5 tasks succeeded in 2084ms\nResults ID: m_1e6dd5c9\nFull results: /.gxl/map_m_1e6dd5c9.txt\n\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided paper content, there is no mention of Cefazolin, nitrocefin colorimetric assays, $K_i$, $IC_{50}$ values, enzyme concentrations,\n  [success] Effect of Lactamase Inhibitors on the Biosensor Penp during the Measur  (PMC6427286)\n    Based on the provided paper content, there is no information regarding the *Ki*, *IC50*, nitrocefin substrate concentration, or TEM-1 enzyme concentra\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper content, there is no mention of Cefazolin, nitrocefin colorimetric assays, $K_i$, $IC_{50}$ values, inhibitor concentratio\n  [success] Kinetic and Structural Requirements for Carbapenemase\nActivity in GES-  (PMC4303295)\n    Based on the provided paper content, there is no mention of Cefazolin, TEM-1 beta-lactamase, or nitrocefin assays involving TEM-1. The paper focuses e\n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    Based on the provided paper, there is no mention of Cefazolin, TEM-1 beta-lactamase, nitrocefin colorimetric assays, $K_i$, or $\\text{IC}_{50}$ values\n\nFull results: /.gxl/map_m_1e6dd5c9.txt",
+            "elapsed_ms": 4410
+          },
+          "screen_recommendation": {
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default",
+            "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted."
+          },
+          "ref": {
+            "status": "written",
+            "ref_path": "/Users/fio/zeon_hack/data/compound_literature/refs/T8390.json",
+            "ki_uM": null,
+            "ic50_uM": null,
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default"
+          }
+        },
+        {
+          "compound_id": "TQ0056",
+          "name": "Cefuracetime",
+          "query": "Cefuracetime beta-lactamase inhibitor TEM-1 nitrocefin",
+          "search": {
+            "status": "ok",
+            "query": "Cefuracetime beta-lactamase inhibitor TEM-1 nitrocefin",
+            "source": "pmc",
+            "limit": 5,
+            "result_id": "s_04b25677",
+            "output": "Found 5 papers  [s_04b25677]\n\n  1. Escherichia coli  phylogeny drives co-amoxiclav resistance through variable expression of TEM-1 beta-lactamase\n     William Matlock, Gillian Rodger, Emma Pritchard, Matthew Colpus, Natalia Kapel, Lucinda Barrett, Mar...\n     PMC12484619 \u00b7 PMC \u00b7 2025-09-30\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12484619/\n     \"This study investigated how *E. coli* phylogeny influences co-amoxiclav resistance. Resistance levels are significantly driven by phylogenetic variation in *bla TEM-1* beta-lactamase expression.\"\n\n  2. Characterization of Interactions between CTX-M-15 and Clavulanic Acid, Desfuroylceftiofur, Ceftiofur, Ampicillin, and Nitrocefin\n     Parvaneh Ahmadvand, Johannetsy J. Avillan, Jacob A. Lewis, Douglas R. Call, ChulHee Kang\n     PMC9100253 \u00b7 biomedrxiv \u00b7 2022-05-07\n     https://doi.org/10.3390/ijms23095229\n     \"Crystal structures of CTX-M-15 with beta-lactams and clavulanic acid were determined. CTX-M-15 binds beta-lactams similarly but clavulanic acid weakly, with proposed catalytic and inhibition mechanisms.\"\n\n  3. In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-Lactamase Inhibitor against Extended-Spectrum Beta-Lactamase-Encoding Genes\n     Dwi Krihariyani, Evy Diah Woelansari, Edy Haryanto, Retno Sasongkowati, Anik Handayati, Sri Sulami E...\n     PMC11229569 \u00b7 PMC \u00b7 2024-06-01\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11229569/\n     \"This study investigated brazilein from sappan wood as a potential inhibitor of extended-spectrum beta-lactamases. Brazilein showed significant potential to block the beta-lactamase activity of the blaCTX-M gene.\"\n\n  4. Reversible inactivation of a peptidoglycan transpeptidase by a \u03b2-lactam antibiotic mediated by \u03b2-lactam-ring recyclization in the enzyme active site\n     Zainab Edoo, Michel Arthur, Jean-Emmanuel Hugonnet\n     PMC5567249 \u00b7 biomedrxiv \u00b7 2017-08-22\n     https://doi.org/10.1038/s41598-017-09341-8\n     \"A peptidoglycan transpeptidase was studied to understand its interaction with a \u03b2-lactam antibiotic. The antibiotic's ring can be reformed within the enzyme's active site, leading to reversible inactivation.\"\n\n  5. Classification and applicability of new beta-lactamase inhibitors\n     Emilia Cercenado, Francisco Javier Candel\n     PMC12584905 \u00b7 PMC \u00b7 2025-10-24\n     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12584905/\n     \"This review classifies new beta-lactamase inhibitors and their characteristics. Their applicability depends on the specific beta-lactamase/carbapenemase, microorganism, and resistance mechanisms.\"\n\n[260ms, saved to s_04b25677]\n\n\ud83d\udca1 Extract data across these results with: map --from s_04b25677 \"your question\"\n[260ms, saved to s_04b25677]\n",
+            "elapsed_ms": 1763,
+            "saved_path": "/Users/fio/zeon_hack/pvjthomas/local/literature/TQ0056/reverse_8771320.txt"
+          },
+          "map": {
+            "status": "ok",
+            "question": "For Cefuracetime against TEM-1 beta-lactamase in a nitrocefin colorimetric assay: report Ki or IC50 in \u00b5M, the inhibitor concentration(s) used in the assay (\u00b5M; single-point screen concentration preferred, or the full tested range), nitrocefin substrate concentration (\u00b5M), TEM-1 enzyme concentration (nM), PMID or PMCID, and whether the compound acts as an inhibitor or substrate.",
+            "from_results": "s_04b25677",
+            "result_id": "m_16903bf0",
+            "output": "Map complete: 5/5 tasks succeeded in 1519ms\nResults ID: m_16903bf0\nFull results: /.gxl/map_m_16903bf0.txt\n\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Sorry, your request was blocked by the model provider's content filters. Please try rephrasing it and submitting it again.\n  [success] Characterization of Interactions between CTX-M-15 and Clavulanic Acid,  (PMC9100253)\n    Based on the provided paper content, there is no mention of \"Cefuracetime\", \"TEM-1 beta-lactamase\", or any related IC50/Ki values for that specific co\n  [success] In Silico Study of the Potential of Brazilein Sappan Wood as a Beta-La  (PMC11229569)\n    Based on the provided paper, there is no mention of Cefuracetime, a nitrocefin colorimetric assay, Ki/IC50 values, inhibitor concentrations, substrate\n  [success] Reversible inactivation of a peptidoglycan transpeptidase by a \u03b2-lacta  (PMC5567249)\n    Based on the provided research paper content, there is no mention of Cefuracetime, TEM-1 beta-lactamase, or their kinetic/inhibitory values (such as K\n  [success] Classification and applicability of new beta-lactamase inhibitors  (PMC12584905)\n    Based on the provided paper content, there is no mention of \"Cefuracetime\", \"TEM-1 beta-lactamase\", a \"nitrocefin colorimetric assay\", or specific $K_\n\nFull results: /.gxl/map_m_16903bf0.txt",
+            "elapsed_ms": 2384
+          },
+          "screen_recommendation": {
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default",
+            "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted."
+          },
+          "ref": {
+            "status": "written",
+            "ref_path": "/Users/fio/zeon_hack/data/compound_literature/refs/TQ0056.json",
+            "ki_uM": null,
+            "ic50_uM": null,
+            "screen_conc_uM": 50,
+            "screen_conc_source": "project_default"
+          }
+        }
+      ],
+      "refs_written": [
+        "T6385",
+        "T8390",
+        "TQ0056"
+      ],
+      "refs_skipped_curated": []
     }
   },
   "bridge": {

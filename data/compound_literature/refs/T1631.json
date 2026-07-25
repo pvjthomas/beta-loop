@@ -12,6 +12,17 @@
       "assay": "nitrocefin",
       "source": "manual_seed",
       "pmid_or_chembl_id": ""
+    },
+    {
+      "source": "paperclip",
+      "target": "TEM-1",
+      "assay": "nitrocefin",
+      "note": "Reverse literature check for Sulbactam. Map complete: 5/5 tasks succeeded in 2136ms\nResults ID: m_fa271726\nFull results: /.gxl/map_m_fa271726.txt\n\n  [success] In Vitro Activity of Cefaclor/Beta-Lactamases Inhibitors (Clavulanic A  (PMC12189933)\n    Based on the provided paper content, there is no mention of a nitrocefin colorimetric assay, TEM-1 beta-lactamase enzyme kinetics, $K_i$, or $\\text{IC\n  [success] The G132S Mutation Enhances the Resistance of  Mycobacterium tuberculo  (PMC8383266)\n    Based on the provided paper content, there is no information regarding TEM-1 beta-lactamase, its inhibition by sulbactam, or corresponding assay param\n  [success] Sulbactam\u2013durlobactam: a \u03b2-lactam/\u03b2-lactamase inhibitor combination ta  (PMC11229585)\n    Based on the provided paper content, there is no mention of a nitrocefin colorimetric assay, Ki, IC50, inhibitor concentrations, nitrocefin substrate \n  [success] Effect of Lactamase Inhibitors on the Biosensor Penp during the Measur  (PMC6427286)\n    Based on the provided paper content, there is no mention of a nitrocefin colorimetric assay, specific Ki or IC50 values in \u00b5M for sulbactam against TE\n  [success] Escherichia coli  phylogeny drives co-amoxiclav resistance through var  (PMC12484619)\n    Based on the provided paper content, there is no mention of sulbactam, nitrocefin colorimetric assays, Ki or IC50 values, inhibitor concentrations, TE\n\nFull results: /.gxl/map_m_fa271726.txt",
+      "paperclip_search_id": "s_8fd73b8a",
+      "paperclip_map_id": "m_fa271726",
+      "ki_uM": null,
+      "ic50_uM": null,
+      "pmcid": "PMC12189933"
     }
   ],
   "raw_local": "/Users/fio/zeon_hack/pvjthomas/local/literature/T1631",
@@ -20,5 +31,14 @@
     "T1631",
     "T6685"
   ],
-  "canonical_compound_id": "T1631"
+  "canonical_compound_id": "T1631",
+  "assay_recommendations": {
+    "tem1_nitrocefin": {
+      "screen_conc_uM": 50,
+      "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted.",
+      "screen_conc_source": "project_default",
+      "max_assay_conc_uM": 1000.0,
+      "metric": "relative nitrocefin hydrolysis vs no-inhibitor control"
+    }
+  }
 }
