@@ -6,6 +6,12 @@ An ADK agent prioritizes compounds (Paperclip literature + GNINA docking), a Zeo
 
 ## Team
 
+| Folder | Member | Role |
+|--------|--------|------|
+| [pvjthomas/](pvjthomas/) | pvjthomas | Bio / hardware / integration |
+| [learsch/](learsch/) | learsch | _Assign at kickoff_ |
+| [changhu/](changhu/) | changhu | _Assign at kickoff_ |
+
 | Role | Focus |
 |------|-------|
 | Robotics | Zeon workflows (CFPS, GFP gate, screen) |
@@ -42,10 +48,13 @@ curl -fsSL https://paperclip.gxl.ai/install.sh | bash
 ## Repo layout
 
 ```
-data/           # compounds, plate maps, kinetics, literature (generated)
-agent/          # ADK agent (TODO)
-analysis/       # kinetics + IC50 (TODO)
-workflows/      # Zeon robot workflows (TODO)
+pvjthomas/      # pvjthomas — bio / hardware / integration
+learsch/        # learsch — personal workspace
+changhu/        # changhu — personal workspace
+data/           # compounds, plate maps, kinetics, literature (shared)
+agent/          # ADK agent (TODO, shared)
+analysis/       # kinetics + IC50 (TODO, shared)
+workflows/      # Zeon robot workflows (TODO, shared)
 ```
 
 ## Scientific goal

@@ -1,5 +1,11 @@
 # Team Roles & Handoffs
 
+| Member | Folder | Role |
+|--------|--------|------|
+| pvjthomas | [pvjthomas/](pvjthomas/) | Bio / hardware / integration |
+| learsch | [learsch/](learsch/) | _TBD at kickoff_ |
+| changhu | [changhu/](changhu/) | _TBD at kickoff_ |
+
 Quick reference for who does what during the hackathon.
 
 ## Ownership matrix
