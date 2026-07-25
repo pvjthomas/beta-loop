@@ -4,6 +4,8 @@
 
 **Local file:** `compounds.csv` (105 compounds, synced from sheet gid `372192752`)
 
+**Per-compound support:** [`compound_dossiers.json`](compound_dossiers.json) — summaries in git; raw literature/docking/kinetics under [`pvjthomas/local/`](../pvjthomas/local/README.md). See [`STORAGE.md`](STORAGE.md).
+
 ## Format
 
 | Column | Description |
@@ -26,6 +28,15 @@ curl -fsSL "https://docs.google.com/spreadsheets/d/1b7UuzXu_auqoq2hFT81X3UuRutxx
   -o /tmp/compound_lib.csv
 # then re-run parse script in pvjthomas/COMPOUND_SELECTION.md or project tooling
 ```
+
+## Related files
+
+| File | Purpose |
+|------|---------|
+| [`compound_dossiers.json`](compound_dossiers.json) | Per-compound summaries (literature, docking, assay pointers) |
+| [`assay/run_{n}_summary.json`](assay/README.md) | Final screen results per run |
+| [`literature/refs/{id}.json`](literature/refs/README.md) | Curated citations (when populated) |
+| [`STORAGE.md`](STORAGE.md) | Git vs local policy |
 
 ## Selection plan
 
