@@ -59,5 +59,6 @@ Active working copies remain in `data/reference_inhibitors.csv`, `data/selection
 
 | Version | Label | Status |
 |---------|-------|--------|
-| v1 | `r1-discovery-v1` | Superseded (24-compound layout, not run) |
-| **v2** | `r1-validation-v2` | **Active** — clavulanic + DMSO @ 50 µM |
+| v1 | `r1-discovery-v1` | Superseded (24-compound single-replicate, not run) |
+| **v2** | `r1-validation-v2` | **Active on robot** — clavulanic + DMSO @ 50 µM (8 wells) |
+| v3 | `r1-discovery-v3` | Pending sign-off — 24 compound slots × triplicate on 96-well plate (84 wells) |

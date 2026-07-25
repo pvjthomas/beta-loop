@@ -1,7 +1,6 @@
 {
   "run": 1,
-  "version": "draft",
-  "version_label": "r1-selection-draft",
+  "version": 3,
   "round": 1,
   "assay_type": "single_point",
   "final_volume_ul": 50,
@@ -12,8 +11,8 @@
   "exclude_compound_ids": [
     "T19709"
   ],
-  "rationale_doc": "pvjthomas/selection_rationale.md",
-  "layout_notes": "96-well flat bottom: row A = 12 plate controls; rows B\u2013G = 24 compound slots \u00d7 3 triplicate (72 sample wells, 23 unique compound_ids). Row H empty/reserved. ADK-generated draft \u2014 requires pvjthomas sign-off before replacing data/plate_map_r1.json.",
+  "rationale_doc": "pvjthomas/runs/1/v3/selection_rationale.md",
+  "layout_notes": "96-well flat bottom: row A = 12 plate controls; rows B\u2013G = 24 compound slots \u00d7 3 triplicate (72 sample wells, 23 unique compound_ids). Row H empty/reserved. Supersedes v1 single-replicate layout.",
   "wells": {
     "A1": {
       "compound_id": null,
@@ -663,5 +662,9 @@
       "functional_class": "unknown",
       "replicate": 3
     }
-  }
+  },
+  "versioned_path": "data/runs/1/v3/plate_map.json",
+  "description": "Round 1 discovery \u2014 24 compound slots in triplicate @ 50 \u00b5M on 96-well plate",
+  "rationale_doc_active": "pvjthomas/selection_rationale.md",
+  "version_label": "r1-discovery-v3"
 }
