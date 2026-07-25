@@ -41,6 +41,56 @@ By demo time we show a real **data → decision → better result** story:
 
 ---
 
+## Two main tasks
+
+Zeon provides a **skills library** — pre-built robotic primitives (e.g. `plateshaker_open`, `epipette_aspirate`, `platesealer_run`) and example workflows. Our job is to compose those into the full experiment and close the scientific loop. Everything else splits into **two workstreams**:
+
+| # | Task | Status | Owner | Deliverable |
+|---|------|--------|-------|-------------|
+| **1** | **Program the assay on robotics** | TODO | Robotics (+ bio QC) | Three Zeon workflows: CFPS → GFP gate → nitrocefin screen |
+| **2** | **Compound screening (closed loop)** | TODO | ML (+ bio sign-off) | ADK agent: prioritize → R1 → analyze → R2 plate design |
+
+### Task 1 — Program the assay on robotics
+
+Use the Zeon skills library to build and run the wet-lab pipeline:
+
+1. **Make the enzyme** — cell-free synthesis of TEM-1 (Sepia CFPS kit)
+2. **Confirm it** — sfGFP fluorescence gate before screening
+3. **Screen it** — assay plate assembly, nitrocefin kinetics, A490 readout
+
+Skills are provided; we choose execution order, volumes, and variables. Workflows live in `workflows/` (shared). Simulate in Zeon before booking hardware blocks.
+
+**Open questions:** GFP reader instrument, CFPS incubation time, nitrocefin stock concentration — confirm at kickoff.
+
+### Task 2 — Compound screening (closed loop)
+
+Build the agent layer that decides **what to test** and learns from results:
+
+1. **Before Round 1** — Paperclip literature, GNINA priors, plate layout for ~24 compounds
+2. **After Round 1** — normalize kinetics, rank hits, agent designs Round 2 (dose-response + follow-ups)
+3. **After Round 2** — IC50 on best inhibitors; demo the R1 → R2 pivot
+
+Code lives in `agent/` and `analysis/` (shared). File contract in [File contract](#file-contract-freeze-before-hackathon).
+
+### How the two tasks connect
+
+```
+Task 1 (robotics)                    Task 2 (screening)
+─────────────────                    ──────────────────
+CFPS workflow  ──┐
+GFP workflow   ──┼── enzyme ready ──► plate_map_r1.json ──► Screen R1
+Screen workflow◄─┘                         │
+                                         ▼ kinetics_r1.csv
+                                    agent analyzes
+                                         │
+                                         ▼ plate_map_r2.json
+                                    Screen R2 ──► IC50 + demo
+```
+
+Neither task stands alone for the hackathon score — judges want **both** a working robot assay **and** a visible closed loop on compound selection.
+
+---
+
 ## System architecture
 
 ```
@@ -289,7 +339,9 @@ If R1 assay fails (all flat): fallback R2 runs known inhibitors + clavulanate DR
 
 ---
 
-## Three robot workflows
+## Three robot workflows (Task 1)
+
+Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills library (GitHub repo TBA at event).
 
 | # | Workflow | Input | Output | Owner |
 |---|----------|-------|--------|-------|

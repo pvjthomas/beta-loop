@@ -1,40 +1,100 @@
-# changhu
+# Chang (changhu) — Automation plan
 
-**Primary role:** _Update at kickoff — Robotics / ML / Bio_ (see [ROLES.md](../ROLES.md))
+**Primary role:** Screening pipeline (Task 1, downstream)  
+**Partner:** [Rob (learsch)](../learsch/README.md) — expression pipeline  
+**Support / QC:** [pvjthomas](../pvjthomas/README.md)
 
-Personal workspace for scripts, notes, and artifacts you own. Shared deliverables still land in `data/`, `agent/`, and `workflows/` at repo root.
+> **TODO — Rob & Chang:** Review this proposed split together, edit anything that doesn’t fit your skills or kickoff constraints, and **agree on final ownership** (check both READMEs, note changes in a comment or quick sync). Default assumption below until you change it.
 
-## Role checklist (pick your track)
+Personal workspace for WIP. Promote finished workflows to shared `workflows/`.
 
-### If Robotics
-- [ ] Zeon workflow authoring (`cfps`, `gfp_read`, `screen`)
-- [ ] Hardware booking
-- [ ] CFPS / screen execution on testbed
-- [ ] Plate reader export → `data/kinetics_r*.csv`
+---
 
-### If ML
-- [ ] Google ADK agent + LoopAgent
-- [ ] Paperclip literature searches
-- [ ] GNINA / compound priors
-- [ ] Kinetics analysis & IC50
-- [ ] `plate_map_r*.json` generation
+## Proposed split (Task 1 — robotics)
 
-### If Bio / integration
-- [ ] See [pvjthomas/README.md](../pvjthomas/README.md)
+| | Chang (you) | Rob |
+|---|-------------|-----|
+| **Track** | Screen & export data | Make & confirm enzyme |
+| **Workflows** | `screen` | `cfps`, `gfp_read` |
+| **Hardware blocks** | Screen R1 + R2 | CFPS + GFP gate (first) |
+| **Handoff** | Waits for GFP gate pass | “Enzyme ready” → you run assay |
 
-## Your folder
+---
 
-Use this directory for:
+## Your deliverables
 
-- Work-in-progress code and experiments
-- Personal notes and run logs
-- Drafts before promoting to shared paths
+- [ ] `workflows/screen.json` — nitrocefin kinetic assay end-to-end
+- [ ] Read `data/plate_map_r{N}.json` → robot well assignments
+- [ ] Export `data/kinetics_r1.csv`, `data/kinetics_r2.csv` from plate reader
+- [ ] Vehicle + no-enzyme controls on every screen plate
+- [ ] Book and run **Round 1 & Round 2** screen blocks
 
-## Shared paths (don't fork these)
+## Screen workflow steps
 
-| Path | Purpose |
-|------|---------|
-| `data/` | Plate maps, kinetics, literature |
-| `agent/` | ADK agent code |
-| `workflows/` | Zeon robot workflows |
-| `analysis/` | Shared analysis pipeline |
+1. Assay buffer
+2. Enzyme (skip no-enzyme wells)
+3. Compound per well (from source plate)
+4. Pre-incubate RT
+5. Nitrocefin — track time
+6. A490 kinetics (30 s intervals)
+
+## Your checklist
+
+- [ ] Build screen workflow in sim **while Rob runs CFPS**
+- [ ] Validate workflow accepts `plate_map_r1.json` / `plate_map_r2.json`
+- [ ] Confirm DMSO matched in vehicle vs compound wells
+- [ ] Plate reader export → CSV format agreed with analysis owner
+- [ ] **No screen slot until Rob confirms GFP gate pass**
+
+## Handoff from Rob
+
+Block on:
+
+- GFP gate pass message from Rob
+- Enzyme prep location / plate map for enzyme source wells
+
+Then execute plate maps from agent (Task 2) — review format **before** R1 hardware.
+
+---
+
+## Do together (first ~2 h at hack)
+
+- [ ] Zeon skills library tour + sim setup
+- [ ] Agree pipette volumes, DMSO matching, timing
+- [ ] Freeze `plate_map.json` schema (you implement consumer)
+- [ ] Dry-run screen in sim with fake plate map
+
+---
+
+## Sat timeline (draft)
+
+| Time | Chang |
+|------|-------|
+| AM | Build screen workflow in sim |
+| Midday | Finalize screen; review `plate_map_r1.json` |
+| PM | **Run Screen R1** |
+| Eve | **Run Screen R2** |
+| Sun | Reader export fixes for demo |
+
+---
+
+## Task 2 interface (with pvjthomas)
+
+You own the **robot side** of the closed loop:
+
+- Consume `plate_map_r*.json` from agent
+- Produce `kinetics_r*.csv` for analysis
+
+Agent / IC50 / Paperclip → pvjthomas (unless you reassign at kickoff).
+
+---
+
+## Shared paths
+
+| Path | Your files |
+|------|------------|
+| `workflows/screen.json` | lead |
+| `data/kinetics_r*.csv` | generate |
+| `data/plate_map_r*.json` | consume |
+
+See [PLAN.md](../PLAN.md#two-main-tasks) for full project context.

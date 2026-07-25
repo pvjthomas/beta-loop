@@ -4,13 +4,24 @@ Closed-loop TEM-1 β-lactamase inhibitor discovery for the [Zeon Systems AI for 
 
 An ADK agent prioritizes compounds (Paperclip literature + GNINA docking), a Zeon robot runs the nitrocefin assay, and results feed back into the next plate design — two rounds, real wet lab.
 
+## Two main tasks
+
+Zeon provides a **skills library** (robotic primitives + examples). We have two jobs:
+
+| Task | Focus | Status |
+|------|-------|--------|
+| **1. Program the assay on robotics** | CFPS → GFP gate → nitrocefin screen workflows | TODO |
+| **2. Compound screening** | ADK agent closed loop: prioritize → R1 → analyze → R2 | TODO |
+
+See **[PLAN.md](PLAN.md#two-main-tasks)** for details, owners, and how they connect.
+
 ## Team
 
 | Folder | Member | Role |
 |--------|--------|------|
 | [pvjthomas/](pvjthomas/) | pvjthomas | Bio / hardware / integration |
-| [learsch/](learsch/) | learsch | _Assign at kickoff_ |
-| [changhu/](changhu/) | changhu | _Assign at kickoff_ |
+| [learsch/](learsch/) | Rob (learsch) | Automation — expression (CFPS, GFP) |
+| [changhu/](changhu/) | Chang (changhu) | Automation — screening (assay, reader) |
 
 | Role | Focus |
 |------|-------|
@@ -52,10 +63,14 @@ pvjthomas/      # pvjthomas — bio / hardware / integration
 learsch/        # learsch — personal workspace
 changhu/        # changhu — personal workspace
 data/           # compounds, plate maps, kinetics, literature (shared)
-agent/          # ADK agent (TODO, shared)
-analysis/       # kinetics + IC50 (TODO, shared)
-workflows/      # Zeon robot workflows (TODO, shared)
+agent/          # ADK agent — Task 2 (TODO, shared)
+analysis/       # kinetics + IC50 — Task 2 (TODO, shared)
+workflows/      # Zeon robot workflows — Task 1 (TODO, shared)
 ```
+
+## Zeon skills library
+
+Low-level robotic skills (pipetting, sealing, shaking, etc.) are **provided by Zeon** — we compose them into assay workflows rather than building primitives from scratch. Example skills from the brief: `plateshaker_open`, `epipette_aspirate`, `platesealer_run`. Full library in the Zeon GitHub repo (TBA at kickoff).
 
 ## Scientific goal
 

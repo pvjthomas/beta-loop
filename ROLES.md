@@ -3,10 +3,26 @@
 | Member | Folder | Role |
 |--------|--------|------|
 | pvjthomas | [pvjthomas/](pvjthomas/) | Bio / hardware / integration |
-| learsch | [learsch/](learsch/) | _TBD at kickoff_ |
-| changhu | [changhu/](changhu/) | _TBD at kickoff_ |
+| learsch (Rob) | [learsch/](learsch/) | Automation — expression pipeline (proposed) |
+| changhu (Chang) | [changhu/](changhu/) | Automation — screening pipeline (proposed) |
 
 Quick reference for who does what during the hackathon.
+
+## Two main tasks
+
+| Task | Lead | Support | Folder / path |
+|------|------|---------|---------------|
+| **1. Program assay on robotics** | Rob + Chang (see folder plans) | pvjthomas (QC) | `workflows/` |
+| **2. Compound screening (closed loop)** | pvjthomas (agent + analysis) | Chang (plate map ↔ robot) | `agent/`, `analysis/`, `data/` |
+
+**Proposed automation split:** Rob = CFPS + GFP gate · Chang = screen + kinetics export.  
+**TODO — Rob & Chang:** Modify and agree on split in [learsch/README.md](learsch/README.md) and [changhu/README.md](changhu/README.md).
+
+Zeon **skills library** = provided primitives. **Task 1** = compose them into CFPS / GFP / screen workflows. **Task 2** = agent + analysis that drives which compounds go on each plate.
+
+Assign Task 1 vs Task 2 to learsch and changhu at kickoff; pvjthomas spans both (QC + integration + demo).
+
+**Update:** Rob and Chang collaborate on Task 1 automation with a proposed upstream/downstream split — they must review and agree (TODO in their folder READMEs).
 
 ## Ownership matrix
 
