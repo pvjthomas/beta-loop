@@ -20,14 +20,9 @@ See **[PLAN.md](PLAN.md#two-main-tasks)** for details, owners, and how they conn
 | Folder | Member | Role |
 |--------|--------|------|
 | [pvjthomas/](pvjthomas/) | pvjthomas | Bio / hardware / integration |
+| [ml/](ml/) | ML | ADK agent, Paperclip, kinetics analysis |
 | [learsch/](learsch/) | Rob (learsch) | Automation — expression (CFPS, GFP) |
 | [changhu/](changhu/) | Chang (changhu) | Automation — screening (assay, reader) |
-
-| Role | Focus |
-|------|-------|
-| Robotics | Zeon workflows (CFPS, GFP gate, screen) |
-| Bio / hardware | QC gates, integration, demo |
-| ML | Google ADK agent, Paperclip, analysis |
 
 ## Docs
 
@@ -60,6 +55,7 @@ curl -fsSL https://paperclip.gxl.ai/install.sh | bash
 
 ```
 pvjthomas/      # pvjthomas — bio / hardware / integration
+ml/             # ML — agent + analysis plan (shared code in agent/, analysis/)
 learsch/        # learsch — personal workspace
 changhu/        # changhu — personal workspace
 data/           # compounds, plate maps, kinetics, literature (shared)

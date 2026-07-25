@@ -3,6 +3,7 @@
 | Member | Folder | Role |
 |--------|--------|------|
 | pvjthomas | [pvjthomas/](pvjthomas/) | Bio / hardware / integration |
+| ML | [ml/](ml/) | ADK agent, Paperclip, kinetics analysis, plate map files |
 | learsch (Rob) | [learsch/](learsch/) | Automation — expression pipeline (proposed) |
 | changhu (Chang) | [changhu/](changhu/) | Automation — screening pipeline (proposed) |
 
@@ -13,9 +14,10 @@ Quick reference for who does what during the hackathon.
 | Task | Lead | Support | Folder / path |
 |------|------|---------|---------------|
 | **1. Program assay on robotics** | Rob + Chang (see folder plans) | pvjthomas (QC) | `workflows/` |
-| **2. Compound screening (closed loop)** | Philip (compound selection + agent) | Chang (plate map ↔ robot) | `agent/`, `analysis/`, `data/` |
+| **2. Compound screening (closed loop)** | ML (agent + analysis) | pvjthomas (selection sign-off), Chang (robot) | `agent/`, `analysis/`, `data/` |
 
-**Philip's plan:** [pvjthomas/COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md)
+**ML plan:** [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)  
+**Philip's selection science:** [pvjthomas/COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md)
 
 **Proposed automation split:** Rob = CFPS + GFP gate · Chang = screen + kinetics export.  
 **TODO — Rob & Chang:** Modify and agree on split in [learsch/README.md](learsch/README.md) and [changhu/README.md](changhu/README.md).
@@ -35,7 +37,9 @@ Assign Task 1 vs Task 2 to learsch and changhu at kickoff; pvjthomas spans both 
 | CFPS / screen execution | **lead** | QC | — |
 | Plate reader export → CSV | **lead** | — | consume |
 | Kickoff organizer questions | — | **lead** | — |
-| GFP / activity gate thresholds | — | **lead** | implement |
+| GFP / activity gate thresholds | — | **lead** | — |
+| Minimal validation plate sign-off | — | **lead** | — |
+| Hit threshold (analysis code) | — | define | **implement** |
 | Demo narrative & pitch | assist | **lead** | assist |
 | ADK agent & LoopAgent | — | review | **lead** |
 | Kinetics analysis & IC50 | — | review | **lead** |
@@ -71,7 +75,8 @@ Assign Task 1 vs Task 2 to learsch and changhu at kickoff; pvjthomas spans both 
 | Blocker | Robotics does | ML does | You do |
 |---------|---------------|---------|--------|
 | Incubator wait | Polish screen workflow | Test on fake data | Compound QA |
-| GFP gate fail | Debug seal/temp/pipetting | — | Escalate to organizers |
+| GFP gate fail | Debug seal/temp/pipetting | Keep building R1 map + analysis on synthetic data | Escalate to organizers |
+| Validation plate fail | Debug assay with pvjthomas | — | Fix protocol / escalate |
 | Reader queue | Prep next workflow | Dashboard | Slides |
 | R1 flat curves | — | Check normalization code | Debug assay conditions |
 

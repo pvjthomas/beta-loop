@@ -33,6 +33,31 @@ By demo time we show a real **data → decision → better result** story:
 
 ---
 
+## Progress snapshot (Sat ~13:45)
+
+| Area | Status | Notes |
+|------|--------|-------|
+| Repo scaffold | ✓ Done | PLAN, ROLES, REQUIREMENTS, team folders |
+| File contract / schemas | ✓ Done | Frozen in this doc; classification stubs added |
+| `data/compounds.csv` | ✓ Done | 105 compounds, tier/scaffold tags, nitrocefin excluded |
+| `data/LIBRARY.md` | ✓ Done | Library format + re-export instructions |
+| Philip selection plan | ✓ Done | [pvjthomas/COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md) |
+| Assay docs | ✓ Done | [pvjthomas/NITROCEFIN_ASSAY.md](pvjthomas/NITROCEFIN_ASSAY.md) |
+| Automation split | ✓ Draft | [learsch/](learsch/), [changhu/](changhu/) — Rob/Chang to agree |
+| ML workspace + plan | ✓ Done | [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md) |
+| Paperclip install | ✓ Partial | CLI + SDK in venv, auth working; searches not run |
+| `.env.example` | ✓ Done | Vertex AI + Paperclip template |
+| `data/literature/` | ✗ Empty | Paperclip searches pending |
+| `data/literature_summary.json` | ✗ Missing | ML |
+| `data/plate_map_r1.json` | ✗ Missing | **ML P0** — blocks Round 1 screen |
+| `agent/`, `analysis/` | ✗ Missing | ML |
+| `workflows/` | ✗ Missing | Rob + Chang |
+| GNINA docking | ✗ Not started | Optional |
+
+**Current phase:** Phase 1 Sat AM — CFPS on hardware, GFP gate imminent (~14:30), Round 1 target ~15:00.
+
+---
+
 ## What we are NOT doing
 
 - Molecular dynamics / FEP (too slow, not needed for demo)
@@ -47,8 +72,10 @@ Zeon provides a **skills library** — pre-built robotic primitives (e.g. `plate
 
 | # | Task | Status | Owner | Deliverable |
 |---|------|--------|-------|-------------|
-| **1** | **Program the assay on robotics** | TODO | Robotics (+ bio QC) | Three Zeon workflows: CFPS → GFP gate → nitrocefin screen |
-| **2** | **Compound screening (closed loop)** | TODO | ML (+ bio sign-off) | ADK agent: prioritize → R1 → analyze → R2 plate design |
+| **1** | **Program the assay on robotics** | In progress (Sat AM) | Rob + Chang (+ pvjthomas QC) | Three Zeon workflows: CFPS → GFP gate → nitrocefin screen |
+| **2** | **Compound screening (closed loop)** | In progress — Phase 0 partial | ML (+ pvjthomas sign-off) | ADK agent: prioritize → R1 → analyze → R2 plate design |
+
+**ML plan:** [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)
 
 ### Task 1 — Program the assay on robotics
 
@@ -488,16 +515,17 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 ## Phase 0: Pre-hackathon (tonight, ~3–4 hours)
 
 ### ML
-- [ ] **Paperclip:** install CLI + SDK (see [Paperclip section](#paperclip--literature-search))
+- [x] **Paperclip:** install CLI + SDK (see [Paperclip section](#paperclip--literature-search))
 - [ ] **Paperclip:** run 3 Phase 0 searches → `data/literature/`
 - [ ] **Paperclip:** write `data/literature_summary.json` from search results
-- [ ] Install deps: `pip install -r requirements.txt` (see `REQUIREMENTS.md`)
+- [ ] Install deps: `pip install -r requirements.txt` (partial — `gxl-paperclip` only)
 - [ ] Install Google ADK; basic `LlmAgent` + `LoopAgent` running
-- [ ] Parse compound library → `data/compounds.csv`
+- [x] Parse compound library → `data/compounds.csv` (team; ML consumes)
 - [ ] GNINA batch dock all compounds → merge `dock_score`
 - [ ] Implement `analyze_kinetics()` on synthetic CSV
-- [ ] Generate hardcoded `data/plate_map_r1.json` (don't wait for agent on first run)
+- [ ] Generate hardcoded `data/plate_map_r1.json` (don't wait for agent on first run) ← **P0 now**
 - [ ] Wrap tools as ADK function tools (include `search_literature` via Paperclip SDK)
+- [x] ML workspace + closed-loop plan → [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)
 
 ### Robotics
 - [ ] Clone Zeon GitHub repo (when available)
@@ -506,16 +534,18 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 - [ ] Confirm pipette volume constraints (0.5–10 µL grey, 10–120 µL large)
 - [ ] Document expected timing per workflow for 60-min blocks
 
-### You
-- [ ] Kickoff question list (see below)
+### You (pvjthomas)
+- [ ] Kickoff question list (see below) — questions documented, answers TBD at kickoff
 - [ ] Define GFP pass threshold
-- [ ] Define hit threshold and normalization formula
+- [x] Define hit threshold and normalization formula (documented in [Scientific plan](#scientific-plan); implement in ML code)
 - [ ] Draft 3-min demo script
 - [ ] Set up shared status board (bookings, gates, file paths)
+- [x] Compound selection plan + assay cheat sheet
+- [x] Minimal validation plate spec + sign-off gate documented
 
 ### All (15-min sync)
-- [ ] Agree file schemas above
-- [ ] Lock Round 1 compound list
+- [x] Agree file schemas above (documented; encode in JSON as artifacts land)
+- [ ] Lock Round 1 compound list (pending `plate_map_r1.json`)
 - [ ] Assign Phase 1 booking priorities
 
 ---
@@ -526,12 +556,15 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 |------|----------|-----|-----|
 | 11:00–11:15 | — | — | **Kickoff sync:** booking plan + organizer Qs |
 | 11:15–11:45 | Hardware tour, sim env | Finalize ADK + schemas; confirm `literature_summary.json` loaded | Confirm GFP reader, nitrocefin conc, CFPS incubation time |
-| 11:45–12:30 | Build CFPS workflow in sim | Finish `compounds.csv`, R1 plate map | Book CFPS + screen blocks |
-| 12:30–13:30 | **Run CFPS on hardware** | Test analyze pipeline | QC plate layout, seal, start incubator |
-| 13:30–14:30 | Build GFP read workflow | Agent: `prioritize_compounds()` tool live | Monitor CFPS (~30 min signal?) |
-| 14:30–15:00 | **GFP gate read** | — | **Go/no-go for screen** |
+| 11:45–12:30 | Build CFPS workflow in sim | **Ship `plate_map_r1.json` + `literature_summary.json`** | Book CFPS + screen blocks |
+| 12:30–13:30 | **Run CFPS on hardware** | `analyze_kinetics()` on synthetic CSV | QC plate layout, seal, start incubator |
+| 13:30–14:30 | Build GFP read workflow | ADK tools live; Paperclip → `data/literature/` | Monitor CFPS (~30 min signal?) |
+| 14:30–15:00 | **GFP gate read** | **Continue agent/analysis work — do not block on gate** | **Go/no-go for screen** |
 
-**Critical path:** No screen slot until GFP gate passes.
+**Critical path (robotics):** No screen slot until GFP gate passes.  
+**Critical path (ML):** `plate_map_r1.json` ready before Round 1 (~15:00). See [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md).
+
+**ML assumption:** GFP gate and minimal validation plate are pvjthomas + Rob/Chang — ML ships R1 plate map and analysis code in parallel.
 
 ---
 
@@ -539,7 +572,7 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 
 | Time | Robotics | ML | You |
 |------|----------|-----|-----|
-| 15:00–16:00 | Sim + **run Screen R1** | Stand by for reader export | QC vehicle wells show enzyme activity |
+| 15:00–16:00 | Sim + **run Screen R1** | Ready for `kinetics_r1.csv`; do not bench-QC | QC vehicle wells show enzyme activity |
 | 16:00–16:20 | — | **`analyze_kinetics()` → `round_summary_r1.json`** | Verify clavulanate shows inhibition |
 | 16:20–16:50 | — | **Agent emits `plate_map_r2.json` + rationale** | **Mandatory team sync — sign off R2** |
 | 16:50–18:00 | Prep R2 reagents/plate | R1 heatmap dashboard | Document R1→R2 diff for demo |
@@ -693,16 +726,17 @@ zeon_hack/
 
 ---
 
-## Tonight's immediate actions
+## Tonight's immediate actions → **Next actions (Sat ~13:45)**
 
-| Who | Task | ETA |
-|-----|------|-----|
-| ML | Paperclip searches + `literature_summary.json` | 1 h |
-| ML | ADK skeleton + `compounds.csv` + `plate_map_r1.json` | 3 h |
-| Robotics | Sim environment + workflow drafts | 3 h |
-| You | Kickoff Qs + gate thresholds + demo outline | 1 h |
-| All | 15-min call: lock schemas + R1 compound list | 15 min |
+| Who | Task | Status |
+|-----|------|--------|
+| ML | **`plate_map_r1.json` + `literature_summary.json`** | **Not started — P0** |
+| ML | `pip install -r requirements.txt` + ADK skeleton + `analyze_kinetics()` | Partial (paperclip only) |
+| ML | Paperclip searches → `data/literature/` | CLI ready, searches pending |
+| Rob + Chang | CFPS on hardware + GFP gate + screen workflow | In progress (Sat AM) |
+| pvjthomas | GFP/validation sign-off, kickoff answers, demo outline | In progress |
+| All | Lock R1 compound list when `plate_map_r1.json` lands | Blocked on ML P0 |
 
 ---
 
-*Last updated: 2026-07-25*
+*Last updated: 2026-07-25 ~13:45 PT*

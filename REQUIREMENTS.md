@@ -167,13 +167,13 @@ GOOGLE_API_KEY=...
 
 | Who | Task | Done |
 |-----|------|:----:|
-| ML | `pip install -r requirements.txt` | ☐ |
-| ML | Paperclip CLI or API key configured | ☐ |
+| ML | `pip install -r requirements.txt` | ☐ partial |
+| ML | Paperclip CLI or API key configured | ☑ |
 | ML | Run TEM-1 literature searches → `data/literature/` | ☐ |
 | ML | ADK agent with `search_literature` tool | ☐ |
 | ML | GNINA batch dock (optional) | ☐ |
 | Robotics | Zeon sim + workflow drafts | ☐ |
-| You | `.env` template shared with team (secrets excluded) | ☐ |
+| You | `.env` template shared with team (secrets excluded) | ☑ |
 
 ---
 

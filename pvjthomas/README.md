@@ -4,6 +4,8 @@
 
 **Compound selection plan:** **[COMPOUND_SELECTION.md](COMPOUND_SELECTION.md)** — forward (literature → library), reverse (library → literature), Tanimoto bridge, tiers → Round 1 plate.
 
+**ML implements your selection rules** in `data/plate_map_r*.json` and the ADK agent — see [ml/CLOSED_LOOP.md](../ml/CLOSED_LOOP.md).
+
 **Assay cheat sheet:** **[NITROCEFIN_ASSAY.md](NITROCEFIN_ASSAY.md)** — what to mix, order, controls, DMSO rule, scoring.
 
 Personal workspace for scripts, notes, and artifacts you own. Shared deliverables still land in `data/`, `agent/`, and `workflows/` at repo root.
