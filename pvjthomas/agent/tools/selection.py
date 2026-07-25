@@ -134,11 +134,11 @@ def _add_control_wells(wells: dict[str, Any]) -> None:
             "A3": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
             "A4": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
             "A5": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
-            "A6": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
+            "A6": {"compound_id": None, "concentration_uM": 0, "role": "vehicle", "bucket": "control"},
             "A7": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
             "A8": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
             "A9": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
-            "A10": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control", "bucket": "control"},
+            "A10": {"compound_id": None, "concentration_uM": 0, "role": "no_enzyme", "bucket": "control"},
             "A11": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control", "bucket": "control"},
             "A12": {"compound_id": "T19860", "concentration_uM": 50, "role": "positive_control", "bucket": "control"},
         }
