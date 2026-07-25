@@ -23,6 +23,7 @@ Master timeline: [PLAN.md](../PLAN.md).
 | **Offline selection run** | ✓ Done — `ml/workflows/compound_selection/state.json`, draft plate, neighbors |
 | **Forward v1 snapshot** | ✓ Done — `ml/workflows/compound_selection/snapshots/forward/v1/` |
 | **Forward agent tests (Tier 1–3)** | ✓ Done — 31 tests; clavulanate → v3 screen (23) → full library (105); see [FORWARD_TEST_PLAN.md](agent/tests/FORWARD_TEST_PLAN.md) |
+| **Forward agent live run + screening priors** | **Partial** — live forward + Paperclip batch ✓ · **next:** curate priors for T1262/T14081/T1631 |
 | **ADK coordinator + tools** | ✓ Done — literature, kinetics, plates, selection, chem |
 | **Analysis — kinetics** | ✓ Done — `ml/analysis/kinetics.py` + `analyze_kinetics()` tool |
 | **Analysis — R2 plate design** | ✓ Done — `ml/analysis/plates.py` + `design_next_plate()` tool |
@@ -40,7 +41,19 @@ Master timeline: [PLAN.md](../PLAN.md).
 | **R2 plate map** | ✗ Waiting — agent writes after R1 analysis |
 | **Demo artifacts** | ✗ Not done — heatmaps, IC50 table, dashboard |
 
-**You are here:** Forward agent test pyramid complete (Tier 1–3). Validation v2 on robot (or pending GFP). **Next:** synthetic kinetics tests + demo plots while waiting for R1 CSV.
+**You are here:** Forward live run + Phase B pipeline ✓. **Philip P0:** curate **screen concentrations and saved literature evidence** for every compound on the discovery plate (T19860 is the template). Validation v2 on robot in parallel.
+
+---
+
+## Philip P0 — forward agent + screening priors
+
+| Step | Task | Status |
+|------|------|--------|
+| 1 | Run forward agent live (seed → Paperclip → match → finalize v1) | ✓ 2026-07-25 |
+| 2 | Curate inhibitor refs to T19860 quality (PMID, Ki/IC50, `assay_recommendations`) | T19860 ✓ · T1262/T14081/T1631 stubs |
+| 3 | Set **screen concentration (µM)** + rationale per forward hit | 50 µM project default · document per compound |
+| 4 | Patch `literature_summary.json` → `compound_assay_priors` for v3 plate | Partial |
+| 5 | Sign off discovery plate → promote to `data/plate_map_r1.json` | Blocked on steps 1–4 + validation v2 |
 
 ---
 
@@ -148,13 +161,14 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 
 | Priority | Task | Status |
 |----------|------|--------|
+| **P0** | **Screening priors (conc + literature evidence per compound)** | **In progress** ← Philip top priority |
 | **P0** | Active validation plate `data/plate_map_r1.json` | ✓ Done |
-| **P0** | `literature_summary.json` + compound refs | ✓ Done |
+| **P0** | `literature_summary.json` + compound refs | Partial — expand to full v3 plate |
 | **P0** | ADK agent + Phase B pipeline | ✓ Done |
 | **P1** | Forward agent tests (Tier 1–3) | ✓ Done |
-| **P1** | Synthetic kinetics test | ✗ **Next** |
+| **P1** | Synthetic kinetics test | Parallel — does not block forward |
 | **P1** | Confirm plate schema with Chang | ✗ TODO |
-| **P2** | Paperclip batch raw files | ✗ Not started |
+| **P2** | Paperclip batch raw files | ✓ Done (2026-07-25) |
 | **P2** | GNINA scores | ✗ Optional |
 
 ---
@@ -206,12 +220,12 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 3. [x] Python + Paperclip env
 4. [x] Consolidate code under `ml/` (agent, analysis, workflows)
 5. [x] Phase B pipeline + R1 validation plate
-6. [x] ADK coordinator + analysis tools + forward tests (Tier 1–3)
-7. [ ] Synthetic kinetics fixture + test ← **next**
-8. [ ] Forward Tier 4 Paperclip CI/nightly (optional)
-9. [ ] Paperclip batch → `data/literature/` (raw dumps; structured priors ✓)
-10. [ ] GNINA / RDKit similarity (optional)
-11. [ ] Promote discovery v3 plate after validation sign-off
+6. [x] ADK coordinator + forward tests (Tier 1–3)
+7. [ ] **Run forward agent live + screening priors (conc + literature evidence)** ← **Philip P0 / top priority**
+8. [ ] Promote discovery v3 plate after validation + priors complete
+9. [ ] Synthetic kinetics fixture + test (parallel)
+10. [ ] Forward Tier 4 Paperclip CI/nightly (optional)
+11. [ ] GNINA / RDKit similarity (deferred)
 12. [ ] After R1: analyze → summarize → R2 plate
 13. [ ] After R2: IC50 + demo artifacts
 

@@ -298,6 +298,34 @@ Record in `data/compounds.csv`:
 
 **Expected for this library:** forward search **will** hit clavulanate/sulbactam/tazobactam — that validates the pipeline.
 
+### Step F5 — Screening priors (Philip P0, blocks plate sign-off)
+
+**Running the forward agent is top priority.** Offline tests and the **live forward pass** (2026-07-25) prove the pipeline; Philip’s curation is what makes every well on the discovery plate defensible to judges and Chang.
+
+For **each compound on the Round 1 screen** (especially Tier-1 inhibitors + positive controls), Philip must deliver:
+
+| Field | Location | Example (T19860) |
+|-------|----------|------------------|
+| **Screen concentration (µM)** | `refs/{id}.json` → `assay_recommendations.tem1_nitrocefin.screen_conc_uM` | 50 µM |
+| **Rationale for that conc** | same block → `screen_rationale` | ~60× above Ki → expect strong inhibition |
+| **Expected outcome @ screen conc** | `literature_summary.json` → `compound_assay_priors.{id}.expected_at_50uM` | `>=50% inhibition` |
+| **Literature Ki/IC50 + assay** | `refs/{id}.json` → `entries[]` with PMID/DOI | Ki = 0.85 µM, nitrocefin, Radojković 2025 |
+| **Saved evidence** | `pvjthomas/local/literature/{id}/` (gitignored raw) + structured ref in git | PMC12274840 full-text |
+
+**Gold template:** [`data/compound_literature/refs/T19860.json`](../data/compound_literature/refs/T19860.json)
+
+**Still needed (stubs today):** T1262, T14081, T1631/T6685 — forward match ✓ but no PMID-backed entries or `assay_recommendations` yet.
+
+**Workflow:**
+
+1. **Run forward agent** — seed → Paperclip → match → finalize v1 (see [PLAN.md](../PLAN.md) next actions). ✓ Done 2026-07-25.
+2. **Paperclip map/full-text** per forward hit — extract Ki/IC50, enzyme conc, nitrocefin conc, buffer/pH.
+3. **Pick screen concentration** — default project conc **50 µM** unless literature or solubility dictates otherwise; document multiplier vs Ki.
+4. **Write ref JSON + patch `literature_summary.json`** — one canonical ref per inhibitor group (Case A alternates get thin pointers).
+5. **Update `pvjthomas/runs/1/v3/selection_rationale.md`** — cite priors per well before Philip sign-off.
+
+**Gate:** Do not promote `data/screens/1/v3/` → active `data/plate_map_r1.json` until Tier-1 inhibitor priors are at T19860 quality.
+
 ---
 
 ## Reverse direction — library → literature / mechanism
@@ -466,7 +494,7 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 | `data/compounds.csv` | Full library + tags, tiers | ✓ Phase A |
 | `data/compound_dossiers.json` | Per-compound summaries | ✓ |
 | `data/reference_inhibitors.csv` | Literature / ChEMBL gold set | ✓ seeded |
-| `data/compound_literature/refs/*.json` | Per-compound Paperclip curation | Partial (T19860, T1262, T6685, T14979) |
+| `data/compound_literature/refs/*.json` | Per-compound Paperclip curation + **screen conc priors** | Partial — **T19860 gold**; T1262/T14081/T1631/T6685 stubs need PMID evidence |
 | `data/compound_literature/*.txt` | Raw Paperclip batch outputs | Optional |
 | `data/literature_summary.json` | Structured priors for agent | ✓ |
 | `ml/workflows/compound_selection/plate_map_r1_draft.json` | Agent-generated 24-compound layout | ✓ draft |
@@ -478,17 +506,21 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 
 ## Execution order (Philip)
 
+**Top priority:** run forward agent + document screen concentrations and literature evidence (Step F5) before promoting the discovery plate.
+
 1. [x] Parse library SMILES → `data/compounds.csv` (Phase A)
-2. [x] Forward: seed `reference_inhibitors.csv` + match literature → library
+2. [x] Forward: seed `reference_inhibitors.csv` + match literature → library (offline)
 3. [x] Match literature → library (exact + Tanimoto; T19860 curated via Paperclip)
-4. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
-5. [ ] Reverse: GNINA dock → `dock_score` column (stub only)
-6. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
-7. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r1_draft.json` (24 compounds)
-8. [x] Validation plate v2 → active `data/plate_map_r1.json`
-9. [x] Forward agent test suite (Tier 1–3) — see [`ml/agent/tests/FORWARD_TEST_PLAN.md`](../ml/agent/tests/FORWARD_TEST_PLAN.md)
-10. [ ] Promote discovery v3 plate (`data/screens/1/v3/`) after validation passes + Philip sign-off
-11. [ ] Share full discovery plate with Chang for screen workflow
+4. [x] Forward agent test suite (Tier 1–3) — see [`ml/agent/tests/FORWARD_TEST_PLAN.md`](../ml/agent/tests/FORWARD_TEST_PLAN.md)
+5. [ ] **Run forward agent live** — Paperclip searches → match → finalize v1 snapshot ← **P0**
+6. [ ] **Screening priors for discovery plate** — concentration + saved literature evidence per compound (T19860 template) ← **P0**
+7. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
+8. [ ] Reverse: GNINA dock → `dock_score` column (stub only; defer until forward priors done)
+9. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
+10. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r1_draft.json` (24 compounds)
+11. [x] Validation plate v2 → active `data/plate_map_r1.json`
+12. [ ] Promote discovery v3 plate (`data/screens/1/v3/`) after validation passes + **Step F5 complete** + Philip sign-off
+13. [ ] Share full discovery plate with Chang for screen workflow
 
 ---
 
