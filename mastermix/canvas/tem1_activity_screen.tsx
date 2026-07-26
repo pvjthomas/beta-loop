@@ -46,18 +46,18 @@ const STYLE: Record<string, React.CSSProperties> = {
 const HOLES = ["hole_1", "hole_2", "hole_3", "hole_4", "hole_5", "hole_6", "hole_7", "hole_8", "hole_9", "hole_10"];
 const POSITIVE_WELLS = ["F3", "F7", "G11"];
 const NEGATIVE_WELLS = ["D3", "D7", "E11"];
-const VEHICLE_WELLS = ["B3", "B7", "C11"];
+const VEHICLE_WELLS: string[] = [];
 const COMPOUND_WELLS = [
-  ["B2", "D2", "F2"], ["B4", "D4", "F4"], ["B6", "D6", "F6"], ["B8", "D8", "F8"], ["B10", "D10", "F10"],
+  ["B2", "D2", "F2"], ["B4", "D4", "F4"], ["B6", "D6", "F6"], ["B10", "D10", "F10"],
   ["C5", "E5", "G5"], ["C9", "E9", "G9"], ["C3", "E3", "G3"], ["C7", "E7", "G7"],
 ];
 const DEFAULT_COMPOUNDS = [
-  "T1262 Tazobactam (1 uM)", "T6685 Sulbactam sodium", "T14081 Enmetazobactam", "T1005 Amoxicillin", "T1008 Cephalexin",
+  "T1262 Tazobactam (1 uM)", "T6685 Sulbactam sodium", "T14081 Enmetazobactam", "T1008 Cephalexin",
   "T0224 Meropenem", "T0985 Oxacillin sodium salt", "T0138 Cefpiramide acid", "T8390 Cefazolin",
 ];
-const DEFAULT_SOURCE_WELLS = ["B10", "F2", "F7", "A8", "A9", "A3", "A4", "A2", "F3"];
+const DEFAULT_SOURCE_WELLS = ["B10", "F2", "F7", "A9", "A3", "A4", "A2", "F3"];
 const DEFAULT_SOURCE_PLATES = [
-  "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
+  "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
   "wellplate_pcr_parts_2", "wellplate_pcr_parts_2", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
 ];
 const ACTIVE_COMPOUND_COUNT = COMPOUND_WELLS.length;
@@ -94,7 +94,7 @@ export default function Tem1ActivityScreen() {
   const [nitrocefinStockAnchor, setNitrocefinStockAnchor] = useState(String(initial("nitrocefin_stock_anchor", "hole_4")));
   const [plateMixMin, setPlateMixMin] = useState(Number(initial("plate_mix_minutes", 1)));
   const [waitMin, setWaitMin] = useState(Number(initial("preincubation_minutes", 10)));
-  const [runName, setRunName] = useState(String(initial("run_name", "tem1_activity_screen")));
+  const [runName, setRunName] = useState(String(initial("run_name", "tem1_activity_screen_r3_v1")));
   const [sourceOverage, setSourceOverage] = useState(30);
   const [compoundOverage, setCompoundOverage] = useState(10);
   const [nitrocefinOverage, setNitrocefinOverage] = useState(50);
@@ -157,7 +157,7 @@ export default function Tem1ActivityScreen() {
     blb_anchor: blbAnchor, blb_anchor_2: noEnzymeAnchor, dmso_anchor: "hole_9", nitrocefin_blb_anchor: nitrocefinBlbAnchor, nitrocefin_stock_anchor: nitrocefinStockAnchor, tem1_stock_anchor: "hole_1", tem1_intermediate_anchor: "hole_2", tem1_working_anchor: enzymeAnchor,
     nitrocefin_anchor: nitrocefinAnchor,
     positive_source_plate: positivePlate, positive_source_well: upper(positiveWell), positive_dest_well: positiveDestWell, vehicle_dest_well: vehicleDestWell,
-    positive_wells: csv(POSITIVE_WELLS), negative_wells: csv(NEGATIVE_WELLS), vehicle_wells: csv(VEHICLE_WELLS),
+    positive_wells: csv(POSITIVE_WELLS), negative_wells: csv(NEGATIVE_WELLS),
     tem1_wells: csv(tem1Wells), vehicle_addition_wells: csv(vehicleAdditionWells),
     tem1_well_count: tem1Wells.length, negative_well_count: NEGATIVE_WELLS.length, vehicle_addition_count: vehicleAdditionWells.length,
     positive_well_count: POSITIVE_WELLS.length, replicate_count: 3,
@@ -217,7 +217,7 @@ export default function Tem1ActivityScreen() {
         <div style={STYLE.eyebrow}>TEM-1 beta-lactamase · nitrocefin activity screen</div>
         <h1 style={STYLE.h1}>Single-Plate Activity Screen</h1>
         <p style={STYLE.sub}>
-          Builds the R2 v5 column-strip 36-well plate: 9 controls and 9 test compounds in triplicate, with edge wells left empty.
+          Builds the R3 v1 column-strip 30-well plate: 6 QC controls and 8 test compounds in triplicate, with edge wells left empty.
         </p>
 
         <h2 style={STYLE.h2}>Run Timing</h2>
@@ -303,7 +303,7 @@ export default function Tem1ActivityScreen() {
         <h2 style={STYLE.h2}>Plate Layout</h2>
         <div style={STYLE.card}>
           <p style={STYLE.sub}>
-            {chip("Positive", "positive")} {csv(POSITIVE_WELLS)} · {chip("No TEM-1", "negative")} {csv(NEGATIVE_WELLS)} · {chip("Vehicle + TEM-1", "vehicle")} {csv(VEHICLE_WELLS)} · {chip("9 test compounds", "compound")} {allCompoundWells.length} wells
+            {chip("Positive", "positive")} {csv(POSITIVE_WELLS)} · {chip("No TEM-1", "negative")} {csv(NEGATIVE_WELLS)} · {chip("8 test compounds", "compound")} {allCompoundWells.length} wells
           </p>
           <table style={STYLE.table}>
             <tbody>
