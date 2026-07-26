@@ -1,6 +1,6 @@
 {
-  "workflow_id": "tem1_activity_screen_manual_nitro",
-  "name": "TEM-1 Activity Screen Manual Nitro",
+  "workflow_id": "tem1_activity_screen_manual_nitro_r3_v1",
+  "name": "TEM-1 Activity Screen Manual Nitro R3 v1",
   "description": "Manual-nitro Round 3 v1 TEM-1 activity screen. The robot prepares positive, vehicle, and 8 selected compound working solutions, loads the assay plate, seals before shaking, incubates sealed for 10 minutes, and stops before manual nitrocefin addition.",
   "version": "1.0.0",
   "author": "",
@@ -163,7 +163,7 @@
   ],
   "canvas_ui": {
     "kind": "react",
-    "source_ref": "canvas/tem1_activity_screen_manual_nitro.tsx",
+    "source_ref": "canvas/tem1_activity_screen_manual_nitro_r3_v1.tsx",
     "enabled": true,
     "version": 2,
     "updated_at": "2026-07-26T00:00:00.000Z"

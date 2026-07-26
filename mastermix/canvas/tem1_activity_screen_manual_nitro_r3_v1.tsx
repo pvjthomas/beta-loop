@@ -62,7 +62,7 @@ const csv = (xs: string[]) => xs.join(",");
 const upper = (s: string) => s.trim().toUpperCase();
 const ul = (n: number) => `${Math.round(n * 10) / 10} uL`;
 
-export default function Tem1ActivityScreenManualNitro() {
+export default function Tem1ActivityScreenManualNitroR3V1() {
   const schemaDefault = (name: string, fallback: unknown) => zeon.schema.find((s) => s.name === name)?.defaultValue ?? fallback;
   const initial = (name: string, fallback: unknown) => zeon.defaults[name] ?? schemaDefault(name, fallback);
   const byType = (types: string[]) => zeon.worldObjects.filter((o) => o.meshType !== undefined && types.includes(o.meshType));

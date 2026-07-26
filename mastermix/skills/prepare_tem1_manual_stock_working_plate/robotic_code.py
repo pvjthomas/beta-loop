@@ -70,7 +70,6 @@ def prepare_tem1_manual_stock_working_plate(
     compound_6_source_plate: SkillObject,
     compound_7_source_plate: SkillObject,
     compound_8_source_plate: SkillObject,
-    compound_9_source_plate: SkillObject,
     blb_anchor: str = "hole_5",
     vehicle_blb_anchor: str = "hole_6",
     dmso_anchor: str = "hole_9",
@@ -83,18 +82,16 @@ def prepare_tem1_manual_stock_working_plate(
     compound_2_dest_well: str = "A4",
     compound_3_source_well: str = "F7",
     compound_3_dest_well: str = "A5",
-    compound_4_source_well: str = "A8",
+    compound_4_source_well: str = "A9",
     compound_4_dest_well: str = "A6",
-    compound_5_source_well: str = "A9",
+    compound_5_source_well: str = "A3",
     compound_5_dest_well: str = "A7",
-    compound_6_source_well: str = "A3",
+    compound_6_source_well: str = "A4",
     compound_6_dest_well: str = "A8",
-    compound_7_source_well: str = "A4",
+    compound_7_source_well: str = "A2",
     compound_7_dest_well: str = "A9",
-    compound_8_source_well: str = "A2",
+    compound_8_source_well: str = "F3",
     compound_8_dest_well: str = "A10",
-    compound_9_source_well: str = "F3",
-    compound_9_dest_well: str = "A11",
     stock_volume_ul: float = 2.5,
     compound_blb_volume_ul: float = 47.5,
     vehicle_dmso_volume_ul: float = 5.0,
@@ -107,7 +104,7 @@ def prepare_tem1_manual_stock_working_plate(
 
     The operator provides the large/source stocks. The robot builds a working
     plate with 50 uL positive/test-compound working solutions and one 100 uL
-    matched vehicle well. All nine TBD test compounds use the same transfer
+    matched vehicle well. All eight R3 v1 test compounds use the same transfer
     logic; no compound receives special intermediate dilution handling.
     """
     print_log(runlog=True, runlog_type="step_start")
@@ -123,7 +120,6 @@ def prepare_tem1_manual_stock_working_plate(
         ("Compound 6", compound_6_source_plate, compound_6_source_well, compound_6_dest_well),
         ("Compound 7", compound_7_source_plate, compound_7_source_well, compound_7_dest_well),
         ("Compound 8", compound_8_source_plate, compound_8_source_well, compound_8_dest_well),
-        ("Compound 9", compound_9_source_plate, compound_9_source_well, compound_9_dest_well),
     ]
     _validate_working_solutions(working_solutions)
     working_dests = [dest for _, _, _, dest in working_solutions]
