@@ -86,8 +86,8 @@ def infer_next_action(summary: dict[str, Any]) -> tuple[str, str]:
     ]
     if len(timing_suspect) >= 3:
         return (
-            "Fix nitrocefin stagger before trusting negatives",
-            f"Widespread timing_suspect on {', '.join(timing_suspect)}. Shorten stagger or sync nitrocefin add, then re-run substrate priors.",
+            "Use human multichannel nitrocefin addition before trusting negatives",
+            f"Widespread timing_suspect on {', '.join(timing_suspect)}. Use human multichannel nitrocefin addition, then re-run substrate priors.",
         )
 
     tier1 = {cid: compounds[cid] for cid in TIER1_INHIBITOR_IDS if cid in compounds}

@@ -19,6 +19,8 @@ R2_EDA = REPO_ROOT / "data" / "screens" / "2" / "post-run" / "v2" / "analysis" /
 NITROCEFIN_TIMING = REPO_ROOT / "data" / "screens" / "2" / "post-run" / "nitrocefin_timing.json"
 READER_LID_CLOSE = REPO_ROOT / "data" / "screens" / "2" / "post-run" / "reader_lid_close_utc.txt"
 R2_COMPOUND_LIST = REPO_ROOT / "data" / "screens" / "2" / "v5" / "compound_list.json"
+# R3 v1 skipped T1005 (col 8 empty) — do not show on R2→R3 endpoint bar chart
+R2_BAR_EXCLUDE_COMPOUND_IDS = frozenset({"T1005"})
 COMPOUND_LIST = REPO_ROOT / "data" / "screens" / "3" / "v1" / "compound_list.json"
 COMPOUND_TABLE = REPO_ROOT / "data" / "screens" / "3" / "v1" / "compound_table.md"
 
@@ -179,6 +181,8 @@ def plot_endpoint_bars(out_path: Path) -> None:
 
     rows: list[dict] = []
     for compound_id, info in eda["compounds"].items():
+        if compound_id in R2_BAR_EXCLUDE_COMPOUND_IDS:
+            continue
         prior = priors.get(compound_id, "")
         rows.append(
             {

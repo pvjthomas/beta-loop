@@ -1,6 +1,7 @@
 """Kinetics parsing and hit scoring for nitrocefin A490 time courses.
 
 Scoring spec (canonical: ``pvjthomas/runs/2/v5/run2_decision_tree.md``,
+``pvjthomas/runs/3/v1/run3_decision_tree.md`` for no-vehicle plates,
 ``PLAN.md`` § Assay logic):
 
 **Macro flow**
@@ -200,6 +201,15 @@ def _load_nitrocefin_timing(path: str | Path | None) -> dict[str, datetime]:
     return by_well
 
 
+def _is_substrate_anchor_well(spec: dict) -> bool:
+    """Run 3 plates omit vehicle; substrate-control sample wells anchor scoring."""
+    if spec.get("role") != "sample":
+        return False
+    if spec.get("bucket") == "substrate_control":
+        return True
+    return spec.get("compound_id") in SUBSTRATE_PRIOR_IDS
+
+
 def _load_roles(plate_map_json: str | Path | None) -> tuple[dict[str, dict], dict[str, str | None]]:
     roles: dict[str, dict] = {}
     compound_by_well: dict[str, str | None] = {}
@@ -339,12 +349,28 @@ def analyze_kinetics_file(
         for w in slopes_global
         if roles.get(w, {}).get("role") == "vehicle"
     ]
+    substrate_anchor_wells = [
+        w
+        for w in slopes_global
+        if _is_substrate_anchor_well(roles.get(w, {}))
+    ]
+    substrate_slopes = [
+        slopes_aligned.get(w, slopes_global[w]) for w in substrate_anchor_wells
+    ]
     no_tem1_slopes = [
         slopes_aligned.get(w, slopes_global[w])
         for w in slopes_global
         if roles.get(w, {}).get("role") == "no_tem1"
     ]
-    slope_vehicle = _median(vehicle_slopes) if vehicle_slopes else _median(list(slopes_global.values()))
+    if vehicle_slopes:
+        slope_vehicle = _median(vehicle_slopes)
+        anchor_mode: Literal["vehicle", "substrate", "global_median"] = "vehicle"
+    elif substrate_slopes:
+        slope_vehicle = _median(substrate_slopes)
+        anchor_mode = "substrate"
+    else:
+        slope_vehicle = _median(list(slopes_global.values()))
+        anchor_mode = "global_median"
     slope_no_tem1 = _median(no_tem1_slopes) if no_tem1_slopes else 0.0
 
     well_details: dict[str, dict] = {}
@@ -370,20 +396,45 @@ def analyze_kinetics_file(
     pos_ctrl_wells = [w for w, d in well_details.items() if d["role"] == "pos-ctrl-clavaculin"]
 
     vehicle_hot = sum(1 for w in vehicle_wells if well_details[w]["slope_class_global"] == "hot")
-    no_tem1_flat = sum(1 for w in no_tem1_wells if well_details[w]["slope_class_global"] == "flat")
-    q2_pass = (
-        vehicle_hot >= 2
-        and no_tem1_flat >= 2
-        and slope_vehicle >= 3.0 * slope_no_tem1
+    substrate_hot = sum(
+        1 for w in substrate_anchor_wells if well_details[w]["slope_class_global"] == "hot"
     )
+    no_tem1_flat = sum(1 for w in no_tem1_wells if well_details[w]["slope_class_global"] == "flat")
+    substrate_q2_min_hot = max(2, int(0.67 * len(substrate_anchor_wells))) if substrate_anchor_wells else 0
+    if vehicle_wells:
+        q2_pass = (
+            vehicle_hot >= 2
+            and no_tem1_flat >= 2
+            and slope_vehicle >= 3.0 * slope_no_tem1
+        )
+    elif substrate_anchor_wells:
+        q2_pass = (
+            substrate_hot >= substrate_q2_min_hot
+            and no_tem1_flat >= 2
+            and slope_vehicle >= 3.0 * slope_no_tem1
+        )
+    else:
+        q2_pass = False
 
     vehicle_endpoints = [endpoints[w] for w in vehicle_wells if w in endpoints]
+    substrate_endpoints = [endpoints[w] for w in substrate_anchor_wells if w in endpoints]
     no_tem1_endpoints = [endpoints[w] for w in no_tem1_wells if w in endpoints]
-    a490_vehicle = _median(vehicle_endpoints) if vehicle_endpoints else 0.0
+    if vehicle_endpoints:
+        a490_vehicle = _median(vehicle_endpoints)
+        active_endpoints = vehicle_endpoints
+        active_q2e_min = 2
+    elif substrate_endpoints:
+        a490_vehicle = _median(substrate_endpoints)
+        active_endpoints = substrate_endpoints
+        active_q2e_min = substrate_q2_min_hot
+    else:
+        a490_vehicle = 0.0
+        active_endpoints = []
+        active_q2e_min = 2
     a490_no_tem1 = _median(no_tem1_endpoints) if no_tem1_endpoints else 0.0
     endpoint_dynamic_range = a490_vehicle - a490_no_tem1
     q2_endpoint_pass = (
-        len(vehicle_endpoints) >= 2
+        len(active_endpoints) >= active_q2e_min
         and len(no_tem1_endpoints) >= 2
         and endpoint_dynamic_range >= EPS_ABS_A490
         and a490_vehicle > a490_no_tem1
@@ -425,9 +476,12 @@ def analyze_kinetics_file(
     all_t0s = list(timing_by_well.values())
     timing_stagger_min: float | None = None
     timing_stagger_flag = False
-    timing_unknown = not timing_by_well or len(timing_by_well) < 29
-    if all_t0s and t0_vehicle_median:
-        timing_stagger_min = (t0_vehicle_median - min(all_t0s)).total_seconds() / 60.0
+    timing_unknown = not timing_by_well or len(timing_by_well) < max(24, int(0.8 * (len(roles) or 30)))
+    if all_t0s:
+        if t0_vehicle_median:
+            timing_stagger_min = (t0_vehicle_median - min(all_t0s)).total_seconds() / 60.0
+        else:
+            timing_stagger_min = (max(all_t0s) - min(all_t0s)).total_seconds() / 60.0
         timing_stagger_flag = timing_stagger_min > STAGGER_THRESHOLD_MIN
 
     pre_read_overage_wells: list[str] = []
@@ -545,6 +599,7 @@ def analyze_kinetics_file(
         "compounds": compounds,
         "wells": well_details,
         "control_stats": {
+            "anchor_mode": anchor_mode,
             "median_vehicle_slope": round(slope_vehicle, 6),
             "median_no_tem1_slope": round(slope_no_tem1, 6),
             "median_vehicle_a490_endpoint": round(a490_vehicle, 4),

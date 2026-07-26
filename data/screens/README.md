@@ -63,7 +63,7 @@ When a plate design changes, add a new `v{N+1}` directory; **do not edit** prior
 
 | Version | Label | Status |
 |---------|-------|--------|
-| **v1** | `r3-discovery-v1` | **Pending sign-off** — 8 compounds × triplicate + 6 QC controls; [compound table with R2 priors](../../pvjthomas/runs/3/v1/selection_rationale.md) |
+| **v1** | `r3-discovery-v1` | **Active (signed off 2026-07-26)** — 8 compounds × triplicate + 6 QC controls; [compound table with R2 priors](../../pvjthomas/runs/3/v1/selection_rationale.md) · [decision tree](../../pvjthomas/runs/3/v1/run3_decision_tree.md) |
 | v2 | `r3-discovery-v2` | **Deprecated** — alternate 6-compound layout; do not use ([`DEPRECATED.md`](3/v2-deprecated/DEPRECATED.md)) |
 
 ```bash
@@ -78,6 +78,12 @@ Outputs: `compound_list.json`, `compound_list.csv`, `plate_map.json`, `plate_map
 | Path | Label | Status |
 |------|-------|--------|
 | [`2/post-run/`](2/post-run/) | `r2-discovery-v5-exec` | Run log, timing, reader export; **v2** endpoint analysis (v1 = slope-only snapshot) |
+
+### Post-run (Round 3)
+
+| Path | Label | Status |
+|------|-------|--------|
+| [`3/post-run/`](3/post-run/) | `r3-discovery-v1-exec` | Awaiting Gen5 CSV; synthetic timing (no run log / Gen5 PDF) |
 
 ## Plate map visualization
 

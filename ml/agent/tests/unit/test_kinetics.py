@@ -317,3 +317,98 @@ def test_aligned_hot_vs_global_flat(tmp_path: Path) -> None:
     assert b5["slope_class_aligned"] == "hot"
     assert b5["slope_class_global"] != "hot"
     assert b5["timing_suspect"] is True
+
+
+def _write_r3_plate_map(path: Path) -> None:
+    """Minimal Run 3 v1 layout — no vehicle, substrate controls anchor scoring."""
+    wells = {
+        "D3": {"role": "no_tem1", "compound_id": None, "concentration_uM": 0},
+        "D7": {"role": "no_tem1", "compound_id": None, "concentration_uM": 0},
+        "E11": {"role": "no_tem1", "compound_id": None, "concentration_uM": 0},
+        "F3": {"role": "pos-ctrl-clavaculin", "compound_id": "T19860", "concentration_uM": 50},
+        "F7": {"role": "pos-ctrl-clavaculin", "compound_id": "T19860", "concentration_uM": 50},
+        "G11": {"role": "pos-ctrl-clavaculin", "compound_id": "T19860", "concentration_uM": 50},
+        "B2": {"role": "sample", "compound_id": "T1262", "bucket": "tier1_inhibitor", "concentration_uM": 1.0},
+        "D2": {"role": "sample", "compound_id": "T1262", "bucket": "tier1_inhibitor", "concentration_uM": 1.0},
+        "F2": {"role": "sample", "compound_id": "T1262", "bucket": "tier1_inhibitor", "concentration_uM": 1.0},
+        "B10": {"role": "sample", "compound_id": "T1008", "bucket": "substrate_control", "concentration_uM": 50},
+        "D10": {"role": "sample", "compound_id": "T1008", "bucket": "substrate_control", "concentration_uM": 50},
+        "F10": {"role": "sample", "compound_id": "T1008", "bucket": "substrate_control", "concentration_uM": 50},
+        "C5": {"role": "sample", "compound_id": "T0224", "bucket": "substrate_control", "concentration_uM": 50},
+        "E5": {"role": "sample", "compound_id": "T0224", "bucket": "substrate_control", "concentration_uM": 50},
+        "G5": {"role": "sample", "compound_id": "T0224", "bucket": "substrate_control", "concentration_uM": 50},
+        "C9": {"role": "sample", "compound_id": "T0985", "bucket": "substrate_control", "concentration_uM": 50},
+        "E9": {"role": "sample", "compound_id": "T0985", "bucket": "substrate_control", "concentration_uM": 50},
+        "G9": {"role": "sample", "compound_id": "T0985", "bucket": "substrate_control", "concentration_uM": 50},
+    }
+    path.write_text(json.dumps({"wells": wells}, indent=2) + "\n")
+
+
+def test_r3_substrate_anchor_q2_pass_slope_mode(tmp_path: Path) -> None:
+    csv_path = tmp_path / "kinetics.csv"
+    map_path = tmp_path / "plate_map.json"
+    _write_r3_plate_map(map_path)
+    slopes = {
+        "D3": 0.0002,
+        "D7": 0.0001,
+        "E11": 0.0002,
+        "F3": 0.0002,
+        "F7": 0.0001,
+        "G11": 0.0002,
+        "B2": 0.0002,
+        "D2": 0.0001,
+        "F2": 0.0002,
+        "B10": 0.01,
+        "D10": 0.012,
+        "F10": 0.011,
+        "C5": 0.01,
+        "E5": 0.011,
+        "G5": 0.012,
+        "C9": 0.01,
+        "E9": 0.011,
+        "G9": 0.012,
+    }
+    _write_kinetics_csv(csv_path, slopes)
+
+    result = analyze_kinetics_file(csv_path, plate_map_json=map_path, round_number=3)
+    assert result["control_stats"]["anchor_mode"] == "substrate"
+    assert result["qc_gates"]["q2_pass"] is True
+    assert result["scoring_mode"] == "slope"
+    assert result["qc_gates"]["q3_pass"] is True
+    assert result["compounds"]["T1262"]["label"] == "confirmed_hit"
+
+
+def test_r3_substrate_anchor_endpoint_fallback(tmp_path: Path) -> None:
+    """Run 3: when slope Q2 fails, fall back to endpoint scoring via substrate anchor."""
+    csv_path = tmp_path / "kinetics.csv"
+    map_path = tmp_path / "plate_map.json"
+    _write_r3_plate_map(map_path)
+    plateaus = {
+        "D3": 0.06,
+        "D7": 0.06,
+        "E11": 0.06,
+        "F3": 0.07,
+        "F7": 0.07,
+        "G11": 0.07,
+        "B2": 0.08,
+        "D2": 0.08,
+        "F2": 0.08,
+        "B10": 0.12,
+        "D10": 0.12,
+        "F10": 0.12,
+        "C5": 0.11,
+        "E5": 0.11,
+        "G5": 0.11,
+        "C9": 0.12,
+        "E9": 0.12,
+        "G9": 0.12,
+    }
+    _write_kinetics_csv_plateau(csv_path, plateaus)
+
+    result = analyze_kinetics_file(csv_path, plate_map_json=map_path, round_number=3)
+    assert result["control_stats"]["anchor_mode"] == "substrate"
+    assert result["qc_gates"]["q2_pass"] is False
+    assert result["qc_gates"]["q2_endpoint_pass"] is True
+    assert result["scoring_mode"] == "endpoint"
+    assert result["qc_gates"]["q3_pass"] is True
+    assert result["compounds"]["T1262"]["label"] == "confirmed_hit"

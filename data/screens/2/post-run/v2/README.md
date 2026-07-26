@@ -11,6 +11,7 @@
 |----------|------|
 | Round summary + QC | [`analysis/r2_round_summary_eda.json`](analysis/r2_round_summary_eda.json) |
 | Decision report | [`run2_decision_report.md`](run2_decision_report.md) |
+| Figures + conclusions | [`figures/`](figures/) · [`conclusions.md`](conclusions.md) · [`figure_comparison.md`](figure_comparison.md) |
 | Assay summary (git) | [`../../../assay/run_2_summary.json`](../../../assay/run_2_summary.json) |
 
 ## Outcome (v2)
@@ -20,11 +21,10 @@
 - **Q3:** PASS (clavulanic ~83% on endpoint)
 - Substrate priors no longer spurious surprise hits when endpoint shows catch-up yellow
 
-Regenerate:
+Regenerate figures + conclusions:
 
 ```bash
-python ml/scripts/generate_run2_artifacts.py
-# or: analyze_kinetics_run("data/screens/2/post-run/kinetics_r2.csv", run=2, version=5, analysis_version="v2")
+python ml/scripts/generate_r2_postrun_figures.py
 ```
 
 Raw execution inputs live in [`../`](../). Supersedes [`../v1/`](../v1/).

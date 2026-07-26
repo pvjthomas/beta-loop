@@ -150,7 +150,7 @@ def draw_arrow(
         )
 
 
-def build_figure() -> plt.Figure:
+def build_figure(*, pos_ctrl_pct: float = 83.3, q2_slope_pass: bool = False) -> plt.Figure:
     """Build the simplified closed-loop R2→R3 decision tree."""
     fig, ax = plt.subplots(figsize=(12, 8), dpi=150)
     ax.set_xlim(0, 12)
@@ -173,7 +173,7 @@ def build_figure() -> plt.Figure:
     ax.text(
         cx,
         9.72,
-        "Run 2 closed-loop: stagger artifact → endpoint rescue → STAG retest",
+        "Run 2 closed-loop: stagger artifact → endpoint rescue → human multichannel nitrocefin addition",
         ha="center",
         va="center",
         fontsize=14,
@@ -295,14 +295,14 @@ def build_figure() -> plt.Figure:
         (cx + 2.8, y_q3),
         color=COLOR_PASS_BORDER,
         linewidth=2.5,
-        label="PASS\n@ 107.7%",
+        label=f"PASS\n@ {pos_ctrl_pct:.1f}%",
         label_offset=(0.0, 0.22),
         label_color=COLOR_PASS_BORDER,
         label_fontweight="bold",
         label_fontsize=10.5,
     )
 
-    # 6 & 7 — STAG path (orange, bold)
+    # 6 & 7 — human multichannel nitrocefin addition path (orange, bold)
     stag_y_top = y_stag + 0.55
     stag_y_bot = y_stag - 0.55
 
@@ -317,7 +317,7 @@ def build_figure() -> plt.Figure:
     draw_box(
         ax,
         (cx, stag_y_top),
-        "Step 4: STAG — sync nitrocefin add",
+        "Step 4: Human multichannel nitrocefin addition",
         width=4.4,
         height=0.72,
         facecolor=COLOR_STAG,
@@ -348,7 +348,7 @@ def build_figure() -> plt.Figure:
         fontweight="bold",
     )
 
-    # STAG path bracket / highlight on the right
+    # Human multichannel nitrocefin path bracket / highlight on the right
     bracket_x = 9.55
     ax.plot(
         [bracket_x, bracket_x],
@@ -361,7 +361,7 @@ def build_figure() -> plt.Figure:
     ax.text(
         bracket_x + 0.15,
         (stag_y_top + stag_y_bot) / 2,
-        "STAG /\nretest_sync_dose",
+        "Human multichannel\nnitrocefin addition",
         ha="left",
         va="center",
         fontsize=11,
@@ -370,7 +370,7 @@ def build_figure() -> plt.Figure:
         rotation=90,
     )
 
-    # Footer note (below STAG boxes)
+    # Footer note (below multichannel nitrocefin boxes)
     ax.text(
         cx,
         -0.02,
@@ -387,7 +387,7 @@ def build_figure() -> plt.Figure:
         mpatches.Patch(facecolor=COLOR_PASS, edgecolor=COLOR_PASS_BORDER, label="PASS"),
         mpatches.Patch(facecolor=COLOR_WARN, edgecolor=COLOR_WARN_BORDER, label="WARN"),
         mpatches.Patch(facecolor=COLOR_FAIL, edgecolor=COLOR_FAIL_BORDER, label="FAIL"),
-        mpatches.Patch(facecolor=COLOR_STAG, edgecolor=COLOR_STAG_BORDER, label="STAG path"),
+        mpatches.Patch(facecolor=COLOR_STAG, edgecolor=COLOR_STAG_BORDER, label="Human multichannel nitrocefin addition"),
     ]
     ax.legend(
         handles=legend_handles,
@@ -407,15 +407,30 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("data/screens/demo/r2_decision_tree_stag_path.png"),
+        default=Path("data/screens/demo/r2_decision_tree_multichannel_nitrocefin.png"),
         help="Output PNG path (relative to repo root or absolute)",
     )
+    parser.add_argument(
+        "--eda-json",
+        type=Path,
+        default=None,
+        help="Optional round summary JSON for Q3 pos-ctrl pct (default 83.3)",
+    )
     args = parser.parse_args()
+
+    pos_ctrl_pct = 83.3
+    q2_slope_pass = False
+    if args.eda_json and args.eda_json.exists():
+        import json
+
+        eda = json.loads(args.eda_json.read_text())
+        pos_ctrl_pct = float(eda.get("qc_gates", {}).get("pos_ctrl_median_pct", pos_ctrl_pct))
+        q2_slope_pass = bool(eda.get("qc_gates", {}).get("q2_pass", False))
 
     output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    fig = build_figure()
+    fig = build_figure(pos_ctrl_pct=pos_ctrl_pct, q2_slope_pass=q2_slope_pass)
     fig.savefig(output, dpi=150, facecolor="white", bbox_inches="tight")
     plt.close(fig)
     print(f"Saved: {output}")

@@ -1,0 +1,4 @@
+2026-07-26T20:02:00Z
+# Operator estimate: reader started at 2 min mark after first nitrocefin dispense.
+# No Gen5 PDF available; anchor aligned to synthetic nitrocefin_timing.json (batch 6 end).
+# Absolute UTC is arbitrary — relative offsets (120 s dosing span) are authoritative.

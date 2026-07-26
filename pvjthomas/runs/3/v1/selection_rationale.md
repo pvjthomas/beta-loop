@@ -3,7 +3,8 @@
 **Round:** 3 · **Version:** 1 (`r3-discovery-v1`)  
 **Status:** pending sign-off  
 **Supersedes:** `data/screens/2/v5/compound_list.json`  
-**Canonical list:** [`compound_list.json`](../../../../data/screens/3/v1/compound_list.json)
+**Canonical list:** [`compound_list.json`](../../../../data/screens/3/v1/compound_list.json)  
+**Decision tree:** [`run3_decision_tree.md`](run3_decision_tree.md) — slope QC primary, **endpoint fallback** if Q2 fails (same Q2E/Q3E gates as Run 2)
 
 > **Note:** Run 3 v2 is [deprecated](../../../../data/screens/3/v2-deprecated/DEPRECATED.md). This v1 plate is the active design.
 

@@ -189,7 +189,7 @@ flowchart TD
     OUT -->|Mixed tier-1| MIX[Retest misses]
     OUT -->|Substrate surprise hit| SURP[Priority 8-pt DR]
     OUT -->|Borderline only| RET[Retest @ 50 µM]
-    OUT -->|Widespread timing_suspect| STAG[Fix stagger / sync nitrocefin add]
+    OUT -->|Widespread timing_suspect| HMNA[Human multichannel nitrocefin addition]
     OUT -->|All flat incl. vehicle| DEAD[Do not advance]
 ```
 
@@ -380,7 +380,7 @@ flowchart TD
 | `borderline` | Median score 20–49 on unknown — retest or mini dose-response |
 | `failed_well` | **≥2/3** of 3 sample wells bad kinetics or score outside 0–150 |
 | `timing_suspect` | **≥2/3** reps flat due to stagger artifact — do not call HIT |
-| `retest_sync_dose` | Compound-level action: re-run with simultaneous nitrocefin add |
+| `retest_sync_dose` | Compound-level action: re-run with human multichannel nitrocefin addition |
 
 ### Sample priors (v5 compound list)
 
@@ -410,7 +410,7 @@ flowchart TD
     O -->|Mixed tier-1 hit/miss| MIX["Check replicates + layout<br/>Retest misses before concluding"]
     O -->|Any surprise_hit on substrate| SURP["Strong follow-up story<br/>8-point DR on that compound"]
     O -->|Only borderline, no clean hits| RET["Retest borderlines @ 50 µM"]
-    O -->|Widespread timing_suspect on substrates| STAG["Fix dispensing speed / sync nitrocefin add<br/>before trusting negative calls"]
+    O -->|Widespread timing_suspect on substrates| HMNA["Human multichannel nitrocefin addition<br/>before trusting negative calls"]
     O -->|Everything flat incl. vehicle| DEAD["Enzyme / nitrocefin / reader failure<br/>Do not advance to DR"]
 ```
 
@@ -420,7 +420,7 @@ flowchart TD
 | Surprise hit | Priority dose-response on that compound |
 | Borderline only | Retest @ 50 µM (4th rep) or mini-DR |
 | Tier-1 surprise miss | Assay debug — do not trust negative calls on other wells |
-| Widespread timing_suspect | Shorten stagger or sync nitrocefin; re-run substrate priors |
+| Widespread timing_suspect | Human multichannel nitrocefin addition; re-run substrate priors |
 | Hard assay fail | Fix protocol; run [hand_q2](hand_q2_enzyme_check.md) or [hand_q3](hand_q3_inhibition_check.md); then re-run validation |
 
 ---
