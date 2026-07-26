@@ -1073,8 +1073,13 @@ def _chembl_activity_to_entry(activity: dict[str, Any], compound_name: str) -> d
         val = float(sval)
     except (TypeError, ValueError):
         return {}
-    if sunit in ("nm", "nanom", "nmol/l", "nmol/l"):
+    if sunit in ("nm", "nanom", "nmol/l"):
         val_uM = val / 1000.0
+    elif sunit in ("um", "µm", "microm", "umol/l"):
+        val_uM = val
+    elif "ug.ml" in sunit or "ug/ml" in sunit or sunit in ("ug ml-1", "ug ml-1"):
+        # ChEMBL occasionally reports ug/mL; approximate as ug/mL ~ mg/L, not ideal — skip weak units
+        return {}
     else:
         val_uM = val
 
@@ -1098,10 +1103,13 @@ def _chembl_activity_to_entry(activity: dict[str, Any], compound_name: str) -> d
     return entry
 
 
+GOLD_CURATED_COMPOUND_IDS = frozenset({"T19860"})
+
+
 def enrich_from_chembl_activities(
     compound_ids: list[str] | None = None,
     *,
-    skip_curated: bool = True,
+    skip_curated: bool = False,
 ) -> dict[str, Any]:
     """Supplement refs with structured ChEMBL Ki/IC50 (concentration rule 2)."""
     from agent.tools.literature import search_chembl_activities
@@ -1129,7 +1137,11 @@ def enrich_from_chembl_activities(
             enriched.append({"compound_id": compound_id, "status": "no_parsed_activities"})
             continue
 
-        ref_outcome = _merge_reverse_ref(compound, entries, skip_curated=skip_curated)
+        ref_outcome = _merge_reverse_ref(
+            compound,
+            entries,
+            skip_curated=skip_curated or compound_id in GOLD_CURATED_COMPOUND_IDS,
+        )
         best = _pick_best_entry(entries)
         if best and ref_outcome.get("status") == "written":
             _patch_literature_summary_prior(compound, best, ref_outcome["ref_path"])

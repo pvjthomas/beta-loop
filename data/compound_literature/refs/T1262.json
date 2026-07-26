@@ -71,9 +71,9 @@
   "canonical_compound_id": "T1262",
   "assay_recommendations": {
     "tem1_nitrocefin": {
-      "screen_conc_uM": 50,
-      "screen_rationale": "Project default screen concentration; no literature inhibitor concentration or IC50/Ki extracted.",
-      "screen_conc_source": "project_default",
+      "screen_conc_uM": 1.0,
+      "screen_rationale": "10\u00d7 literature IC50 (0.1 \u00b5M).",
+      "screen_conc_source": "10x_ic50",
       "max_assay_conc_uM": 1000.0,
       "metric": "relative nitrocefin hydrolysis vs no-inhibitor control"
     }

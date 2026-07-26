@@ -106,7 +106,7 @@ def main() -> None:
     )
 
     print("\n=== enrich_from_chembl_activities ===")
-    chembl_out = enrich_from_chembl_activities(compound_ids, skip_curated=True)
+    chembl_out = enrich_from_chembl_activities(compound_ids, skip_curated=False)
     hits = [e for e in chembl_out.get("enriched", []) if e.get("ki_uM") or e.get("ic50_uM")]
     print(f"chembl_hits={len(hits)}")
 

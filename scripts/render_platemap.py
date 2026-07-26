@@ -24,7 +24,7 @@ def _collect_all_runs(data_dir: Path, repo_root: Path) -> list[Path]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Render plate map JSON as PNG (uses wellmap)."
+        description="Render plate map JSON as PNG with colored wells and labels."
     )
     parser.add_argument(
         "plate_map",
@@ -37,9 +37,15 @@ def main() -> int:
         help="Output PNG path (default: alongside input JSON)",
     )
     parser.add_argument(
+        "--by",
+        choices=("sample_type", "compound"),
+        default="sample_type",
+        help="Color wells by sample type (default) or individual compound",
+    )
+    parser.add_argument(
         "--cols",
         nargs="+",
-        help="Columns to project onto the plate (passed to wellmap.show_df)",
+        help="Deprecated; kept for compatibility",
     )
     parser.add_argument(
         "--all-runs",
@@ -60,14 +66,14 @@ def main() -> int:
             print("No plate map JSON files found.", file=sys.stderr)
             return 1
         for path in paths:
-            out = load_and_render(path, cols=args.cols)
+            out = load_and_render(path, cols=args.cols, color_by=args.by)
             print(out)
         return 0
 
     if not args.plate_map:
         parser.error("plate_map path is required unless --all-runs is set")
 
-    out = load_and_render(args.plate_map, args.output, cols=args.cols)
+    out = load_and_render(args.plate_map, args.output, cols=args.cols, color_by=args.by)
     print(out)
     return 0
 

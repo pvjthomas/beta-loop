@@ -1,19 +1,17 @@
 {
   "run": 2,
-  "version": 2,
+  "version": 3,
   "round": 2,
   "assay_type": "single_point",
   "final_volume_ul": 50,
-  "compound_concentration_uM": 50,
-  "working_solution_uM": 500,
   "compound_volume_ul": 5,
   "replicates_per_compound": 3,
   "exclude_compound_ids": [
     "T19709"
   ],
-  "compound_list": "data/screens/2/v2/compound_list.json",
-  "rationale_doc": "pvjthomas/runs/2/v2/selection_rationale.md",
-  "layout_notes": "96-well flat bottom: row A = 12 plate controls; row B = 4 tier-1 inhibitors \u00d7 3; row C = 4 substrate controls \u00d7 3; row D = 2 diverse picks \u00d7 3 (30 sample wells, 10 unique compounds). Rows E\u2013H empty/reserved.",
+  "compound_list": "data/screens/2/v3/compound_list.json",
+  "rationale_doc": "pvjthomas/runs/2/v3/selection_rationale.md",
+  "layout_notes": "96-well flat bottom: row A = 9 plate controls; row B = 4 tier-1 inhibitors \u00d7 3; row C = 4 substrate controls \u00d7 3; row D = 2 diverse picks \u00d7 3 (30 sample wells, 10 unique compounds). T1262 @ 1.0 \u00b5M (rule 2); all others @ 50 \u00b5M unless noted in compound_list.json. Rows E\u2013H empty/reserved.",
   "wells": {
     "A1": {
       "compound_id": null,
@@ -36,52 +34,34 @@
     "A4": {
       "compound_id": null,
       "concentration_uM": 0,
-      "role": "vehicle",
+      "role": "no_tem1",
       "bucket": "control"
     },
     "A5": {
       "compound_id": null,
       "concentration_uM": 0,
-      "role": "vehicle",
+      "role": "no_tem1",
       "bucket": "control"
     },
     "A6": {
       "compound_id": null,
       "concentration_uM": 0,
-      "role": "vehicle",
+      "role": "no_tem1",
       "bucket": "control"
     },
     "A7": {
-      "compound_id": null,
-      "concentration_uM": 0,
-      "role": "no_tem1",
-      "bucket": "control"
-    },
-    "A8": {
-      "compound_id": null,
-      "concentration_uM": 0,
-      "role": "no_tem1",
-      "bucket": "control"
-    },
-    "A9": {
-      "compound_id": null,
-      "concentration_uM": 0,
-      "role": "no_tem1",
-      "bucket": "control"
-    },
-    "A10": {
-      "compound_id": null,
-      "concentration_uM": 0,
-      "role": "no_tem1",
-      "bucket": "control"
-    },
-    "A11": {
       "compound_id": "T19860",
       "concentration_uM": 50.0,
       "role": "pos-ctrl-clavaculin",
       "bucket": "control"
     },
-    "A12": {
+    "A8": {
+      "compound_id": "T19860",
+      "concentration_uM": 50.0,
+      "role": "pos-ctrl-clavaculin",
+      "bucket": "control"
+    },
+    "A9": {
       "compound_id": "T19860",
       "concentration_uM": 50.0,
       "role": "pos-ctrl-clavaculin",
@@ -113,7 +93,7 @@
     },
     "B4": {
       "compound_id": "T1262",
-      "concentration_uM": 50,
+      "concentration_uM": 1.0,
       "role": "sample",
       "bucket": "tier1_inhibitor",
       "replicate": 1,
@@ -121,7 +101,7 @@
     },
     "B5": {
       "compound_id": "T1262",
-      "concentration_uM": 50,
+      "concentration_uM": 1.0,
       "role": "sample",
       "bucket": "tier1_inhibitor",
       "replicate": 2,
@@ -129,7 +109,7 @@
     },
     "B6": {
       "compound_id": "T1262",
-      "concentration_uM": 50,
+      "concentration_uM": 1.0,
       "role": "sample",
       "bucket": "tier1_inhibitor",
       "replicate": 3,
@@ -328,8 +308,11 @@
       "functional_class": "unknown"
     }
   },
-  "versioned_path": "data/screens/2/v2/plate_map.json",
-  "description": "Round 2 discovery v2 \u2014 10 compounds in triplicate @ 50 \u00b5M (reduced from 24 in v1)",
+  "versioned_path": "data/screens/2/v3/plate_map.json",
   "rationale_doc_active": "pvjthomas/selection_rationale.md",
-  "version_label": "r2-discovery-v2"
+  "version_label": "r2-discovery-v3",
+  "default_compound_concentration_uM": 50,
+  "concentrations_from": "data/screens/2/v3/compound_list.json",
+  "working_solution_uM": 500,
+  "description": "Round 2 discovery v3 \u2014 10 compounds in triplicate with literature-backed per-compound concentrations (see compound_list.json)"
 }

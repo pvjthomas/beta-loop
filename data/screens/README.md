@@ -50,7 +50,8 @@ When a plate design changes, add a new `v{N+1}` directory; **do not edit** prior
 | Version | Label | Status |
 |---------|-------|--------|
 | v1 | `r2-discovery-v1` | Superseded — 24 unique compounds × triplicate + `compound_list.json` / `.csv` |
-| **v2** | `r2-discovery-v2` | **Pending sign-off** — 10 compounds (4 tier-1 + 4 substrate + 2 diverse) × triplicate |
+| v2 | `r2-discovery-v2` | Superseded — 10 compounds (4 tier-1 + 4 substrate + 2 diverse) × triplicate |
+| **v3** | `r2-discovery-v3` | **Pending sign-off** — same layout as v2 with literature-backed per-compound concentrations in `compound_list.json` (T1262 @ 1 µM) |
 
 ## Plate map visualization
 
