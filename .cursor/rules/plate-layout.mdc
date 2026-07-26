@@ -2,6 +2,8 @@
 
 Layout generation lives in `pvjthomas/plates.py`. PNG coloring/rendering lives in `ml/analysis/plate_viz.py` — **never change well positions in the viz layer**.
 
+Theory, distance metrics, optimization algorithms, and case analysis: [`pvjthomas/wellplate_design_guide.md`](../../pvjthomas/wellplate_design_guide.md).
+
 ## Interior-only layouts (`spaced_interior`, `column_strip`)
 
 These modes share mandatory constraints (enforced by `validate_interior_layout`):
