@@ -38,9 +38,9 @@ def main() -> int:
     )
     parser.add_argument(
         "--by",
-        choices=("sample_type", "compound"),
+        choices=("sample_type", "compound", "concentration"),
         default="sample_type",
-        help="Color wells by sample type (default) or individual compound",
+        help="Color wells by sample type (default), compound, or concentration labels",
     )
     parser.add_argument(
         "--cols",

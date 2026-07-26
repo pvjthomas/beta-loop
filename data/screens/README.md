@@ -58,6 +58,20 @@ When a plate design changes, add a new `v{N+1}` directory; **do not edit** prior
 | v2 | `r2-discovery-v2` | Superseded — 10 compounds (4 tier-1 + 4 substrate + 2 diverse) × triplicate |
 | **v3** | `r2-discovery-v3` | **Pending sign-off** — same layout as v2 with literature-backed per-compound concentrations in `compound_list.json` (T1262 @ 1 µM) |
 
+### Round 3
+
+| Version | Label | Status |
+|---------|-------|--------|
+| **v1** | `r3-discovery-v1` | **Pending sign-off** — 8 compounds × triplicate + 6 QC controls; [compound table with R2 priors](../../pvjthomas/runs/3/v1/selection_rationale.md) |
+| v2 | `r3-discovery-v2` | **Deprecated** — alternate 6-compound layout; do not use ([`DEPRECATED.md`](3/v2/DEPRECATED.md)) |
+
+```bash
+python ml/scripts/build_screen3.py --version 1   # active 8-compound layout
+# python ml/scripts/build_screen3.py --version 2  # deprecated — history only
+```
+
+Outputs: `compound_list.json`, `compound_list.csv`, `plate_map.json`, `plate_map.png`, `plate_map_by_compound.png`, `plate_map_concentrations.png`.
+
 ### Post-run (Round 2)
 
 | Path | Label | Status |

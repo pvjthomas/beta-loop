@@ -85,6 +85,20 @@ DEFAULT_CONTROL_ROW: dict[str, Any] = {
     "positive": {"compound_id": "T19860", "count": 3, "concentration_uM": 50},
 }
 
+# Run 3+: vehicle controls removed; no-TEM-1 and positive stay on D/F rows @ cols 3/7/11.
+R3_CONTROL_ROW: dict[str, Any] = {
+    "vehicle": 0,
+    "no_tem1": 3,
+    "positive": {"compound_id": "T19860", "count": 3, "concentration_uM": 50},
+}
+
+# Eight-compound column-strip bands when Amoxicillin (col 8) is dropped from the v5 layout.
+R3_COLUMN_STRIP_BANDS: list[dict[str, Any]] = [
+    {"rows": "B,D,F", "cols": [2, 4, 6, 10]},
+    {"rows": "C,E,G", "cols": [5, 9]},
+    {"rows": "C,E,G", "cols": [3, 7]},
+]
+
 # Clavulanic acid — default on-plate positive control; must not also appear as a sample.
 DEFAULT_POSITIVE_CONTROL_COMPOUND_ID = "T19860"
 
@@ -361,6 +375,55 @@ def _column_strip_control_positions(control_row: dict[str, Any]) -> list[tuple[i
     ]
 
 
+def _parse_row_band(row_spec: str) -> tuple[int, ...]:
+    """Parse 'B,D,F' into 0-based row indices."""
+    return tuple(ROWS.index(part.strip()) for part in row_spec.split(",") if part.strip())
+
+
+def _column_strip_bands_from_spec(
+    band_spec: list[dict[str, Any]],
+    *,
+    compound_count: int,
+) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
+    """Build band tuples from compound_list column_strip_bands override."""
+    bands: list[tuple[tuple[int, ...], tuple[int, ...]]] = []
+    slot_total = 0
+    for entry in band_spec:
+        rows = _parse_row_band(str(entry["rows"]))
+        cols = tuple(int(c) - 1 for c in entry["cols"])
+        bands.append((rows, cols))
+        slot_total += len(cols)
+    if slot_total != compound_count:
+        raise ValueError(
+            f"column_strip_bands defines {slot_total} compound slots, "
+            f"but compound list has {compound_count} compounds"
+        )
+    return bands
+
+
+def resolve_column_strip_bands(
+    compound_list: dict[str, Any],
+    compound_count: int,
+) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
+    """Return explicit band override or default auto bands for compound count."""
+    if band_spec := compound_list.get("column_strip_bands"):
+        return _column_strip_bands_from_spec(band_spec, compound_count=compound_count)
+    return _spaced_column_strip_bands(compound_count)
+
+
+def resolve_control_row(
+    compound_list: dict[str, Any],
+    *,
+    control_row: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Merge explicit control_row arg with compound_list.control_row fallback."""
+    if control_row is not None:
+        return control_row
+    if cfg := compound_list.get("control_row"):
+        return cfg
+    return DEFAULT_CONTROL_ROW
+
+
 def _spaced_column_strip_bands(
     compound_count: int,
 ) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
@@ -402,6 +465,7 @@ def add_column_strip_layout(
     *,
     replicates: int = 3,
     control_row: dict[str, Any] | None = None,
+    column_strip_bands: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None,
 ) -> None:
     """One compound per x-spaced column; triplicates vertically (B/D/F, then C/E/G)."""
     cfg = control_row if control_row is not None else DEFAULT_CONTROL_ROW
@@ -414,7 +478,9 @@ def add_column_strip_layout(
             f"column_strip layout requires {len(STRIP_SAMPLE_ROWS)} replicates, got {replicates}"
         )
 
-    bands = _spaced_column_strip_bands(len(compounds))
+    bands = column_strip_bands if column_strip_bands is not None else _spaced_column_strip_bands(
+        len(compounds)
+    )
 
     control_positions = _column_strip_control_positions(cfg)
     vehicle_n = int(cfg.get("vehicle", 0))
@@ -489,11 +555,22 @@ def _layout_notes(
         )
 
     if layout == "column_strip":
+        vehicle = int(control_row.get("vehicle", 0))
+        band_note = (
+            "B/D/F @ 2/4/6/10, then C/E/G @ 5/9, then C/E/G @ 3/7"
+            if vehicle == 0 and len(compounds) == 8
+            else "B/D/F @ 2/4/6/8/10, then C/E/G @ 5/9, then C/E/G @ 3/7 for overflow"
+        )
+        control_note = (
+            f"Controls ({control_total}): 3× no-TEM-1 @ D3/D7/E11; "
+            f"3× clavulanic acid @ F3/F7/G11. No vehicle controls"
+            if vehicle == 0
+            else f"Controls ({control_total}) on B/D/F @ 3/7 and C/E/G @ 11"
+        )
         return (
             "96-well flat bottom, column-strip layout: no edge wells (rows A/H, cols 1/12 empty). "
-            "X-spaced sample columns only (no horizontally adjacent samples): "
-            "B/D/F @ 2/4/6/8/10, then C/E/G @ 5/9, then C/E/G @ 3/7 for overflow. "
-            f"Controls ({control_total}) on B/D/F @ 3/7 and C/E/G @ 11"
+            f"X-spaced sample columns only (no horizontally adjacent samples): {band_note}. "
+            f"{control_note}"
             + _variable_concentration_note(compounds, default_uM=default_uM)
             + "."
         )
@@ -527,7 +604,7 @@ def design_single_point_plate(
     layout: LayoutMode | None = None,
 ) -> dict[str, Any]:
     """Build a plate map dict from a compound_list.json payload."""
-    cfg = control_row if control_row is not None else DEFAULT_CONTROL_ROW
+    cfg = resolve_control_row(compound_list, control_row=control_row)
     compounds_raw = compound_list["compounds"]
     compounds, excluded_from_samples = sample_compounds_excluding_positive_control(
         compounds_raw,
@@ -549,11 +626,13 @@ def design_single_point_plate(
             control_row=cfg,
         )
     elif layout_mode == "column_strip":
+        strip_bands = resolve_column_strip_bands(compound_list, len(compounds))
         add_column_strip_layout(
             wells,
             compounds,
             replicates=replicates,
             control_row=cfg,
+            column_strip_bands=strip_bands,
         )
     else:
         add_control_row(wells, control_row=cfg)
@@ -613,6 +692,20 @@ def design_single_point_plate(
             f"(see compound_placement_rules.positive_control_not_also_sample)"
         )
 
+    vehicle_n = int(cfg.get("vehicle", 0))
+    no_tem1_n = int(cfg.get("no_tem1", 0))
+    pos_n = int((cfg.get("positive") or {}).get("count", 0))
+    plate_map["control_summary"] = {
+        "vehicle": vehicle_n,
+        "no_tem1": no_tem1_n,
+        "positive_clavulanic_T19860": pos_n,
+        "total": vehicle_n + no_tem1_n + pos_n,
+    }
+    plate_map["sample_summary"] = {
+        "compounds": len(compounds),
+        "wells": len(compounds) * replicates,
+    }
+
     if variable_concentrations:
         plate_map["default_compound_concentration_uM"] = screen_conc
         plate_map["concentrations_from"] = compound_list_path
@@ -634,6 +727,8 @@ def design_single_point_plate(
         desc += "; spaced interior layout (no edge wells)"
     elif layout_mode == "column_strip":
         desc += "; column-strip layout (x-spaced columns, triplicates on B/D/F and C/E/G)"
+        if vehicle_n == 0:
+            desc += "; no vehicle controls"
     plate_map["description"] = desc
 
     return plate_map
@@ -647,6 +742,61 @@ def write_plate_map(plate_map: dict[str, Any], path: str | Path) -> Path:
     out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(plate_map, indent=2) + "\n")
+    return out
+
+
+def write_compound_list_csv(compound_list: dict[str, Any], path: str | Path) -> Path:
+    """Write spreadsheet-friendly compound_list.csv from compound_list.json payload."""
+    import csv
+
+    fieldnames = [
+        "slot",
+        "compound_id",
+        "name",
+        "bucket",
+        "functional_class",
+        "screen_conc_uM",
+        "working_solution_uM",
+        "concentration_rule",
+        "screen_conc_source",
+        "expected_at_screen_conc",
+        "source_plate",
+        "source_well",
+        "refs_file",
+        "reference_summary",
+    ]
+    out = Path(path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.DictWriter(fh, fieldnames=fieldnames)
+        writer.writeheader()
+        for compound in compound_list.get("compounds", []):
+            ref = compound.get("concentration_reference") or {}
+            summary = ref.get("citation") or ref.get("note") or ref.get("evidence_type", "")
+            if ref.get("chembl"):
+                chembl = ref["chembl"]
+                summary = (
+                    f"ChEMBL {chembl.get('document_chembl_id')} "
+                    f"IC50={chembl.get('standard_value_uM')} µM"
+                )
+            writer.writerow(
+                {
+                    "slot": compound.get("slot"),
+                    "compound_id": compound.get("compound_id"),
+                    "name": compound.get("name"),
+                    "bucket": compound.get("bucket"),
+                    "functional_class": compound.get("functional_class"),
+                    "screen_conc_uM": compound.get("screen_conc_uM"),
+                    "working_solution_uM": compound.get("working_solution_uM"),
+                    "concentration_rule": compound.get("concentration_rule"),
+                    "screen_conc_source": compound.get("screen_conc_source"),
+                    "expected_at_screen_conc": compound.get("expected_at_screen_conc"),
+                    "source_plate": compound.get("source_plate"),
+                    "source_well": compound.get("source_well"),
+                    "refs_file": compound.get("refs_file"),
+                    "reference_summary": str(summary)[:200],
+                }
+            )
     return out
 
 

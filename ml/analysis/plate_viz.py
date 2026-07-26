@@ -16,7 +16,7 @@ PLATE_ROWS = 8
 PLATE_COLS = 12
 EMPTY_COLOR = "#F3F4F6"
 
-ColorMode = Literal["sample_type", "compound"]
+ColorMode = Literal["sample_type", "compound", "concentration"]
 
 SAMPLE_TYPE_COLORS: dict[str, str] = {
     "vehicle": "#9CA3AF",
@@ -135,7 +135,25 @@ def _compound_group(well: dict) -> str:
     return role or "unknown"
 
 
-def _well_label(well: dict) -> str:
+def _concentration_label(well: dict) -> str:
+    conc = well.get("concentration_uM")
+    if conc is None:
+        return ""
+    if conc == 0:
+        role = well.get("role")
+        if role == "no_tem1":
+            return "0"
+        if role == "vehicle":
+            return "VEH"
+        return "0"
+    if float(conc).is_integer():
+        return f"{int(conc)}"
+    return f"{conc:g}"
+
+
+def _well_label(well: dict, *, color_by: ColorMode = "sample_type") -> str:
+    if color_by == "concentration":
+        return _concentration_label(well)
     role = well.get("role")
     if role in CONTROL_WELL_LABELS:
         return CONTROL_WELL_LABELS[role]
@@ -190,7 +208,7 @@ def _load_compound_catalog(
     return catalog
 
 
-def plate_map_to_df(plate_map: dict) -> pd.DataFrame:
+def plate_map_to_df(plate_map: dict, *, color_by: ColorMode = "sample_type") -> pd.DataFrame:
     """Flatten plate_map['wells'] into a tidy DataFrame."""
     rows: list[dict] = []
     for well_id, well in plate_map.get("wells", {}).items():
@@ -200,7 +218,7 @@ def plate_map_to_df(plate_map: dict) -> pd.DataFrame:
             "role": well.get("role"),
             "sample_type": _sample_type(well),
             "compound_group": _compound_group(well),
-            "label": _well_label(well),
+            "label": _well_label(well, color_by=color_by),
             "compound_id": compound_id if compound_id is not None else "—",
             "concentration_uM": well.get("concentration_uM"),
             "bucket": well.get("bucket"),
@@ -218,9 +236,13 @@ def _default_output_path(json_path: Path, *, color_by: ColorMode = "sample_type"
     if json_path.name == "plate_map.json":
         if color_by == "compound":
             return json_path.with_name("plate_map_by_compound.png")
+        if color_by == "concentration":
+            return json_path.with_name("plate_map_concentrations.png")
         return json_path.with_name("plate_map.png")
     if color_by == "compound":
         return json_path.with_name(f"{json_path.stem}_by_compound.png")
+    if color_by == "concentration":
+        return json_path.with_name(f"{json_path.stem}_concentrations.png")
     return json_path.with_suffix(".png")
 
 
@@ -230,7 +252,13 @@ def _build_title(plate_map: dict, *, color_by: ColorMode) -> str:
         parts.append(str(label))
     if assay_type := plate_map.get("assay_type"):
         parts.append(str(assay_type))
-    parts.append("by sample type" if color_by == "sample_type" else "by compound")
+    parts.append(
+        "by sample type"
+        if color_by == "sample_type"
+        else "by compound"
+        if color_by == "compound"
+        else "concentrations (µM)"
+    )
     if notes := plate_map.get("layout_notes"):
         note = str(notes)
         if len(note) > 100:
@@ -282,6 +310,8 @@ def _legend_label(
     catalog: dict[str, dict[str, Any]],
 ) -> str:
     if color_by == "sample_type":
+        return SAMPLE_TYPE_LABELS.get(group, group.replace("_", " ").title())
+    if color_by == "concentration":
         return SAMPLE_TYPE_LABELS.get(group, group.replace("_", " ").title())
     if group in CONTROL_GROUP_LABELS:
         label = CONTROL_GROUP_LABELS[group]
@@ -351,12 +381,19 @@ def _render_colored_plate(
 ) -> plt.Figure:
     """Draw a 96-well plate colored by sample type or compound group."""
     catalog = catalog or {}
-    color_column = "sample_type" if color_by == "sample_type" else "compound_group"
+    color_column = (
+        "sample_type"
+        if color_by in {"sample_type", "concentration"}
+        else "compound_group"
+    )
     present_groups = list(dict.fromkeys(df[color_column].tolist()))
 
     if color_by == "sample_type":
         group_order, colors = _colors_for_sample_types(present_groups)
         legend_title = "Sample type"
+    elif color_by == "concentration":
+        group_order, colors = _colors_for_sample_types(present_groups)
+        legend_title = "Sample type (µM labels)"
     else:
         group_order, colors = _colors_for_compounds(present_groups)
         legend_title = "Compound"
@@ -448,7 +485,7 @@ def render_plate_map(
 ) -> Path:
     """Render a plate map dict to PNG with well labels."""
     del cols  # kept for CLI compatibility
-    df = plate_map_to_df(plate_map)
+    df = plate_map_to_df(plate_map, color_by=color_by)
     if df.empty:
         raise ValueError("Plate map has no wells to render")
 
