@@ -2,7 +2,7 @@
 
 | Component | Dilution Factor | Reagent A | Vol. Reagent A | Reagent B | Vol. Reagent B | Total Prepared | Vol. per well | Final conc. in 100 µL well | Capacity |
 |---|---|---|---:|---|---:|---:|---:|---|---:|
-| **TEM-1 working solution** | 1:1000 | 100 ng/µL TEM-1 stock | 5 µL | BLB | 4,995 µL | **5,000 µL at 0.1 ng/µL** | 40 µL | 2 ng TEM-1; 0.04 ng/µL | 125 wells |
+| **TEM-1 working solution** | 1:1000 | 100 ng/µL TEM-1 stock | 5 µL | BLB | 4,995 µL | **5,000 µL at 0.1 ng/µL** | 40 µL | 4 ng TEM-1; 0.04 ng/µL | 125 wells |
 | **Nitrocefin working solution** | 1:200 | 20 mM nitrocefin stock in DMSO | 30 µL | BLB | 5,970 µL | **6,000 µL at 100 µM** | 50 µL | 50 µM nitrocefin; 0.25% DMSO | 120 wells |
 | **Each screening compound** | 1:20 | 10 mM compound stock in DMSO | 5 µL | BLB | 95 µL | **100 µL at 500 µM** | 10 µL | 50 µM compound; 0.75% total DMSO | 10 wells |
 | **Known-active control** | 1:20 | 10 mM known-active stock in DMSO | 5 µL | BLB | 95 µL | **100 µL at 500 µM** | 10 µL | 50 µM compound; 0.75% total DMSO | 10 wells |
