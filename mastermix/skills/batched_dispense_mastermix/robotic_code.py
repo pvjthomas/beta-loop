@@ -6,7 +6,9 @@ after the batch. This is intended for homogeneous assay setup liquids where a
 single tip can safely serve replicate wells.
 """
 
+import json
 import math
+from datetime import datetime, timezone
 
 from protocol_schema import SkillObject
 from utils import (
@@ -23,7 +25,7 @@ from epipette_aspirate.robotic_code import epipette_aspirate
 from epipette_dispense.robotic_code import epipette_dispense
 from epipette_eject.robotic_code import epipette_eject
 
-from .modules import print_log
+from .modules import ExecutionInfoContext, print_log, project_data_dir
 
 
 def _rl(msg, kind="event"):
@@ -36,6 +38,34 @@ def _preferred_pipette_name(per_well_ul: float) -> str:
     return "epipette_10ul" if float(per_well_ul) < 10.0 else "epipette_120ul"
 
 
+def _record_timing(condition_label, source_anchor, well, volume_ul):
+    if not condition_label:
+        return
+    run_id = ExecutionInfoContext.get().execution_id or "no_execution"
+    ts = datetime.now(timezone.utc).isoformat()
+    root = project_data_dir(f"timing/{run_id}", create=True)
+    if root is None:
+        return
+    path = root / "nitrocefin_timing.json"
+    try:
+        data = json.loads(path.read_text()) if path.exists() else {"run_id": run_id, "events": []}
+    except Exception:
+        data = {"run_id": run_id, "events": []}
+    data.setdefault("events", []).append({
+        "t0_utc": ts,
+        "condition": str(condition_label),
+        "well": str(well),
+        "source_anchor": str(source_anchor),
+        "volume_ul": float(volume_ul),
+    })
+    path.write_text(json.dumps(data, indent=2) + "\n")
+    print_log(
+        f"nitrocefin_t0 condition={condition_label} well={well} t0_utc={ts} volume_ul={volume_ul}",
+        runlog=True,
+        runlog_type="nitrocefin_t0",
+    )
+
+
 def batched_dispense_mastermix(
     pipette: SkillObject,
     tipbox: SkillObject,
@@ -46,6 +76,7 @@ def batched_dispense_mastermix(
     rxn_volume: float = 20.0,
     num_reactions: int = 0,
     speed: float = 5.0,
+    timing_label: str = "",
 ):
     """Dispense one source into multiple wells, batching wells per aspirate.
 
@@ -115,6 +146,7 @@ def batched_dispense_mastermix(
         for well in batch:
             epipette_dispense(object=reaction_plate, anchor=well, pipette=use_pipette, volume=per_well, speed=speed)
             dispenses += 1
+            _record_timing(timing_label, mm_anchor, well, per_well)
         epipette_eject(pipette=use_pipette)
 
     _rl(

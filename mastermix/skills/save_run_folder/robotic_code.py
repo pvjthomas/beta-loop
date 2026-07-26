@@ -105,5 +105,17 @@ def save_run_folder(run_name: str = "run"):
         except Exception as ex:
             print_log(f"save_run_folder: metadata copy failed: {ex}")
 
+    # Structured timing artifacts written directly under project data, such as
+    # nitrocefin per-well t0 events.
+    try:
+        timing_src = project_data_dir(f"timing/{eid}", create=False)
+        if timing_src is not None and timing_src.exists():
+            timing_out = out / "timing"
+            timing_out.mkdir(parents=True, exist_ok=True)
+            for artifact in timing_src.glob("*.json"):
+                shutil.copy(artifact, timing_out / artifact.name)
+    except Exception as ex:
+        print_log(f"save_run_folder: timing artifact copy failed: {ex}")
+
     print_log(f"Saved run folder: {out.name} ({n_img} image(s))", runlog=True, runlog_type="event")
     return {"success": True, "folder": str(out), "images": n_img}
