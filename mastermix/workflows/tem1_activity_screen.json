@@ -31,9 +31,6 @@
     { "name": "tem1_intermediate_anchor", "type": "string", "description": "Anchor/hole where 1 ng/uL TEM-1 intermediate is prepared.", "defaultValue": "hole_2" },
     { "name": "tem1_working_anchor", "type": "string", "description": "Anchor/hole where 0.1 ng/uL TEM-1 working solution is prepared.", "defaultValue": "hole_8" },
 
-    { "name": "enzyme_anchor", "type": "string", "description": "Deprecated; TEM-1 enzyme prep now uses tem1_working_anchor from the dilution prep.", "defaultValue": "hole_8" },
-    { "name": "no_enzyme_anchor", "type": "string", "description": "Cold-block hole containing BLB for no-TEM-1 controls.", "defaultValue": "hole_6" },
-    { "name": "vehicle_anchor", "type": "string", "description": "Deprecated; matched vehicle now comes from the prepared working plate.", "defaultValue": "A2" },
     { "name": "nitrocefin_anchor", "type": "string", "description": "Cold-block hole containing freshly prepared 2x nitrocefin working solution.", "defaultValue": "hole_10" },
 
     { "name": "positive_source_plate", "type": "object", "is_array": false, "description": "Source plate containing positive-control inhibitor, default clavulanic acid T19860.", "defaultValue": "wellplate_pcr_parts_1" },
@@ -83,14 +80,12 @@
     { "name": "compound_9_wells", "type": "string", "description": "Destination wells for T8390 sample replicates.", "defaultValue": "C7,E7,G7" },
     { "name": "tem1_wells", "type": "string", "description": "All wells that receive TEM-1 enzyme prep.", "defaultValue": "F3,F7,G11,B3,B7,C11,B2,D2,F2,B4,D4,F4,B6,D6,F6,B8,D8,F8,B10,D10,F10,C5,E5,G5,C9,E9,G9,C3,E3,G3,C7,E7,G7" },
     { "name": "vehicle_addition_wells", "type": "string", "description": "All wells receiving vehicle from the vehicle source.", "defaultValue": "D3,D7,E11,B3,B7,C11" },
-    { "name": "all_assay_wells", "type": "string", "description": "All wells receiving nitrocefin.", "defaultValue": "B3,B7,C11,D3,D7,E11,F3,F7,G11,B2,D2,F2,B4,D4,F4,B6,D6,F6,B8,D8,F8,B10,D10,F10,C5,E5,G5,C9,E9,G9,C3,E3,G3,C7,E7,G7" },
 
     { "name": "tem1_well_count", "type": "int", "description": "Number of wells receiving TEM-1 enzyme prep.", "defaultValue": 33 },
     { "name": "negative_well_count", "type": "int", "description": "Number of no-TEM-1 negative-control wells.", "defaultValue": 3 },
     { "name": "vehicle_addition_count", "type": "int", "description": "Number of wells receiving vehicle addition.", "defaultValue": 6 },
     { "name": "positive_well_count", "type": "int", "description": "Number of positive-control inhibitor wells.", "defaultValue": 3 },
     { "name": "replicate_count", "type": "int", "description": "Replicates per condition.", "defaultValue": 3 },
-    { "name": "all_assay_well_count", "type": "int", "description": "Total wells in the assay plate layout.", "defaultValue": 36 },
 
     { "name": "enzyme_volume_ul", "type": "float", "description": "TEM-1 or no-enzyme prep volume per well.", "defaultValue": 20.0 },
     { "name": "compound_volume_ul", "type": "float", "description": "Compound/control addition volume per well.", "defaultValue": 5.0 },

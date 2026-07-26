@@ -49,18 +49,18 @@ const NEGATIVE_WELLS = ["D3", "D7", "E11"];
 const VEHICLE_WELLS = ["B3", "B7", "C11"];
 const COMPOUND_WELLS = [
   ["B2", "D2", "F2"], ["B4", "D4", "F4"], ["B6", "D6", "F6"], ["B8", "D8", "F8"], ["B10", "D10", "F10"],
-  ["C5", "E5", "G5"], ["C9", "E9", "G9"], ["C3", "E3", "G3"], ["C7", "E7", "G7"], [],
+  ["C5", "E5", "G5"], ["C9", "E9", "G9"], ["C3", "E3", "G3"], ["C7", "E7", "G7"],
 ];
 const DEFAULT_COMPOUNDS = [
   "T1262 Tazobactam (1 uM)", "T6685 Sulbactam sodium", "T14081 Enmetazobactam", "T1005 Amoxicillin", "T1008 Cephalexin",
-  "T0224 Meropenem", "T0985 Oxacillin sodium salt", "T0138 Cefpiramide acid", "T8390 Cefazolin", "Unused slot 10",
+  "T0224 Meropenem", "T0985 Oxacillin sodium salt", "T0138 Cefpiramide acid", "T8390 Cefazolin",
 ];
-const DEFAULT_SOURCE_WELLS = ["B10", "F2", "F7", "A8", "A9", "A3", "A4", "A2", "F3", ""];
+const DEFAULT_SOURCE_WELLS = ["B10", "F2", "F7", "A8", "A9", "A3", "A4", "A2", "F3"];
 const DEFAULT_SOURCE_PLATES = [
   "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
-  "wellplate_pcr_parts_2", "wellplate_pcr_parts_2", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
+  "wellplate_pcr_parts_2", "wellplate_pcr_parts_2", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
 ];
-const ACTIVE_COMPOUND_COUNT = 9;
+const ACTIVE_COMPOUND_COUNT = COMPOUND_WELLS.length;
 
 const objName = (o: Obj) => o.displayName || o.name || o.uuid;
 const csv = (xs: string[]) => xs.join(",");
@@ -87,8 +87,8 @@ export default function Tem1ActivityScreen() {
   const [shaker, setShaker] = useState(String(initial("shaker", firstName(["wellplate_shaker"], "wellplate_shaker_1"))));
   const [shakerSlot, setShakerSlot] = useState(String(initial("shaker_slot", "slot_1")));
 
-  const [enzymeAnchor, setEnzymeAnchor] = useState(String(initial("enzyme_anchor", "hole_8")));
-  const [noEnzymeAnchor, setNoEnzymeAnchor] = useState(String(initial("no_enzyme_anchor", "hole_6")));
+  const [enzymeAnchor, setEnzymeAnchor] = useState(String(initial("tem1_working_anchor", "hole_8")));
+  const [noEnzymeAnchor, setNoEnzymeAnchor] = useState(String(initial("blb_anchor_2", "hole_6")));
   const [blbAnchor, setBlbAnchor] = useState(String(initial("blb_anchor", "hole_5")));
   const [nitrocefinAnchor, setNitrocefinAnchor] = useState(String(initial("nitrocefin_anchor", "hole_10")));
   const [nitrocefinBlbAnchor, setNitrocefinBlbAnchor] = useState(String(initial("nitrocefin_blb_anchor", "hole_7")));
@@ -163,12 +163,12 @@ export default function Tem1ActivityScreen() {
     pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, platereader: plateReader, plate_home: plateHome, shaker, shaker_slot: shakerSlot,
     working_plate: workingPlate, blb_source: sourceBlock, dmso_source: sourceBlock, tem1_stock_source: sourceBlock,
     blb_anchor: blbAnchor, blb_anchor_2: noEnzymeAnchor, dmso_anchor: "hole_9", nitrocefin_blb_anchor: nitrocefinBlbAnchor, nitrocefin_stock_anchor: nitrocefinStockAnchor, tem1_stock_anchor: "hole_1", tem1_intermediate_anchor: "hole_2", tem1_working_anchor: enzymeAnchor,
-    enzyme_anchor: enzymeAnchor, no_enzyme_anchor: noEnzymeAnchor, vehicle_anchor: vehicleDestWell, nitrocefin_anchor: nitrocefinAnchor,
+    nitrocefin_anchor: nitrocefinAnchor,
     positive_source_plate: positivePlate, positive_source_well: upper(positiveWell), positive_dest_well: positiveDestWell, vehicle_dest_well: vehicleDestWell,
     positive_wells: csv(POSITIVE_WELLS), negative_wells: csv(NEGATIVE_WELLS), vehicle_wells: csv(VEHICLE_WELLS),
-    tem1_wells: csv(tem1Wells), vehicle_addition_wells: csv(vehicleAdditionWells), all_assay_wells: csv(allWells),
+    tem1_wells: csv(tem1Wells), vehicle_addition_wells: csv(vehicleAdditionWells),
     tem1_well_count: tem1Wells.length, negative_well_count: NEGATIVE_WELLS.length, vehicle_addition_count: vehicleAdditionWells.length,
-    positive_well_count: POSITIVE_WELLS.length, replicate_count: 3, all_assay_well_count: allWells.length,
+    positive_well_count: POSITIVE_WELLS.length, replicate_count: 3,
     enzyme_volume_ul: enzymeVolume, compound_volume_ul: compoundVolume, nitrocefin_volume_ul: nitrocefinVolume,
     stock_volume_ul: 2.5, compound_blb_volume_ul: 47.5, vehicle_dmso_volume_ul: 5, vehicle_blb_volume_ul: 95, nitrocefin_stock_volume_ul: 6.25, nitrocefin_blb_volume_ul: 1243.75, nitrocefin_mix_volume_ul: 100,
     tem1_stock_volume_ul: 2, tem1_step1_blb_volume_ul: 198, tem1_intermediate_volume_ul: 100, tem1_step2_blb_volume_ul: 900, tem1_mix_volume_ul: 100, mix_volume_ul: 10, mix_cycles: 5,
