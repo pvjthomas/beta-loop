@@ -33,7 +33,7 @@ Master timeline: [PLAN.md](../PLAN.md).
 | **R2 discovery draft** | ✓ Done — `ml/workflows/compound_selection/plate_map_r2_draft.json` (24 compounds) |
 | **Paperclip batch searches** | ✓ Done — `data/compound_literature/*.txt` (2026-07-25) |
 | **Forward Tier 4 Paperclip CI** | ✗ Optional — baseline logged; `test_paperclip_clavulanic.py` manual/nightly |
-| **GNINA docking** | ✗ Stub only — `run_gnina_batch()` not run |
+| **GNINA docking** | Optional — pipeline built; Mac: Docker `--no_gpu` or remote Linux ([Step R2 macOS](../pvjthomas/COMPOUND_SELECTION.md#step-r2--docking-gnina)) |
 | **`analysis/ic50.py`** | ✗ Not done — 4PL fit deferred until R2 data |
 | **Synthetic kinetics fixture** | ✗ Not done — add `ml/agent/tests/fixtures/kinetics_r1_synthetic.csv` |
 | **Live R1 kinetics** | ✗ Waiting — `data/kinetics_r1.csv` from Chang |
@@ -152,7 +152,7 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 - [ ] Optional: wrap coordinator in ADK `LoopAgent` max 2 iterations
 
 ### Optional
-- [ ] GNINA batch dock → `dock_score` in `compounds.csv`
+- [ ] GNINA batch dock → `gnina_cnn_affinity` in `compound_dossiers.json` (Mac: see [Step R2 macOS](../pvjthomas/COMPOUND_SELECTION.md#step-r2--docking-gnina))
 - [ ] Live Paperclip in agent vs pre-baked priors only
 
 ---
@@ -169,7 +169,7 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 | **P1** | Synthetic kinetics test | Parallel — does not block forward |
 | **P1** | Confirm plate schema with Chang | ✗ TODO |
 | **P2** | Paperclip batch raw files | ✓ Done (2026-07-25) |
-| **P2** | GNINA scores | ✗ Optional |
+| **P2** | GNINA scores | Optional — Docker on Mac or Linux GPU |
 
 ---
 

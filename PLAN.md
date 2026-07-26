@@ -77,7 +77,7 @@ By demo time we show a real **data → decision → better result** story:
 | Forward Paperclip batch searches | ✓ batch `.txt` in `data/compound_literature/` + `state.forward.literature_searches` (2026-07-25) |
 | Forward agent test suite (Tier 1–3) | ✓ 31 tests — clavulanate fixture → v3 screen subset (23) → full library (105); see [`ml/agent/tests/FORWARD_TEST_PLAN.md`](ml/agent/tests/FORWARD_TEST_PLAN.md) |
 | **Forward agent live run + screening priors (Philip P0)** | **Partial** — live forward + Paperclip batch ✓ (2026-07-25); **next:** curate refs + `compound_assay_priors` for T1262/T1631/T14081 (T19860 is gold) |
-| GNINA docking + `dock_score` column | ✗ stub only |
+| GNINA docking + `dock_score` column | Optional — pipeline built; Mac needs Docker or remote Linux (see [COMPOUND_SELECTION.md § R2 macOS](pvjthomas/COMPOUND_SELECTION.md#step-r2--docking-gnina)) |
 | Promote draft → active `plate_map_r1.json` for discovery | ✗ needs sign-off |
 
 ### Plates & literature (Round 1)
@@ -644,7 +644,7 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 - [x] Phase B pipeline (reverse → bridge → merge) → refreshed `state.json` + `plate_map_r2_draft.json` (2026-07-25)
 - [ ] **P0 — Screening priors for every compound on the discovery plate** — Philip documents **recommended screen concentration (µM)**, **expected inhibition at that conc**, and **saved literature evidence** (PMID/DOI, Ki/IC50, assay conditions) in `data/compound_literature/refs/{id}.json` + `data/literature_summary.json` → `compound_assay_priors` (T19860 is the template; T1262, T1631/T6685, T14081, T14979 still thin)
 - [ ] Forward Tier 4 Paperclip integration in CI/nightly (`test_paperclip_clavulanic.py` — manual baseline recorded)
-- [ ] GNINA batch dock → merge `dock_score` into `compounds.csv`
+- [ ] GNINA batch dock → `gnina_cnn_affinity` in `compound_dossiers.json` (Mac: Docker CPU or remote Linux — [Step R2 macOS](pvjthomas/COMPOUND_SELECTION.md#step-r2--docking-gnina))
 - [ ] Promote `selection/plate_map_r2_draft.json` → `data/plate_map_r2.json` after validation + sign-off
 - [x] Analysis helpers → `ml/analysis/` (kinetics + plate DR)
 - [x] ML workspace consolidated → `ml/` (agent + analysis + workflows)
@@ -888,7 +888,7 @@ Then **manually curate** each forward-hit ref to T19860 quality (Paperclip map/f
 | Rob + Chang | Run **validation v2** screen when gate passes | Blocked on GFP |
 | Philip | Validation sign-off after clavulanate inhibits | Waiting on data |
 | Philip | Promote discovery v3 plate after validation + **priors complete** | Blocked on assay QC + forward curation |
-| Philip | GNINA batch dock → `dock_score` column | Deferred — after forward priors |
+| Philip | GNINA batch dock → Tier 3 ranking | Optional — Docker on Mac or Linux GPU; fallback rank OK |
 | Philip (ML) | Synthetic kinetics test + demo plots | Parallel — does not block forward |
 | Philip (ML) | Forward Tier 4 Paperclip CI/nightly | Optional — baseline logged |
 

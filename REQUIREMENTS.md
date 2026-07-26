@@ -157,8 +157,19 @@ pip install -r requirements.txt
 
 GNINA is not on PyPI — install binary separately if used:
 
-- [GNINA](https://github.com/gnina/gnina) — CNN-scored docking vs TEM-1 (PDB 1JQL)
-- Batch dock all 95 compounds → merge scores into `data/compounds.csv`
+- [GNINA](https://github.com/gnina/gnina) — CNN-scored docking vs TEM-1 (project alias 1JQL → structure 1XPB)
+- Batch dock all 105 compounds → scores in `data/compound_dossiers.json` (`docking.gnina_cnn_affinity`)
+- Helper: `bash scripts/install-gnina.sh`
+
+### macOS (Philip)
+
+No native macOS binary. Practical options:
+
+1. **Docker + `--no_gpu`** — `docker pull gnina/gnina`; mount repo; see [COMPOUND_SELECTION.md Step R2](pvjthomas/COMPOUND_SELECTION.md#step-r2--docking-gnina)
+2. **Remote Linux GPU** — run `run_gnina_batch()` on a Linux box; copy dossiers + `pvjthomas/local/docking/` back
+3. **Skip** — pipeline fallback ranking works without scores
+
+Set `GNINA_BIN=/path/to/gnina` when the binary is not on `PATH`.
 
 DiffDock and Boltz-2 are optional stretch goals per hackathon brief.
 

@@ -347,15 +347,95 @@ Use SMARTS patterns + manual override for edge cases. Store in `scaffold_class`.
 
 ### Step R2 — Docking (GNINA)
 
-- Receptor: **TEM-1** (PDB **1JQL** or prepped structure)
+- Receptor: **TEM-1** (project code **1JQL** → pipeline uses RCSB **1XPB**; RCSB 1JQL is unrelated DNA polymerase)
 - Dock all non-excluded library compounds
 - Score with CNN affinity; keep top poses for demo slides
+- **Pipeline:** `run_gnina_batch()` → `load_dock_scores()` → `rank_by_dock_score(top_n=8)` in [`ml/agent/tools/reverse.py`](../ml/agent/tools/reverse.py)
+- **Outputs:** scores in `data/compound_dossiers.json` (`docking.gnina_cnn_affinity`); poses in `pvjthomas/local/docking/{compound_id}/`
 
 **Interpretation:**
 
 - High GNINA score on **inhibitor-class** → reinforces Tier 1
 - High score on **antibiotic** → suspect (may bind but as substrate); don’t over-prioritize for “inhibition”
 - Use docking to **rank Tier 3** unknowns, not to override clavulanate priors
+
+#### macOS setup (Philip)
+
+There is **no official native macOS GNINA binary**. The pre-built release is **Linux x86_64** only. On Mac, people typically use one of these paths:
+
+| Option | When to use | Speed | Effort |
+|--------|-------------|-------|--------|
+| **A. Docker (CPU)** | Hackathon on Mac, no Linux box | Slow (~minutes/compound) | Low |
+| **B. Remote Linux + GPU** | Full 105-compound batch | Fast | Medium |
+| **C. Skip GNINA** | Forward priors still P0 | Instant (fallback rank) | None |
+
+**Recommended for this hackathon (Mac laptop):**
+
+1. **Try Docker CPU first** — good enough to rank Tier 3 and swap exploration wells; don’t block on full library if time is tight.
+2. **If you have lab Linux / cloud GPU** — run the full batch there and copy scores back into `compound_dossiers.json`.
+3. **Fallback is fine** — `rank_by_dock_score()` already picks 8 non–Tier-1 IDs when scores are missing; document “GNINA deferred” in rationale.
+
+**A. Docker on Mac (Colima or Docker Desktop)**
+
+```bash
+# One-time
+docker pull gnina/gnina          # ~27 GB official image
+bash scripts/install-gnina.sh    # install options + verify
+
+# Single compound smoke test (from repo root)
+docker run --rm -v "$PWD:/work" -w /work gnina/gnina \
+  gnina --no_gpu \
+    -r pvjthomas/local/docking/_receptor/1XPB_receptor.pdb \
+    -l pvjthomas/local/docking/T0138/ligand.sdf \
+    --autobox_ligand pvjthomas/local/docking/_receptor/1XPB_autobox.pdb \
+    -o pvjthomas/local/docking/T0138/docked.sdf
+```
+
+Notes:
+
+- Use **`--no_gpu`** on Mac (no NVIDIA GPU in the container).
+- Receptor files are created on first `run_gnina_batch()` call (downloads 1XPB, splits protein + active-site sulfate autobox).
+- Official image is large; community builds slimmer ~6 GB images ([gnina/gnina#168](https://github.com/gnina/gnina/issues/168)) if disk is tight.
+
+**B. Remote Linux (preferred for full batch)**
+
+```bash
+# On Linux box with CUDA (or WSL2 on Windows — not Mac)
+wget https://github.com/gnina/gnina/releases/latest/download/gnina
+chmod +x gnina && sudo mv gnina /usr/local/bin/
+
+# In repo clone
+source .venv/bin/activate
+python -c "
+import sys; sys.path.insert(0, 'ml')
+from agent.tools.reverse import run_gnina_batch, rank_by_dock_score
+run_gnina_batch()
+rank_by_dock_score(top_n=8)
+"
+# Copy updated compound_dossiers.json + pvjthomas/local/docking/ back to Mac if needed
+```
+
+Set `GNINA_BIN=/path/to/gnina` if the binary is not on `PATH`.
+
+**C. What not to bother with on Mac**
+
+- Installing the Linux release binary directly on macOS / Apple Silicon
+- `conda install gnina` — no conda-forge package
+- Building from source unless you enjoy CMake/CUDA debugging ([macOS WIP #346](https://github.com/gnina/gnina/issues/346), not merged)
+
+**After scores land**
+
+```bash
+source .venv/bin/activate
+python -c "
+import sys, json; sys.path.insert(0, 'ml')
+from agent.tools.reverse import load_dock_scores, rank_by_dock_score
+print(json.dumps(load_dock_scores(), indent=2))
+print(json.dumps(rank_by_dock_score(top_n=8), indent=2))
+"
+```
+
+Check `ml/workflows/compound_selection/state.json` → `reverse.dock_rank.tier3_candidates` (8 IDs with real scores, or `fallback_no_scores`).
 
 ### Step R3 — Reverse literature check
 
@@ -478,7 +558,7 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 | Sub-agent | Tools | Output |
 |-----------|-------|--------|
 | `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library` | `reference_inhibitors.csv`, `compound_literature/refs/*.json` |
-| `reverse_agent` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score` | `selection/state.json` |
+| `reverse_agent` | `classify_scaffolds_rdkit`, `run_gnina_batch`, `rank_by_dock_score` | `selection/state.json` |
 | `bridge_agent` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` | `similarity/neighbors.json` |
 | `selection_merger` | `merge_tier_assignments`, `generate_round2_plate_draft` | `selection/plate_map_r2_draft.json` |
 
@@ -516,7 +596,7 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 5. [ ] **Run forward agent live** — Paperclip searches → match → finalize v1 snapshot ← **P0**
 6. [ ] **Screening priors for discovery plate** — concentration + saved literature evidence per compound (T19860 template) ← **P0**
 7. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
-8. [ ] Reverse: GNINA dock → `dock_score` column (stub only; defer until forward priors done)
+8. [ ] Reverse: GNINA dock → `dock_score` / `gnina_cnn_affinity` (see **Step R2 — macOS setup**; defer until forward priors done if needed)
 9. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
 10. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r2_draft.json` (24 compounds)
 11. [x] Validation plate v2 → active `data/plate_map_r1.json`
@@ -537,5 +617,6 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 
 - [PLAN.md](../PLAN.md) — progress snapshot, Phase A→B, plate layouts, two-round loop
 - [agent/README.md](agent/README.md) — ADK pipeline usage
-- [REQUIREMENTS.md](../REQUIREMENTS.md) — Paperclip, RDKit, GNINA setup
+- [REQUIREMENTS.md](../REQUIREMENTS.md) — Paperclip, RDKit, GNINA setup (incl. macOS)
+- [scripts/install-gnina.sh](../scripts/install-gnina.sh) — GNINA install helper
 - [ROLES.md](../ROLES.md) — Philip sign-off on R2 plate map
