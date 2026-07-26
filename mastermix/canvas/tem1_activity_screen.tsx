@@ -91,6 +91,8 @@ export default function Tem1ActivityScreen() {
   const [noEnzymeAnchor, setNoEnzymeAnchor] = useState(String(initial("no_enzyme_anchor", "hole_7")));
   const [vehicleAnchor, setVehicleAnchor] = useState(String(initial("vehicle_anchor", "hole_5")));
   const [nitrocefinAnchor, setNitrocefinAnchor] = useState(String(initial("nitrocefin_anchor", "hole_10")));
+  const [nitrocefinBlbAnchor, setNitrocefinBlbAnchor] = useState(String(initial("nitrocefin_blb_anchor", "hole_7")));
+  const [nitrocefinStockAnchor, setNitrocefinStockAnchor] = useState(String(initial("nitrocefin_stock_anchor", "hole_4")));
   const [plateMixMin, setPlateMixMin] = useState(Number(initial("plate_mix_minutes", 1)));
   const [waitMin, setWaitMin] = useState(Number(initial("preincubation_minutes", 10)));
   const [endpointRead1Min, setEndpointRead1Min] = useState(Number(initial("endpoint_read_1_minutes", 5)));
@@ -141,7 +143,9 @@ export default function Tem1ActivityScreen() {
       needed: COMPOUND_WELLS[i].length * compoundVolume,
       overage: 0,
     })),
-    { source: "2x nitrocefin", location: `${sourceBlock} / ${nitrocefinAnchor}`, serves: csv(allWells), needed: allWells.length * nitrocefinVolume, overage: nitrocefinOverage },
+    { source: "Nitrocefin stock", location: `${sourceBlock} / ${nitrocefinStockAnchor}`, serves: "just-in-time nitrocefin prep", needed: 6.25, overage: 2 },
+    { source: "Nitrocefin BLB", location: `${sourceBlock} / ${nitrocefinBlbAnchor}`, serves: "just-in-time nitrocefin prep", needed: 1243.75, overage: 50 },
+    { source: "2x nitrocefin working", location: `${sourceBlock} / ${nitrocefinAnchor}`, serves: csv(allWells), needed: allWells.length * nitrocefinVolume, overage: nitrocefinOverage },
   ];
   const wellRows = [
     ...POSITIVE_WELLS.map((well) => ({ well, condition: "Positive control", prep: "TEM-1", prepVol: enzymeVolume, addition: "Clavulanic acid", addVol: compoundVolume })),
@@ -153,7 +157,7 @@ export default function Tem1ActivityScreen() {
   const values = {
     pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, platereader: plateReader, plate_home: plateHome, shaker, shaker_slot: shakerSlot,
     working_plate: workingPlate, blb_source: sourceBlock, dmso_source: sourceBlock, tem1_stock_source: sourceBlock,
-    blb_anchor: vehicleAnchor, blb_anchor_2: noEnzymeAnchor, dmso_anchor: "hole_9", tem1_stock_anchor: "hole_1", tem1_intermediate_anchor: "hole_2", tem1_working_anchor: enzymeAnchor,
+    blb_anchor: vehicleAnchor, blb_anchor_2: noEnzymeAnchor, dmso_anchor: "hole_9", nitrocefin_blb_anchor: nitrocefinBlbAnchor, nitrocefin_stock_anchor: nitrocefinStockAnchor, tem1_stock_anchor: "hole_1", tem1_intermediate_anchor: "hole_2", tem1_working_anchor: enzymeAnchor,
     enzyme_anchor: enzymeAnchor, no_enzyme_anchor: noEnzymeAnchor, vehicle_anchor: vehicleAnchor, nitrocefin_anchor: nitrocefinAnchor,
     positive_source_plate: positivePlate, positive_source_well: upper(positiveWell), positive_dest_well: positiveDestWell, vehicle_dest_well: vehicleDestWell,
     positive_wells: csv(POSITIVE_WELLS), negative_wells: csv(NEGATIVE_WELLS), vehicle_wells: csv(VEHICLE_WELLS),
@@ -161,7 +165,7 @@ export default function Tem1ActivityScreen() {
     tem1_well_count: tem1Wells.length, negative_well_count: NEGATIVE_WELLS.length, vehicle_addition_count: vehicleAdditionWells.length,
     positive_well_count: POSITIVE_WELLS.length, replicate_count: 3, all_assay_well_count: allWells.length,
     enzyme_volume_ul: enzymeVolume, compound_volume_ul: compoundVolume, nitrocefin_volume_ul: nitrocefinVolume,
-    stock_volume_ul: 2.5, compound_blb_volume_ul: 47.5, vehicle_dmso_volume_ul: 5, vehicle_blb_volume_ul: 95,
+    stock_volume_ul: 2.5, compound_blb_volume_ul: 47.5, vehicle_dmso_volume_ul: 5, vehicle_blb_volume_ul: 95, nitrocefin_stock_volume_ul: 6.25, nitrocefin_blb_volume_ul: 1243.75, nitrocefin_mix_volume_ul: 100,
     tem1_stock_volume_ul: 2, tem1_step1_blb_volume_ul: 198, tem1_intermediate_volume_ul: 100, tem1_step2_blb_volume_ul: 900, tem1_mix_volume_ul: 100, mix_volume_ul: 10, mix_cycles: 5,
     plate_mix_minutes: plateMixMin, preincubation_minutes: waitMin, endpoint_read_1_minutes: endpointRead1Min, endpoint_read_2_minutes: endpointRead2Min, run_name: runName.trim() || "tem1_activity_screen",
     ...Object.fromEntries(compounds.flatMap((c, i) => [
@@ -186,8 +190,8 @@ export default function Tem1ActivityScreen() {
       if (!c.plate) e.push(`Select a source plate for compound ${i + 1}.`);
       if (!wellRe.test(upper(c.well))) e.push(`Compound ${i + 1} source well must be A1-H12.`);
     });
-    const usedHoles = [enzymeAnchor, noEnzymeAnchor, vehicleAnchor, nitrocefinAnchor];
-    if (new Set(usedHoles).size !== usedHoles.length) e.push("Use separate cold-block holes for enzyme, no-enzyme prep, vehicle, and nitrocefin.");
+    const usedHoles = [enzymeAnchor, noEnzymeAnchor, vehicleAnchor, nitrocefinAnchor, nitrocefinBlbAnchor, nitrocefinStockAnchor, "hole_1", "hole_2", "hole_9"];
+    if (new Set(usedHoles).size !== usedHoles.length) e.push("Use separate cold-block holes for enzyme, BLB, DMSO, nitrocefin stock, and nitrocefin working solution.");
     return e;
   }
   const errors = [...localErrors(), ...hostErrors];
@@ -250,7 +254,9 @@ export default function Tem1ActivityScreen() {
         <div style={STYLE.grid4}>
           <div><label style={STYLE.label}>TEM-1 prep</label>{holeSelect(enzymeAnchor, setEnzymeAnchor)}</div>
           <div><label style={STYLE.label}>No-enzyme prep</label>{holeSelect(noEnzymeAnchor, setNoEnzymeAnchor)}</div>
-          <div><label style={STYLE.label}>Vehicle</label>{holeSelect(vehicleAnchor, setVehicleAnchor)}</div>
+          <div><label style={STYLE.label}>BLB tube 1</label>{holeSelect(vehicleAnchor, setVehicleAnchor)}</div>
+          <div><label style={STYLE.label}>Nitrocefin BLB</label>{holeSelect(nitrocefinBlbAnchor, setNitrocefinBlbAnchor)}</div>
+          <div><label style={STYLE.label}>Nitrocefin stock</label>{holeSelect(nitrocefinStockAnchor, setNitrocefinStockAnchor)}</div>
           <div><label style={STYLE.label}>2x nitrocefin</label>{holeSelect(nitrocefinAnchor, setNitrocefinAnchor)}</div>
         </div>
 
