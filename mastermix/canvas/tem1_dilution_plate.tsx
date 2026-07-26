@@ -64,9 +64,13 @@ export default function Tem1DilutionPlate() {
   const [blbSource, setBlbSource] = useState(String(initial("blb_source", "coldblock_wellplate")));
   const [dmsoSource, setDmsoSource] = useState(String(initial("dmso_source", "coldblock_wellplate")));
   const [workingPlate, setWorkingPlate] = useState(String(initial("working_plate", "wellplate_pcr_parts_4")));
+  const [tem1StockSource, setTem1StockSource] = useState(String(initial("tem1_stock_source", "coldblock_wellplate")));
   const [blbAnchor, setBlbAnchor] = useState(String(initial("blb_anchor", "hole_5")));
   const [blbAnchor2, setBlbAnchor2] = useState(String(initial("blb_anchor_2", "hole_6")));
   const [dmsoAnchor, setDmsoAnchor] = useState(String(initial("dmso_anchor", "hole_9")));
+  const [tem1StockAnchor, setTem1StockAnchor] = useState(String(initial("tem1_stock_anchor", "hole_1")));
+  const [tem1IntermediateAnchor, setTem1IntermediateAnchor] = useState(String(initial("tem1_intermediate_anchor", "hole_2")));
+  const [tem1WorkingAnchor, setTem1WorkingAnchor] = useState(String(initial("tem1_working_anchor", "hole_8")));
   const [positivePlate, setPositivePlate] = useState(String(initial("positive_source_plate", "wellplate_pcr_parts_1")));
   const [positiveWell, setPositiveWell] = useState(String(initial("positive_source_well", "H7")));
   const [positiveDest, setPositiveDest] = useState(String(initial("positive_dest_well", "A1")));
@@ -75,6 +79,11 @@ export default function Tem1DilutionPlate() {
   const [compoundBlbVol, setCompoundBlbVol] = useState(Number(initial("compound_blb_volume_ul", 47.5)));
   const [vehicleDmsoVol, setVehicleDmsoVol] = useState(Number(initial("vehicle_dmso_volume_ul", 5)));
   const [vehicleBlbVol, setVehicleBlbVol] = useState(Number(initial("vehicle_blb_volume_ul", 95)));
+  const [tem1StockVol, setTem1StockVol] = useState(Number(initial("tem1_stock_volume_ul", 2)));
+  const [tem1Step1BlbVol, setTem1Step1BlbVol] = useState(Number(initial("tem1_step1_blb_volume_ul", 198)));
+  const [tem1IntermediateVol, setTem1IntermediateVol] = useState(Number(initial("tem1_intermediate_volume_ul", 100)));
+  const [tem1Step2BlbVol, setTem1Step2BlbVol] = useState(Number(initial("tem1_step2_blb_volume_ul", 900)));
+  const [tem1MixVol, setTem1MixVol] = useState(Number(initial("tem1_mix_volume_ul", 100)));
   const [mixVol, setMixVol] = useState(Number(initial("mix_volume_ul", 10)));
   const [mixCycles, setMixCycles] = useState(Number(initial("mix_cycles", 5)));
   const [items, setItems] = useState<Item[]>(() => DEFAULT_ITEMS.map((d, i) => ({
@@ -94,16 +103,18 @@ export default function Tem1DilutionPlate() {
   const finalAssayUM = workingUM * 5 / 50;
   const vehiclePct = vehicleTotal > 0 ? 100 * vehicleDmsoVol / vehicleTotal : 0;
   const blbTube1Needed = items.length * compoundBlbVol + compoundBlbVol;
-  const blbTube2Needed = vehicleBlbVol;
+  const blbTube2Needed = vehicleBlbVol + tem1Step1BlbVol + tem1Step2BlbVol;
   const blbNeeded = blbTube1Needed + blbTube2Needed;
   const stockNeeded = stockVol;
   const dmsoNeeded = vehicleDmsoVol;
 
   const values = {
-    pipette, tipbox, blb_source: blbSource, dmso_source: dmsoSource, working_plate: workingPlate,
-    blb_anchor: blbAnchor, blb_anchor_2: blbAnchor2, dmso_anchor: dmsoAnchor,
+    pipette, tipbox, blb_source: blbSource, dmso_source: dmsoSource, working_plate: workingPlate, tem1_stock_source: tem1StockSource,
+    blb_anchor: blbAnchor, blb_anchor_2: blbAnchor2, dmso_anchor: dmsoAnchor, tem1_stock_anchor: tem1StockAnchor, tem1_intermediate_anchor: tem1IntermediateAnchor, tem1_working_anchor: tem1WorkingAnchor,
     positive_source_plate: positivePlate, positive_source_well: upper(positiveWell), positive_dest_well: upper(positiveDest), vehicle_dest_well: upper(vehicleDest),
-    stock_volume_ul: stockVol, compound_blb_volume_ul: compoundBlbVol, vehicle_dmso_volume_ul: vehicleDmsoVol, vehicle_blb_volume_ul: vehicleBlbVol, mix_volume_ul: mixVol, mix_cycles: Math.round(mixCycles),
+    stock_volume_ul: stockVol, compound_blb_volume_ul: compoundBlbVol, vehicle_dmso_volume_ul: vehicleDmsoVol, vehicle_blb_volume_ul: vehicleBlbVol,
+    tem1_stock_volume_ul: tem1StockVol, tem1_step1_blb_volume_ul: tem1Step1BlbVol, tem1_intermediate_volume_ul: tem1IntermediateVol, tem1_step2_blb_volume_ul: tem1Step2BlbVol, tem1_mix_volume_ul: tem1MixVol,
+    mix_volume_ul: mixVol, mix_cycles: Math.round(mixCycles),
     ...Object.fromEntries(items.flatMap((it, i) => [
       [`compound_${i + 1}_source_plate`, it.plate], [`compound_${i + 1}_source_well`, upper(it.sourceWell)], [`compound_${i + 1}_dest_well`, upper(it.destWell)],
     ])),
@@ -119,6 +130,8 @@ export default function Tem1DilutionPlate() {
     const dests = [upper(positiveDest), upper(vehicleDest), ...items.map((it) => upper(it.destWell))];
     if (new Set(dests).size !== dests.length) e.push("Working-plate destination wells must be unique.");
     if (stockVol <= 0 || compoundBlbVol <= 0 || vehicleDmsoVol <= 0 || vehicleBlbVol <= 0) e.push("Dilution volumes must be positive.");
+    if (tem1StockVol <= 0 || tem1Step1BlbVol <= 0 || tem1IntermediateVol <= 0 || tem1Step2BlbVol <= 0 || tem1MixVol <= 0) e.push("TEM-1 dilution volumes must be positive.");
+    if (new Set([blbAnchor, blbAnchor2, dmsoAnchor, tem1StockAnchor, tem1IntermediateAnchor, tem1WorkingAnchor].map(upper)).size !== 6) e.push("Cold-block anchors for BLB, DMSO, and TEM-1 dilution tubes must be unique.");
     if (mixVol <= 0 || mixCycles < 1) e.push("Mix volume must be positive and mix cycles must be at least 1.");
     return e;
   }
@@ -148,11 +161,28 @@ export default function Tem1DilutionPlate() {
           <div><label style={S.label}>BLB source</label>{selectObj(blbSource, setBlbSource, coldBlocks)}</div>
           <div><label style={S.label}>DMSO source</label>{selectObj(dmsoSource, setDmsoSource, coldBlocks)}</div>
           <div><label style={S.label}>Working plate</label>{selectObj(workingPlate, setWorkingPlate, pcrPlates)}</div>
+          <div><label style={S.label}>TEM-1 stock source</label>{selectObj(tem1StockSource, setTem1StockSource, coldBlocks)}</div>
         </div>
         <div style={{ ...S.grid4, marginTop: 10 }}>
           <div><label style={S.label}>BLB tube 1 anchor</label><input style={S.field} value={blbAnchor} onChange={(e) => setBlbAnchor(e.target.value)} /></div>
           <div><label style={S.label}>BLB tube 2 anchor</label><input style={S.field} value={blbAnchor2} onChange={(e) => setBlbAnchor2(e.target.value)} /></div>
           <div><label style={S.label}>DMSO anchor</label><input style={S.field} value={dmsoAnchor} onChange={(e) => setDmsoAnchor(e.target.value)} /></div>
+          <div><label style={S.label}>TEM-1 stock anchor</label><input style={S.field} value={tem1StockAnchor} onChange={(e) => setTem1StockAnchor(e.target.value)} /></div>
+          <div><label style={S.label}>TEM-1 intermediate</label><input style={S.field} value={tem1IntermediateAnchor} onChange={(e) => setTem1IntermediateAnchor(e.target.value)} /></div>
+          <div><label style={S.label}>TEM-1 working</label><input style={S.field} value={tem1WorkingAnchor} onChange={(e) => setTem1WorkingAnchor(e.target.value)} /></div>
+        </div>
+
+        <h2 style={S.h2}>TEM-1 Dilution</h2>
+        <div style={S.grid4}>
+          <div><label style={S.label}>TEM-1 stock</label><input style={S.field} type="number" step={0.1} value={tem1StockVol} onChange={(e) => setTem1StockVol(Number(e.target.value))} /></div>
+          <div><label style={S.label}>Step 1 BLB</label><input style={S.field} type="number" step={1} value={tem1Step1BlbVol} onChange={(e) => setTem1Step1BlbVol(Number(e.target.value))} /></div>
+          <div><label style={S.label}>Intermediate</label><input style={S.field} type="number" step={1} value={tem1IntermediateVol} onChange={(e) => setTem1IntermediateVol(Number(e.target.value))} /></div>
+          <div><label style={S.label}>Step 2 BLB</label><input style={S.field} type="number" step={1} value={tem1Step2BlbVol} onChange={(e) => setTem1Step2BlbVol(Number(e.target.value))} /></div>
+          <div><label style={S.label}>TEM mix volume</label><input style={S.field} type="number" step={5} value={tem1MixVol} onChange={(e) => setTem1MixVol(Number(e.target.value))} /></div>
+        </div>
+        <div style={S.card}>
+          <p style={S.sub}>Step 1: {ul(tem1StockVol)} of 100 ng/uL TEM-1 + {ul(tem1Step1BlbVol)} BLB in {tem1IntermediateAnchor} = {ul(tem1StockVol + tem1Step1BlbVol)} at ~1 ng/uL.</p>
+          <p style={S.sub}>Step 2: {ul(tem1IntermediateVol)} intermediate + {ul(tem1Step2BlbVol)} BLB in {tem1WorkingAnchor} = {ul(tem1IntermediateVol + tem1Step2BlbVol)} at ~0.1 ng/uL, enough for {Math.floor((tem1IntermediateVol + tem1Step2BlbVol) / 20)} assay wells at 20 uL/well.</p>
         </div>
 
         <h2 style={S.h2}>Dilution Math</h2>
@@ -165,7 +195,7 @@ export default function Tem1DilutionPlate() {
         <div style={S.card}>
           <p style={S.sub}>Compound/control working solution: {ul(stockVol)} of 10 mM stock + {ul(compoundBlbVol)} BLB = {ul(stockWorkingTotal)} at {Math.round(workingUM)} uM. In the 50 uL assay, 5 uL gives {Math.round(finalAssayUM)} uM final.</p>
           <p style={S.sub}>Vehicle working solution: {ul(vehicleDmsoVol)} DMSO + {ul(vehicleBlbVol)} BLB = {ul(vehicleTotal)} at {Math.round(vehiclePct * 10) / 10}% DMSO.</p>
-          <p style={S.sub}>Deck loading needed before overage: BLB total {ul(blbNeeded)} split as tube 1 ({blbAnchor}) {ul(blbTube1Needed)} and tube 2 ({blbAnchor2}) {ul(blbTube2Needed)}; DMSO {ul(dmsoNeeded)}; each compound/control stock {ul(stockNeeded)}.</p>
+          <p style={S.sub}>Deck loading needed before overage: BLB total {ul(blbNeeded)} split as tube 1 ({blbAnchor}) {ul(blbTube1Needed)} and tube 2 ({blbAnchor2}) {ul(blbTube2Needed)}; TEM-1 stock {ul(tem1StockVol)}; DMSO {ul(dmsoNeeded)}; each compound/control stock {ul(stockNeeded)}.</p>
         </div>
 
         <h2 style={S.h2}>Working Plate Map</h2>

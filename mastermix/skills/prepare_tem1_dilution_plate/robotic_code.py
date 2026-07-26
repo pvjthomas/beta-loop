@@ -1,5 +1,5 @@
 from protocol_schema import SkillObject
-from utils import attach_next_tip, ensure_pipette, find_pipettes, pipette_name
+from utils import attach_next_tip, ensure_pipette, find_pipettes, pipette_for_volume, pipette_limits, pipette_name
 
 from batched_dispense_mastermix.robotic_code import batched_dispense_mastermix
 from epipette_aspirate.robotic_code import epipette_aspirate
@@ -23,6 +23,26 @@ def _transfer_one(found, src_obj, src_anchor, dst_obj, dst_anchor, volume, label
     epipette_eject(pipette=pipette)
 
 
+def _transfer_chunked(found, src_obj, src_anchor, dst_obj, dst_anchor, total_volume, label, speed):
+    remaining = round(float(total_volume), 4)
+    if remaining <= 0:
+        return 0
+    chunks = 0
+    while remaining > 0:
+        pipette, tipbox = pipette_for_volume(remaining, found)
+        _, hi = pipette_limits(pipette)
+        vol = round(min(remaining, hi), 4)
+        ensure_pipette(pipette, found)
+        tip = attach_next_tip(pipette, tipbox)
+        chunks += 1
+        _rl(f"  {label}: chunk {chunks} aspirate/dispense {vol} uL {src_anchor} -> {dst_anchor} ({pipette_name(pipette)}, tip #{tip})", "transfer")
+        epipette_aspirate(object=src_obj, anchor=src_anchor, pipette=pipette, volume=vol, speed=speed)
+        epipette_dispense(object=dst_obj, anchor=dst_anchor, pipette=pipette, volume=vol, speed=speed)
+        epipette_eject(pipette=pipette)
+        remaining = round(remaining - vol, 4)
+    return chunks
+
+
 def _mix_well(found, plate, well, contents_volume, mix_volume, cycles, speed):
     pipette, tipbox = found.get("epipette_10ul") or next(iter(found.values()))
     ensure_pipette(pipette, found)
@@ -35,12 +55,27 @@ def _mix_well(found, plate, well, contents_volume, mix_volume, cycles, speed):
     epipette_eject(pipette=pipette)
 
 
+def _mix_container(found, obj, anchor, contents_volume, mix_volume, cycles, speed):
+    mv = min(float(mix_volume), max(0.5, float(contents_volume) - 1.0))
+    pipette, tipbox = pipette_for_volume(mv, found)
+    _, hi = pipette_limits(pipette)
+    mv = min(mv, hi)
+    ensure_pipette(pipette, found)
+    tip = attach_next_tip(pipette, tipbox)
+    _rl(f"  Mix {anchor}: {cycles} cycles x {mv} uL ({pipette_name(pipette)}, tip #{tip})", "mix")
+    for _ in range(max(1, int(cycles))):
+        epipette_aspirate(object=obj, anchor=anchor, pipette=pipette, volume=mv, speed=speed)
+        epipette_dispense(object=obj, anchor=anchor, pipette=pipette, volume=mv, speed=speed)
+    epipette_eject(pipette=pipette)
+
+
 def prepare_tem1_dilution_plate(
     pipette: SkillObject,
     tipbox: SkillObject,
     blb_source: SkillObject,
     dmso_source: SkillObject,
     working_plate: SkillObject,
+    tem1_stock_source: SkillObject,
     positive_source_plate: SkillObject,
     compound_1_source_plate: SkillObject,
     compound_2_source_plate: SkillObject,
@@ -55,6 +90,9 @@ def prepare_tem1_dilution_plate(
     blb_anchor: str = "hole_5",
     blb_anchor_2: str = "hole_6",
     dmso_anchor: str = "hole_9",
+    tem1_stock_anchor: str = "hole_1",
+    tem1_intermediate_anchor: str = "hole_2",
+    tem1_working_anchor: str = "hole_8",
     positive_source_well: str = "H7",
     positive_dest_well: str = "A1",
     vehicle_dest_well: str = "A2",
@@ -82,6 +120,11 @@ def prepare_tem1_dilution_plate(
     compound_blb_volume_ul: float = 47.5,
     vehicle_dmso_volume_ul: float = 5.0,
     vehicle_blb_volume_ul: float = 95.0,
+    tem1_stock_volume_ul: float = 2.0,
+    tem1_step1_blb_volume_ul: float = 198.0,
+    tem1_intermediate_volume_ul: float = 100.0,
+    tem1_step2_blb_volume_ul: float = 900.0,
+    tem1_mix_volume_ul: float = 100.0,
     mix_volume_ul: float = 10.0,
     mix_cycles: int = 5,
     speed: float = 5.0,
@@ -109,6 +152,14 @@ def prepare_tem1_dilution_plate(
         ("Compound 10", compound_10_source_plate, compound_10_source_well, compound_10_dest_well),
     ]
     compound_dests = [dest for _, _, _, dest in working_solutions]
+
+    _rl("▶ Preparing purified TEM-1 working solution: 100 ng/uL stock -> 1 ng/uL intermediate -> 0.1 ng/uL working solution")
+    _transfer_one(found, tem1_stock_source, tem1_stock_anchor, blb_source, tem1_intermediate_anchor, float(tem1_stock_volume_ul), "TEM-1 stock to intermediate", speed)
+    _transfer_chunked(found, blb_source, blb_anchor_2, blb_source, tem1_intermediate_anchor, float(tem1_step1_blb_volume_ul), "BLB to TEM-1 intermediate", speed)
+    _mix_container(found, blb_source, tem1_intermediate_anchor, float(tem1_stock_volume_ul) + float(tem1_step1_blb_volume_ul), tem1_mix_volume_ul, mix_cycles, speed)
+    _transfer_chunked(found, blb_source, tem1_intermediate_anchor, blb_source, tem1_working_anchor, float(tem1_intermediate_volume_ul), "TEM-1 intermediate to working", speed)
+    _transfer_chunked(found, blb_source, blb_anchor_2, blb_source, tem1_working_anchor, float(tem1_step2_blb_volume_ul), "BLB to TEM-1 working", speed)
+    _mix_container(found, blb_source, tem1_working_anchor, float(tem1_intermediate_volume_ul) + float(tem1_step2_blb_volume_ul), tem1_mix_volume_ul, mix_cycles, speed)
 
     _rl(f"▶ Preparing {len(working_solutions)} compound/control working solutions and one vehicle well")
 
@@ -143,5 +194,5 @@ def prepare_tem1_dilution_plate(
         _mix_well(found, working_plate, dest_well, float(compound_blb_volume_ul) + float(stock_volume_ul), mix_volume_ul, mix_cycles, speed)
     _mix_well(found, working_plate, vehicle_dest_well, float(vehicle_blb_volume_ul) + float(vehicle_dmso_volume_ul), mix_volume_ul, mix_cycles, speed)
 
-    _rl("✓ Dilution plate complete: compound/control wells are 500 uM; vehicle well is 5% DMSO")
-    return {"success": True, "working_solutions": len(working_solutions), "vehicle_wells": 1}
+    _rl("✓ Dilution plate complete: TEM-1 working solution is 0.1 ng/uL; compound/control wells are 500 uM; vehicle well is 5% DMSO")
+    return {"success": True, "tem1_working_anchor": tem1_working_anchor, "working_solutions": len(working_solutions), "vehicle_wells": 1}

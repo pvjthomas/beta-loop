@@ -44,21 +44,21 @@ const STYLE: Record<string, React.CSSProperties> = {
 };
 
 const HOLES = ["hole_1", "hole_2", "hole_3", "hole_4", "hole_5", "hole_6", "hole_7", "hole_8", "hole_9", "hole_10"];
-const POSITIVE_WELLS = ["A1", "A2", "A3"];
-const NEGATIVE_WELLS = ["A4", "A5", "A6"];
-const VEHICLE_WELLS = ["A7", "A8", "A9"];
+const POSITIVE_WELLS = ["F3", "F7", "F11"];
+const NEGATIVE_WELLS = ["D3", "D7", "D11"];
+const VEHICLE_WELLS = ["B3", "B7", "B11"];
 const COMPOUND_WELLS = [
-  ["A10", "A11", "A12"], ["B1", "B2", "B3"], ["B4", "B5", "B6"], ["B7", "B8", "B9"], ["B10", "B11", "B12"],
-  ["C1", "C2", "C3"], ["C4", "C5", "C6"], ["C7", "C8", "C9"], ["C10", "C11", "C12"], ["D1", "D2", "D3"],
+  ["B2", "B4", "B6"], ["B8", "B10", "C3"], ["C5", "C7", "C9"], ["C11", "D2", "D4"], ["D6", "D8", "D10"],
+  ["E3", "E5", "E7"], ["E9", "E11", "F2"], ["F4", "F6", "F8"], ["F10", "G3", "G5"], ["G7", "G9", "G11"],
 ];
 const DEFAULT_COMPOUNDS = [
-  "T14979 Clavulanate lithium", "T6685 Sulbactam sodium", "T1262 Tazobactam", "T14081 Enmetazobactam", "T1631 Sulbactam",
-  "T13038 Sultamicillin", "T0814L Ampicillin", "T20022 Cephalexin", "T0224 Meropenem", "T7733 Cefotaxime",
+  "T19860 Clavulanic Acid", "T1262 Tazobactam (1 uM)", "T6685 Sulbactam sodium", "T14081 Enmetazobactam", "T1005 Amoxicillin",
+  "T1008 Cephalexin", "T0224 Meropenem", "T0985 Oxacillin sodium salt", "T0138 Cefpiramide acid", "T8390 Cefazolin",
 ];
-const DEFAULT_SOURCE_WELLS = ["G6", "F2", "B10", "F7", "A10", "B10", "B4", "H8", "A3", "E5"];
+const DEFAULT_SOURCE_WELLS = ["H7", "B10", "F2", "F7", "A8", "A9", "A3", "A4", "A2", "F3"];
 const DEFAULT_SOURCE_PLATES = [
-  "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_2",
-  "wellplate_pcr_parts_2", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_2", "wellplate_pcr_parts_1",
+  "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
+  "wellplate_pcr_parts_1", "wellplate_pcr_parts_2", "wellplate_pcr_parts_2", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
 ];
 const ACTIVE_COMPOUND_COUNT = 10;
 
@@ -145,17 +145,22 @@ export default function Tem1ActivityScreen() {
 
   const values = {
     pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, platereader: plateReader, plate_home: plateHome, shaker, shaker_slot: shakerSlot,
+    working_plate: "wellplate_pcr_parts_4", blb_source: sourceBlock, dmso_source: sourceBlock, tem1_stock_source: sourceBlock,
+    blb_anchor: vehicleAnchor, blb_anchor_2: noEnzymeAnchor, dmso_anchor: "hole_9", tem1_stock_anchor: "hole_1", tem1_intermediate_anchor: "hole_2", tem1_working_anchor: enzymeAnchor,
     enzyme_anchor: enzymeAnchor, no_enzyme_anchor: noEnzymeAnchor, vehicle_anchor: vehicleAnchor, nitrocefin_anchor: nitrocefinAnchor,
-    positive_source_plate: positivePlate, positive_source_well: upper(positiveWell),
+    positive_source_plate: positivePlate, positive_source_well: upper(positiveWell), positive_dest_well: "A1", vehicle_dest_well: "A2",
     positive_wells: csv(POSITIVE_WELLS), negative_wells: csv(NEGATIVE_WELLS), vehicle_wells: csv(VEHICLE_WELLS),
     tem1_wells: csv(tem1Wells), vehicle_addition_wells: csv(vehicleAdditionWells), all_assay_wells: csv(allWells),
     tem1_well_count: tem1Wells.length, negative_well_count: NEGATIVE_WELLS.length, vehicle_addition_count: vehicleAdditionWells.length,
     positive_well_count: POSITIVE_WELLS.length, replicate_count: 3, all_assay_well_count: allWells.length,
     enzyme_volume_ul: enzymeVolume, compound_volume_ul: compoundVolume, nitrocefin_volume_ul: nitrocefinVolume,
+    stock_volume_ul: 2.5, compound_blb_volume_ul: 47.5, vehicle_dmso_volume_ul: 5, vehicle_blb_volume_ul: 95,
+    tem1_stock_volume_ul: 2, tem1_step1_blb_volume_ul: 198, tem1_intermediate_volume_ul: 100, tem1_step2_blb_volume_ul: 900, tem1_mix_volume_ul: 100, mix_volume_ul: 10, mix_cycles: 5,
     plate_mix_minutes: plateMixMin, preincubation_minutes: waitMin, endpoint_read_1_minutes: endpointRead1Min, endpoint_read_2_minutes: endpointRead2Min, run_name: runName.trim() || "tem1_activity_screen",
     ...Object.fromEntries(compounds.flatMap((c, i) => [
       [`compound_${i + 1}_source_plate`, c.plate],
       [`compound_${i + 1}_source_well`, upper(c.well)],
+      [`compound_${i + 1}_dest_well`, `A${i + 3}`],
       [`compound_${i + 1}_wells`, csv(COMPOUND_WELLS[i])],
     ])),
   };
@@ -204,8 +209,7 @@ export default function Tem1ActivityScreen() {
         <div style={STYLE.eyebrow}>TEM-1 beta-lactamase · nitrocefin activity screen</div>
         <h1 style={STYLE.h1}>Single-Plate Activity Screen</h1>
         <p style={STYLE.sub}>
-          Builds a 39-well plate: 3 replicates each of clavulanic-acid positive control, no-TEM-1 negative control,
-          vehicle plus TEM-1 control, and 10 test compounds selected from the compound-selection guidance.
+          Builds the R2 v4 spaced interior 39-well plate: 9 controls and 10 test compounds in triplicate, with edge wells left empty.
         </p>
 
         <h2 style={STYLE.h2}>Run Timing</h2>
@@ -296,7 +300,7 @@ export default function Tem1ActivityScreen() {
           </p>
           <table style={STYLE.table}>
             <tbody>
-              {[["A", 1], ["B", 2], ["C", 3], ["D", 4]].map(([row]) => (
+              {["A", "B", "C", "D", "E", "F", "G", "H"].map((row) => (
                 <tr key={row as string}>
                   {Array.from({ length: 12 }, (_, i) => `${row}${i + 1}`).map((w) => {
                     const kind = POSITIVE_WELLS.includes(w) ? "positive" : NEGATIVE_WELLS.includes(w) ? "negative" : VEHICLE_WELLS.includes(w) ? "vehicle" : allCompoundWells.includes(w) ? "compound" : "";
