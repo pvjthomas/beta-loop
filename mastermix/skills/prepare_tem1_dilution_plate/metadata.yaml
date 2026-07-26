@@ -1,0 +1,23 @@
+skill_id: prepare_tem1_dilution_plate
+version: "1.0.0"
+description: >-
+  Prepare the TEM-1 screen working-solution plate: 10 compound working solutions,
+  one known-active control, and matched vehicle on a PCR plate.
+
+parameter_descriptions:
+  pipette: "Starting pipette. The skill swaps between 10 uL and 120 uL pipettes as needed."
+  tipbox: "Starting tip rack; same-type racks are selected automatically by the pipette helpers."
+  blb_source: "Source object containing BLB diluent."
+  blb_anchor: "Anchor/hole containing BLB diluent."
+  dmso_source: "Source object containing 100% DMSO for vehicle working solution."
+  dmso_anchor: "Anchor/hole containing 100% DMSO."
+  working_plate: "PCR plate where working solutions are prepared."
+
+preconditions: {}
+postconditions: {}
+
+tags:
+  - dilution
+  - liquid_handling
+  - tem1
+  - assay
