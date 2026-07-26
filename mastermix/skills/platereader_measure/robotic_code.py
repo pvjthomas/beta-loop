@@ -37,11 +37,13 @@ REMOTE_EXPORT_DIR = r"C:\Users\Owner\Documents"
 STEPS = (
     ("click", "Experiment_ReadPlate", 15.0),
     ("click", "Hackathon_2_OK", 60.0),  # the read itself
+    ("click", "Hackathon_Fix_1_Cancel", 5.0),
     ("click", "Hackathon_3_No", 3.0),
     ("click", "Hackathon_4_Print", 5.0),
     ("click", "Hackathon_5_PDFOK", 5.0),
     ("type", "{run_id}", 1.0),
-    ("click", "Experiment_ExportSave", 5.0),
+    ("click", "Experiment_Fix_ExportSave", 5.0),
+    ("click", "Hackathon_5_PDFOK", 5.0),
 )
 
 

@@ -62,6 +62,7 @@ const ACTIVE_COMPOUND_COUNT = 2;
 const objName = (o: Obj) => o.displayName || o.name || o.uuid;
 const csv = (xs: string[]) => xs.join(",");
 const upper = (s: string) => s.trim().toUpperCase();
+const ul = (n: number) => `${Math.round(n * 10) / 10} uL`;
 
 export default function Tem1ActivityScreen() {
   const schemaDefault = (name: string, fallback: unknown) => zeon.schema.find((s) => s.name === name)?.defaultValue ?? fallback;
@@ -87,6 +88,9 @@ export default function Tem1ActivityScreen() {
   const [nitrocefinAnchor, setNitrocefinAnchor] = useState(String(initial("nitrocefin_anchor", "hole_10")));
   const [waitMin, setWaitMin] = useState(Number(initial("preincubation_minutes", 10)));
   const [runName, setRunName] = useState(String(initial("run_name", "tem1_activity_screen")));
+  const [sourceOverage, setSourceOverage] = useState(30);
+  const [compoundOverage, setCompoundOverage] = useState(10);
+  const [nitrocefinOverage, setNitrocefinOverage] = useState(50);
 
   const sourcePlates = objectOptions(["wellplate_pcr"]);
   const [positivePlate, setPositivePlate] = useState(String(initial("positive_source_plate", firstName(["wellplate_pcr"], "wellplate_pcr_parts_1"))));
@@ -106,6 +110,30 @@ export default function Tem1ActivityScreen() {
   const tem1Wells = [...POSITIVE_WELLS, ...VEHICLE_WELLS, ...allCompoundWells];
   const vehicleAdditionWells = [...NEGATIVE_WELLS, ...VEHICLE_WELLS];
   const allWells = [...POSITIVE_WELLS, ...NEGATIVE_WELLS, ...VEHICLE_WELLS, ...allCompoundWells];
+  const activeCompounds = compounds.slice(0, ACTIVE_COMPOUND_COUNT);
+  const enzymeVolume = 20;
+  const compoundVolume = 5;
+  const nitrocefinVolume = 25;
+  const deckRows = [
+    { source: "TEM-1 prep", location: `${sourceBlock} / ${enzymeAnchor}`, serves: csv(tem1Wells), needed: tem1Wells.length * enzymeVolume, overage: sourceOverage },
+    { source: "No-enzyme prep", location: `${sourceBlock} / ${noEnzymeAnchor}`, serves: csv(NEGATIVE_WELLS), needed: NEGATIVE_WELLS.length * enzymeVolume, overage: sourceOverage },
+    { source: "Vehicle / BLB", location: `${sourceBlock} / ${vehicleAnchor}`, serves: csv(vehicleAdditionWells), needed: vehicleAdditionWells.length * compoundVolume, overage: sourceOverage },
+    { source: "Positive control", location: `${positivePlate} / ${upper(positiveWell)}`, serves: csv(POSITIVE_WELLS), needed: POSITIVE_WELLS.length * compoundVolume, overage: compoundOverage },
+    ...activeCompounds.map((c, i) => ({
+      source: `Compound ${i + 1}: ${c.label}`,
+      location: `${c.plate} / ${upper(c.well)}`,
+      serves: csv(COMPOUND_WELLS[i]),
+      needed: COMPOUND_WELLS[i].length * compoundVolume,
+      overage: compoundOverage,
+    })),
+    { source: "2x nitrocefin", location: `${sourceBlock} / ${nitrocefinAnchor}`, serves: csv(allWells), needed: allWells.length * nitrocefinVolume, overage: nitrocefinOverage },
+  ];
+  const wellRows = [
+    ...POSITIVE_WELLS.map((well) => ({ well, condition: "Positive control", prep: "TEM-1", prepVol: enzymeVolume, addition: "Clavulanic acid", addVol: compoundVolume })),
+    ...NEGATIVE_WELLS.map((well) => ({ well, condition: "No-TEM-1 control", prep: "No-enzyme", prepVol: enzymeVolume, addition: "Vehicle / BLB", addVol: compoundVolume })),
+    ...VEHICLE_WELLS.map((well) => ({ well, condition: "Vehicle + TEM-1", prep: "TEM-1", prepVol: enzymeVolume, addition: "Vehicle / BLB", addVol: compoundVolume })),
+    ...activeCompounds.flatMap((c, i) => COMPOUND_WELLS[i].map((well) => ({ well, condition: `Compound ${i + 1}`, prep: "TEM-1", prepVol: enzymeVolume, addition: c.label, addVol: compoundVolume }))),
+  ].map((r) => ({ ...r, nitrocefinVol: nitrocefinVolume, total: r.prepVol + r.addVol + nitrocefinVolume }));
 
   const values = {
     pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, platereader: plateReader, plate_home: plateHome,
@@ -115,7 +143,7 @@ export default function Tem1ActivityScreen() {
     tem1_wells: csv(tem1Wells), vehicle_addition_wells: csv(vehicleAdditionWells), all_assay_wells: csv(allWells),
     tem1_well_count: tem1Wells.length, negative_well_count: NEGATIVE_WELLS.length, vehicle_addition_count: vehicleAdditionWells.length,
     positive_well_count: POSITIVE_WELLS.length, replicate_count: 3, all_assay_well_count: allWells.length,
-    enzyme_volume_ul: 20, compound_volume_ul: 5, nitrocefin_volume_ul: 25,
+    enzyme_volume_ul: enzymeVolume, compound_volume_ul: compoundVolume, nitrocefin_volume_ul: nitrocefinVolume,
     preincubation_minutes: waitMin, run_name: runName.trim() || "tem1_activity_screen",
     ...Object.fromEntries(compounds.flatMap((c, i) => [
       [`compound_${i + 1}_source_plate`, c.plate],
@@ -129,6 +157,7 @@ export default function Tem1ActivityScreen() {
     const e: string[] = [];
     if (!pipette || !tipbox || !sourceBlock || !assayPlate || !plateReader || !plateHome) e.push("Select all required world objects.");
     if (!(waitMin >= 0)) e.push("Pre-incubation time must be zero or positive.");
+    if (sourceOverage < 0 || compoundOverage < 0 || nitrocefinOverage < 0) e.push("Deck-loading overage values must be zero or positive.");
     const wellRe = /^[A-H](?:[1-9]|1[0-2])$/;
     if (!wellRe.test(upper(positiveWell))) e.push("Positive-control source well must be A1-H12.");
     compounds.forEach((c, i) => {
@@ -199,12 +228,40 @@ export default function Tem1ActivityScreen() {
             <thead><tr><th style={STYLE.th}>Condition</th><th style={STYLE.th}>Destination wells</th><th style={STYLE.th}>Source plate</th><th style={STYLE.th}>Source well</th></tr></thead>
             <tbody>
               <tr><td style={STYLE.td}>Positive control: clavulanic acid</td><td style={STYLE.td}>{csv(POSITIVE_WELLS)}</td><td style={STYLE.td}>{selectObj(positivePlate, setPositivePlate, sourcePlates)}</td><td style={STYLE.td}><input style={STYLE.field} value={positiveWell} onChange={(e) => setPositiveWell(e.target.value)} /></td></tr>
-              {compounds.slice(0, ACTIVE_COMPOUND_COUNT).map((c, i) => (
+              {activeCompounds.map((c, i) => (
                 <tr key={i}>
                   <td style={STYLE.td}>Compound {i + 1}: {c.label}</td>
                   <td style={STYLE.td}>{csv(COMPOUND_WELLS[i])}</td>
                   <td style={STYLE.td}>{selectObj(c.plate, (v) => updateCompound(i, { plate: v }), sourcePlates)}</td>
                   <td style={STYLE.td}><input style={STYLE.field} value={c.well} onChange={(e) => updateCompound(i, { well: e.target.value })} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h2 style={STYLE.h2}>Deck Loading Volumes</h2>
+        <p style={STYLE.sub}>
+          Use this table to load enough liquid onto the deck before the run. Transfer needed is what the robot will aspirate; recommended load adds dead-volume overage.
+        </p>
+        <div style={STYLE.grid4}>
+          <div><label style={STYLE.label}>Cold-block overage</label><input style={STYLE.field} type="number" min={0} step={5} value={sourceOverage} onChange={(e) => setSourceOverage(Number(e.target.value))} /></div>
+          <div><label style={STYLE.label}>Compound overage</label><input style={STYLE.field} type="number" min={0} step={1} value={compoundOverage} onChange={(e) => setCompoundOverage(Number(e.target.value))} /></div>
+          <div><label style={STYLE.label}>Nitrocefin overage</label><input style={STYLE.field} type="number" min={0} step={5} value={nitrocefinOverage} onChange={(e) => setNitrocefinOverage(Number(e.target.value))} /></div>
+        </div>
+        <div style={STYLE.card}>
+          <table style={STYLE.table}>
+            <thead>
+              <tr><th style={STYLE.th}>Source</th><th style={STYLE.th}>Deck location</th><th style={STYLE.th}>Destination wells</th><th style={STYLE.th}>Transfer needed</th><th style={STYLE.th}>Load at least</th></tr>
+            </thead>
+            <tbody>
+              {deckRows.map((r) => (
+                <tr key={r.source}>
+                  <td style={STYLE.td}>{r.source}</td>
+                  <td style={STYLE.td}>{r.location}</td>
+                  <td style={STYLE.td}>{r.serves}</td>
+                  <td style={STYLE.td}>{ul(r.needed)}</td>
+                  <td style={{ ...STYLE.td, fontWeight: 800 }}>{ul(r.needed + r.overage)}</td>
                 </tr>
               ))}
             </tbody>
@@ -231,6 +288,27 @@ export default function Tem1ActivityScreen() {
           <p style={{ ...STYLE.sub, marginTop: 10 }}>
             Per well: 20 uL enzyme/no-enzyme prep + 5 uL compound/control + 25 uL nitrocefin = 50 uL. The workflow batches repeated additions: up to 5 wells per 100 uL enzyme aspiration, 4 wells per 100 uL nitrocefin aspiration, and 2 wells per 10 uL compound/control aspiration.
           </p>
+        </div>
+
+        <h2 style={STYLE.h2}>Per-Well Volumes</h2>
+        <div style={STYLE.card}>
+          <table style={STYLE.table}>
+            <thead>
+              <tr><th style={STYLE.th}>Well</th><th style={STYLE.th}>Condition</th><th style={STYLE.th}>Prep</th><th style={STYLE.th}>Compound/control</th><th style={STYLE.th}>Nitrocefin</th><th style={STYLE.th}>Final</th></tr>
+            </thead>
+            <tbody>
+              {wellRows.map((r) => (
+                <tr key={r.well}>
+                  <td style={STYLE.td}>{r.well}</td>
+                  <td style={STYLE.td}>{r.condition}</td>
+                  <td style={STYLE.td}>{r.prep}: {ul(r.prepVol)}</td>
+                  <td style={STYLE.td}>{r.addition}: {ul(r.addVol)}</td>
+                  <td style={STYLE.td}>{ul(r.nitrocefinVol)}</td>
+                  <td style={{ ...STYLE.td, fontWeight: r.total === 50 ? 800 : 400, color: r.total === 50 ? INK : "#b91c1c" }}>{ul(r.total)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {errors.length > 0 && <div style={STYLE.error}>{errors.map((e, i) => <div key={i}>- {e}</div>)}</div>}
