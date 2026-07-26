@@ -93,6 +93,8 @@ export default function Tem1ActivityScreen() {
   const [nitrocefinAnchor, setNitrocefinAnchor] = useState(String(initial("nitrocefin_anchor", "hole_10")));
   const [plateMixMin, setPlateMixMin] = useState(Number(initial("plate_mix_minutes", 1)));
   const [waitMin, setWaitMin] = useState(Number(initial("preincubation_minutes", 10)));
+  const [endpointRead1Min, setEndpointRead1Min] = useState(Number(initial("endpoint_read_1_minutes", 5)));
+  const [endpointRead2Min, setEndpointRead2Min] = useState(Number(initial("endpoint_read_2_minutes", 10)));
   const [runName, setRunName] = useState(String(initial("run_name", "tem1_activity_screen")));
   const [sourceOverage, setSourceOverage] = useState(30);
   const [compoundOverage, setCompoundOverage] = useState(10);
@@ -150,7 +152,7 @@ export default function Tem1ActivityScreen() {
     tem1_well_count: tem1Wells.length, negative_well_count: NEGATIVE_WELLS.length, vehicle_addition_count: vehicleAdditionWells.length,
     positive_well_count: POSITIVE_WELLS.length, replicate_count: 3, all_assay_well_count: allWells.length,
     enzyme_volume_ul: enzymeVolume, compound_volume_ul: compoundVolume, nitrocefin_volume_ul: nitrocefinVolume,
-    plate_mix_minutes: plateMixMin, preincubation_minutes: waitMin, run_name: runName.trim() || "tem1_activity_screen",
+    plate_mix_minutes: plateMixMin, preincubation_minutes: waitMin, endpoint_read_1_minutes: endpointRead1Min, endpoint_read_2_minutes: endpointRead2Min, run_name: runName.trim() || "tem1_activity_screen",
     ...Object.fromEntries(compounds.flatMap((c, i) => [
       [`compound_${i + 1}_source_plate`, c.plate],
       [`compound_${i + 1}_source_well`, upper(c.well)],
@@ -164,6 +166,7 @@ export default function Tem1ActivityScreen() {
     if (!pipette || !tipbox || !sourceBlock || !assayPlate || !plateReader || !plateHome || !shaker) e.push("Select all required world objects.");
     if (!(plateMixMin >= 0)) e.push("Plate mix time must be zero or positive.");
     if (!(waitMin >= 0)) e.push("Pre-incubation time must be zero or positive.");
+    if (!(endpointRead1Min >= 0) || !(endpointRead2Min >= 0)) e.push("Endpoint read waits must be zero or positive.");
     if (sourceOverage < 0 || compoundOverage < 0 || nitrocefinOverage < 0) e.push("Deck-loading overage values must be zero or positive.");
     const wellRe = /^[A-H](?:[1-9]|1[0-2])$/;
     if (!wellRe.test(upper(positiveWell))) e.push("Positive-control source well must be A1-H12.");
@@ -209,8 +212,16 @@ export default function Tem1ActivityScreen() {
         <div style={STYLE.grid2}>
           <div><label style={STYLE.label}>Plate mix minutes</label><input style={STYLE.field} type="number" min={0} step={0.25} value={plateMixMin} onChange={(e) => setPlateMixMin(Number(e.target.value))} /></div>
           <div><label style={STYLE.label}>Pre-incubation minutes</label><input style={STYLE.field} type="number" min={0} step={0.5} value={waitMin} onChange={(e) => setWaitMin(Number(e.target.value))} /></div>
+          <div><label style={STYLE.label}>Endpoint wait 1</label><input style={STYLE.field} type="number" min={0} step={0.5} value={endpointRead1Min} onChange={(e) => setEndpointRead1Min(Number(e.target.value))} /></div>
+          <div><label style={STYLE.label}>Endpoint wait 2</label><input style={STYLE.field} type="number" min={0} step={0.5} value={endpointRead2Min} onChange={(e) => setEndpointRead2Min(Number(e.target.value))} /></div>
           <div><label style={STYLE.label}>Run name</label><input style={STYLE.field} value={runName} onChange={(e) => setRunName(e.target.value)} /></div>
         </div>
+        <p style={STYLE.sub}>
+          The workflow reads A490 once after loading the plate reader, then waits {endpointRead1Min || 0} min for endpoint read 1 and {endpointRead2Min || 0} more min for endpoint read 2. This does not remove stagger from nitrocefin dispensing, but it gives initial and endpoint reports for the same plate.
+        </p>
+        <p style={STYLE.sub}>
+          Nitrocefin is added in a stagger-aware order: no-TEM-1 controls first, then clavulanate and inhibitor-class compounds, then substrate-control compounds, with the vehicle + TEM-1 max-activity wells last. The run-log completion time for each nitrocefin batch is that condition's t0 for analysis.
+        </p>
 
         <h2 style={STYLE.h2}>Deck Objects</h2>
         <div style={STYLE.grid2}>

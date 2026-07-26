@@ -8,6 +8,8 @@ https://readme.zeonsystems.app/docs/calling-an-external-api
 The export lands in ``<project_root>/data/platereader/<execution_id>/``.
 """
 
+import re
+
 import requests
 
 from .modules import (
@@ -55,12 +57,18 @@ def _call(url, **kw):
     return r["data"]
 
 
-def platereader_measure():
+def _safe_label(label: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(label).strip())
+    return cleaned.strip("_") or "read"
+
+
+def platereader_measure(read_label: str = "read"):
     """Read the loaded plate and save the exported PDF into the project.
 
-    Takes no parameters — everything it needs is a constant above (the bridge URL,
-    Gen5's save directory, the STEPS script) or comes from the run itself: the
-    ``execution_id`` names the export file and its folder, so runs can't collide.
+    Args:
+        read_label: Suffix for the exported read report, e.g. "initial" or
+            "endpoint_5min". Multiple reads in one workflow must use distinct
+            labels so the exported PDFs do not overwrite each other.
 
     Assumes a plate is already loaded and the lid is closed (platereader_load then
     platereader_closed first).
@@ -68,9 +76,11 @@ def platereader_measure():
     print_log(runlog=True, runlog_type="step_start")
     run_id = ExecutionInfoContext.get().execution_id or "no_execution"
     # Gen5 exports PDF and nothing else, and it appends the extension itself.
-    export_file = f"{run_id}.pdf"
+    safe_label = _safe_label(read_label)
+    export_stem = f"{run_id}_{safe_label}"
+    export_file = f"{export_stem}.pdf"
     remote_path = REMOTE_EXPORT_DIR.rstrip("\\/") + "\\" + export_file
-    print_log(f"Starting platereader_measure -> {export_file}", runlog=True)
+    print_log(f"Starting platereader_measure ({safe_label}) -> {export_file}", runlog=True)
 
     if is_sim_mode():
         print_log(f"[SIM] skipping the GUI bridge; would export {remote_path}")
@@ -81,7 +91,7 @@ def platereader_measure():
         a["name"]: a["id"]
         for a in _call(f"{AUTOGUI_BASE_URL}/api/v1/press-actions/", params={"limit": 1000})
     }
-    subs = {"run_id": run_id, "export_dir": REMOTE_EXPORT_DIR, "export_file": export_file}
+    subs = {"run_id": export_stem, "export_dir": REMOTE_EXPORT_DIR, "export_file": export_file}
 
     for kind, value, wait_s in STEPS:
         if kind == "click":
