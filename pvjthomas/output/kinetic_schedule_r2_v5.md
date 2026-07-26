@@ -6,6 +6,7 @@
 
 | Parameter | Value | Notes |
 |-----------|-------|-------|
+| Wavelength | **490 nm** (kinetic) · **450/490 nm** (endpoint fallback) | Score on A490 in both modes |
 | `temperature_c` | 25.0 | Literature TEM-1 nitrocefin assays |
 | `equilibration_s` | 120.0 | 2 min warm-up at setpoint (ice-cold nitrocefin) |
 | `interval_s` | 30 | Gen5 minimum kinetic interval on ELx808 |

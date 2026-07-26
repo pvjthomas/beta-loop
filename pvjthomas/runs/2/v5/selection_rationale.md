@@ -2,7 +2,8 @@
 
 **Round:** 2 · **Version:** 5 (`r2-discovery-v5`)  
 **Supersedes:** [`data/screens/2/v4/`](../v4/)  
-**Canonical concentrations:** [`compound_list.json`](../../../../data/screens/2/v5/compound_list.json) (unchanged from v4)
+**Canonical concentrations:** [`compound_list.json`](../../../../data/screens/2/v5/compound_list.json) (unchanged from v4)  
+**After the run:** [run2_decision_tree.md](run2_decision_tree.md) — kinetic or endpoint readout → QC → sample labels → next action
 
 ---
 
@@ -40,18 +41,15 @@ H    ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·   ← empty (edge)
 
 ---
 
-## Plate reader — nitrocefin kinetics
+## Plate reader — nitrocefin readout
 
-Canonical: [`kinetic_schedule.json`](../../../../data/screens/2/v5/kinetic_schedule.json) · Working copy: [`pvjthomas/output/kinetic_schedule_r2_v5.json`](../../../output/kinetic_schedule_r2_v5.json)
+Canonical kinetic schedule: [`kinetic_schedule.json`](../../../../data/screens/2/v5/kinetic_schedule.json) · Working copy: [`pvjthomas/output/kinetic_schedule_r2_v5.json`](../../../output/kinetic_schedule_r2_v5.json)
 
-| Setting | Value |
-|---------|-------|
-| Incubator | **25 °C** |
-| Equilibration after lid close | **120 s** |
-| Read interval | **30 s** |
-| Kinetic window | **600 s** (21 reads) |
-| Slope fit window | **180–480 s** kinetic time |
+| Mode | Wavelength | Gen5 mode | Timing | Metric |
+|------|------------|-----------|--------|--------|
+| **Kinetic** (preferred) | **490 nm** | Kinetic | 120 s equil @ 25 °C, then A490 every **30 s** for **600 s** (21 reads) | Slope in **180–480 s** kinetic window |
+| **Endpoint** (fallback) | **450/490 nm** | Endpoint | `initial` + `endpoint_5min` (~10 min apart) | `(A490_final − A490_initial) / Δt` |
 
-Robot workflow: `mastermix/workflows/tem1_activity_screen.json` → `platereader_run_kinetic_schedule`.
+Robot workflow (kinetic): `mastermix/workflows/tem1_activity_screen.json` → `platereader_run_kinetic_schedule`. Endpoint uses `platereader_measure()` twice (`read_label` = `initial`, `endpoint_5min`). Score on **490 nm** in both modes.
 
 Promote to robot: copy `plate_map.json` → `data/plate_map_r2.json` after sign-off.

@@ -78,8 +78,9 @@ class KineticReadSchedule:
                 f"{self.slope_window_end_s + self.equilibration_s:g}s from plate close)."
             )
         notes.append(
-            "Robot control: temperature is not set by platereader_measure today — "
-            "bake these values into the saved Gen5 protocol or add AutoGUI steps."
+            "Robot control: platereader_run_kinetic_schedule triggers one saved Gen5 "
+            "kinetic method — bake temperature, equilibration, and read cadence into "
+            "that protocol (AutoGUI action Experiment_TEM1_Kinetic_A490)."
         )
         return notes
 
@@ -217,6 +218,19 @@ def _default_slope_window(total_time_s: float) -> tuple[float, float]:
     if total_time_s >= 180:
         return 60.0, total_time_s
     return 0.0, total_time_s
+
+
+def platereader_kinetic_test_schedule() -> KineticReadSchedule:
+    """Short plate-reader integration test: 25 °C, 30 s reads for 3 min."""
+    return build_read_schedule(
+        second_read_s=30.0,
+        interval_s=30.0,
+        total_time_s=180.0,
+        temperature_c=25.0,
+        equilibration_s=30.0,
+        slope_window_start_s=60.0,
+        slope_window_end_s=180.0,
+    )
 
 
 def nitrocefin_tem1_default_schedule() -> KineticReadSchedule:
