@@ -156,9 +156,9 @@
     { "node_id": "end_1", "type": "end", "label": "End" }
   ],
   "edges": [
-    { "edge_id": "e0", "from_node": "start_0", "to_node": "prepare_dilutions", "condition": { "type": "default" } },
-    { "edge_id": "e0a", "from_node": "prepare_dilutions", "to_node": "grab_pipette", "condition": { "type": "on_success" } },
-    { "edge_id": "e1", "from_node": "grab_pipette", "to_node": "dispense_tem1", "condition": { "type": "on_success" } },
+    { "edge_id": "e0", "from_node": "start_0", "to_node": "grab_pipette", "condition": { "type": "default" } },
+    { "edge_id": "e0a", "from_node": "grab_pipette", "to_node": "prepare_dilutions", "condition": { "type": "on_success" } },
+    { "edge_id": "e1", "from_node": "prepare_dilutions", "to_node": "dispense_tem1", "condition": { "type": "on_success" } },
     { "edge_id": "e2", "from_node": "dispense_tem1", "to_node": "dispense_no_enzyme", "condition": { "type": "on_success" } },
     { "edge_id": "e3", "from_node": "dispense_no_enzyme", "to_node": "dispense_vehicle", "condition": { "type": "on_success" } },
     { "edge_id": "e4", "from_node": "dispense_vehicle", "to_node": "dispense_positive_control", "condition": { "type": "on_success" } },
