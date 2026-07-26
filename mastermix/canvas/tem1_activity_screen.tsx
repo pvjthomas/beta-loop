@@ -52,12 +52,15 @@ const COMPOUND_WELLS = [
   ["C1", "C2", "C3"], ["C4", "C5", "C6"], ["C7", "C8", "C9"], ["C10", "C11", "C12"], ["D1", "D2", "D3"],
 ];
 const DEFAULT_COMPOUNDS = [
-  "Cefpiramide acid", "Ceftiofur sodium", "Cephradine", "Methicillin", "Cefadroxil",
-  "Dicloxacillin", "Amoxicillin", "Cephalexin", "Cloxacillin", "Ticarcillin",
+  "T14979 Clavulanate lithium", "T6685 Sulbactam sodium", "T1262 Tazobactam", "T14081 Enmetazobactam", "T1631 Sulbactam",
+  "T13038 Sultamicillin", "T0814L Ampicillin", "T20022 Cephalexin", "T0224 Meropenem", "T7733 Cefotaxime",
 ];
-// Test-run switch: keep compounds 3-10 configured below, but only submit/run the
-// first two compound groups. Set back to 10 to restore the full screen.
-const ACTIVE_COMPOUND_COUNT = 2;
+const DEFAULT_SOURCE_WELLS = ["G6", "F2", "B10", "F7", "A10", "B10", "B4", "H8", "A3", "E5"];
+const DEFAULT_SOURCE_PLATES = [
+  "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_2",
+  "wellplate_pcr_parts_2", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_2", "wellplate_pcr_parts_1",
+];
+const ACTIVE_COMPOUND_COUNT = 10;
 
 const objName = (o: Obj) => o.displayName || o.name || o.uuid;
 const csv = (xs: string[]) => xs.join(",");
@@ -97,8 +100,8 @@ export default function Tem1ActivityScreen() {
   const [positiveWell, setPositiveWell] = useState(String(initial("positive_source_well", "H7")));
   const [compounds, setCompounds] = useState<Compound[]>(() =>
     COMPOUND_WELLS.map((_, i) => ({
-      plate: String(initial(`compound_${i + 1}_source_plate`, firstName(["wellplate_pcr"], "wellplate_pcr_parts_1"))),
-      well: String(initial(`compound_${i + 1}_source_well`, `A${i + 2}`)),
+      plate: String(initial(`compound_${i + 1}_source_plate`, DEFAULT_SOURCE_PLATES[i] || firstName(["wellplate_pcr"], "wellplate_pcr_parts_1"))),
+      well: String(initial(`compound_${i + 1}_source_well`, DEFAULT_SOURCE_WELLS[i] || `A${i + 2}`)),
       label: DEFAULT_COMPOUNDS[i],
     })),
   );
@@ -194,8 +197,8 @@ export default function Tem1ActivityScreen() {
         <div style={STYLE.eyebrow}>TEM-1 beta-lactamase · nitrocefin activity screen</div>
         <h1 style={STYLE.h1}>Single-Plate Activity Screen</h1>
         <p style={STYLE.sub}>
-          Test-run mode builds a 15-well plate: 3 replicates each of clavulanic-acid positive control, no-TEM-1 negative control,
-          vehicle plus TEM-1 control, and 2 test compounds. Compounds 3-10 remain in the workflow for later re-enable.
+          Builds a 39-well plate: 3 replicates each of clavulanic-acid positive control, no-TEM-1 negative control,
+          vehicle plus TEM-1 control, and 10 test compounds selected from the compound-selection guidance.
         </p>
 
         <h2 style={STYLE.h2}>Run Timing</h2>
@@ -271,7 +274,7 @@ export default function Tem1ActivityScreen() {
         <h2 style={STYLE.h2}>Plate Layout</h2>
         <div style={STYLE.card}>
           <p style={STYLE.sub}>
-            {chip("Positive", "positive")} {csv(POSITIVE_WELLS)} · {chip("No TEM-1", "negative")} {csv(NEGATIVE_WELLS)} · {chip("Vehicle + TEM-1", "vehicle")} {csv(VEHICLE_WELLS)} · {chip("2 test compounds", "compound")} {allCompoundWells.length} wells
+            {chip("Positive", "positive")} {csv(POSITIVE_WELLS)} · {chip("No TEM-1", "negative")} {csv(NEGATIVE_WELLS)} · {chip("Vehicle + TEM-1", "vehicle")} {csv(VEHICLE_WELLS)} · {chip("10 test compounds", "compound")} {allCompoundWells.length} wells
           </p>
           <table style={STYLE.table}>
             <tbody>
@@ -314,7 +317,7 @@ export default function Tem1ActivityScreen() {
         {errors.length > 0 && <div style={STYLE.error}>{errors.map((e, i) => <div key={i}>- {e}</div>)}</div>}
 
         <button type="button" style={STYLE.button} onClick={() => { const e = localErrors(); setHostErrors([]); if (e.length === 0) { zeon.submit(values); setSnapshot(live); } }}>
-          {confirmed ? "Setup confirmed" : `Confirm 15-well test screen (${waitMin || 0} min pre-incubation)`}
+          {confirmed ? "Setup confirmed" : `Confirm 39-well screen (${waitMin || 0} min pre-incubation)`}
         </button>
       </div>
     </div>
