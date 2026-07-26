@@ -16,12 +16,15 @@ parameter_descriptions:
   tem1_stock_source: "Source object containing 100 ng/uL purified TEM-1 stock."
   tem1_stock_anchor: "Anchor/hole containing 100 ng/uL purified TEM-1 stock."
   tem1_intermediate_anchor: "Anchor/hole where 1 ng/uL TEM-1 intermediate is prepared."
+  tazobactam_intermediate_anchor: "Anchor/hole where T1262 tazobactam 200 uM intermediate is prepared for the 1 uM assay condition."
   tem1_working_anchor: "Anchor/hole where 0.1 ng/uL TEM-1 working solution is prepared."
   tem1_stock_volume_ul: "100 ng/uL TEM-1 stock volume for the first dilution step."
   tem1_step1_blb_volume_ul: "BLB volume for 1 ng/uL TEM-1 intermediate."
   tem1_intermediate_volume_ul: "1 ng/uL TEM-1 intermediate volume for the second dilution step."
   tem1_step2_blb_volume_ul: "BLB volume for 0.1 ng/uL TEM-1 working solution."
   tem1_mix_volume_ul: "Pipette-mix volume for TEM-1 intermediate and final working tubes."
+  tazobactam_stock_volume_ul: "10 mM T1262 stock volume for the 200 uM intermediate."
+  tazobactam_intermediate_blb_volume_ul: "BLB volume for the 200 uM T1262 intermediate."
 
 preconditions: {}
 postconditions: {}

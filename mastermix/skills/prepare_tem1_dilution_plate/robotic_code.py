@@ -92,6 +92,7 @@ def prepare_tem1_dilution_plate(
     dmso_anchor: str = "hole_9",
     tem1_stock_anchor: str = "hole_1",
     tem1_intermediate_anchor: str = "hole_2",
+    tazobactam_intermediate_anchor: str = "hole_3",
     tem1_working_anchor: str = "hole_8",
     positive_source_well: str = "H7",
     positive_dest_well: str = "A1",
@@ -125,6 +126,8 @@ def prepare_tem1_dilution_plate(
     tem1_intermediate_volume_ul: float = 100.0,
     tem1_step2_blb_volume_ul: float = 900.0,
     tem1_mix_volume_ul: float = 100.0,
+    tazobactam_stock_volume_ul: float = 1.0,
+    tazobactam_intermediate_blb_volume_ul: float = 49.0,
     mix_volume_ul: float = 10.0,
     mix_cycles: int = 5,
     speed: float = 5.0,
@@ -161,6 +164,11 @@ def prepare_tem1_dilution_plate(
     _transfer_chunked(found, blb_source, blb_anchor_2, blb_source, tem1_working_anchor, float(tem1_step2_blb_volume_ul), "BLB to TEM-1 working", speed)
     _mix_container(found, blb_source, tem1_working_anchor, float(tem1_intermediate_volume_ul) + float(tem1_step2_blb_volume_ul), tem1_mix_volume_ul, mix_cycles, speed)
 
+    _rl("▶ Preparing T1262 tazobactam 200 uM intermediate for 1 uM assay condition")
+    _transfer_chunked(found, blb_source, blb_anchor, blb_source, tazobactam_intermediate_anchor, float(tazobactam_intermediate_blb_volume_ul), "BLB to T1262 intermediate", speed)
+    _transfer_one(found, compound_2_source_plate, compound_2_source_well, blb_source, tazobactam_intermediate_anchor, float(tazobactam_stock_volume_ul), "T1262 stock to intermediate", speed)
+    _mix_container(found, blb_source, tazobactam_intermediate_anchor, float(tazobactam_stock_volume_ul) + float(tazobactam_intermediate_blb_volume_ul), mix_volume_ul, mix_cycles, speed)
+
     _rl(f"▶ Preparing {len(working_solutions)} compound/control working solutions and one vehicle well")
 
     batched_dispense_mastermix(
@@ -187,12 +195,15 @@ def prepare_tem1_dilution_plate(
     )
 
     for label, source_plate, source_well, dest_well in working_solutions:
-        _transfer_one(found, source_plate, source_well, working_plate, dest_well, float(stock_volume_ul), label, speed)
+        if label == "Compound 2":
+            _transfer_one(found, blb_source, tazobactam_intermediate_anchor, working_plate, dest_well, float(stock_volume_ul), "Compound 2 T1262 intermediate", speed)
+        else:
+            _transfer_one(found, source_plate, source_well, working_plate, dest_well, float(stock_volume_ul), label, speed)
     _transfer_one(found, dmso_source, dmso_anchor, working_plate, vehicle_dest_well, float(vehicle_dmso_volume_ul), "Vehicle DMSO", speed)
 
     for _, _, _, dest_well in working_solutions:
         _mix_well(found, working_plate, dest_well, float(compound_blb_volume_ul) + float(stock_volume_ul), mix_volume_ul, mix_cycles, speed)
     _mix_well(found, working_plate, vehicle_dest_well, float(vehicle_blb_volume_ul) + float(vehicle_dmso_volume_ul), mix_volume_ul, mix_cycles, speed)
 
-    _rl("✓ Dilution plate complete: TEM-1 working solution is 0.1 ng/uL; compound/control wells are 500 uM; vehicle well is 5% DMSO")
+    _rl("✓ Dilution plate complete: TEM-1 working solution is 0.1 ng/uL; T1262 well is 10 uM; other compound/control wells are 500 uM; vehicle well is 5% DMSO")
     return {"success": True, "tem1_working_anchor": tem1_working_anchor, "working_solutions": len(working_solutions), "vehicle_wells": 1}

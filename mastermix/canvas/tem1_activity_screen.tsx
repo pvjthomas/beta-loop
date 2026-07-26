@@ -122,17 +122,24 @@ export default function Tem1ActivityScreen() {
   const enzymeVolume = 20;
   const compoundVolume = 5;
   const nitrocefinVolume = 25;
+  const workingPlate = "wellplate_pcr_parts_4";
+  const positiveDestWell = "A1";
+  const vehicleDestWell = "A2";
   const deckRows = [
-    { source: "TEM-1 prep", location: `${sourceBlock} / ${enzymeAnchor}`, serves: csv(tem1Wells), needed: tem1Wells.length * enzymeVolume, overage: sourceOverage },
-    { source: "No-enzyme prep", location: `${sourceBlock} / ${noEnzymeAnchor}`, serves: csv(NEGATIVE_WELLS), needed: NEGATIVE_WELLS.length * enzymeVolume, overage: sourceOverage },
-    { source: "Vehicle / BLB", location: `${sourceBlock} / ${vehicleAnchor}`, serves: csv(vehicleAdditionWells), needed: vehicleAdditionWells.length * compoundVolume, overage: sourceOverage },
-    { source: "Positive control", location: `${positivePlate} / ${upper(positiveWell)}`, serves: csv(POSITIVE_WELLS), needed: POSITIVE_WELLS.length * compoundVolume, overage: compoundOverage },
+    { source: "TEM-1 stock", location: `${sourceBlock} / hole_1`, serves: "TEM-1 dilution prep", needed: 2, overage: 2 },
+    { source: "BLB tube 1", location: `${sourceBlock} / ${vehicleAnchor}`, serves: "compound/control working solutions + T1262 intermediate", needed: (ACTIVE_COMPOUND_COUNT + 1) * 47.5 + 49, overage: sourceOverage },
+    { source: "BLB tube 2", location: `${sourceBlock} / ${noEnzymeAnchor}`, serves: "TEM-1 dilution + vehicle + no-enzyme wells", needed: 198 + 900 + 95 + NEGATIVE_WELLS.length * enzymeVolume, overage: sourceOverage },
+    { source: "DMSO", location: `${sourceBlock} / hole_9`, serves: "matched vehicle prep", needed: 5, overage: 5 },
+    { source: "Raw compound/control stocks", location: "source wells below", serves: "working plate prep (T1262 uses 1 uL serial dilution)", needed: (ACTIVE_COMPOUND_COUNT + 1) * 2.5 - 1.5, overage: compoundOverage },
+    { source: "TEM-1 working", location: `${sourceBlock} / ${enzymeAnchor}`, serves: csv(tem1Wells), needed: tem1Wells.length * enzymeVolume, overage: 0 },
+    { source: "Vehicle working", location: `${workingPlate} / ${vehicleDestWell}`, serves: csv(vehicleAdditionWells), needed: vehicleAdditionWells.length * compoundVolume, overage: 0 },
+    { source: "Positive control working", location: `${workingPlate} / ${positiveDestWell}`, serves: csv(POSITIVE_WELLS), needed: POSITIVE_WELLS.length * compoundVolume, overage: 0 },
     ...activeCompounds.map((c, i) => ({
       source: `Compound ${i + 1}: ${c.label}`,
-      location: `${c.plate} / ${upper(c.well)}`,
+      location: `${workingPlate} / A${i + 3}`,
       serves: csv(COMPOUND_WELLS[i]),
       needed: COMPOUND_WELLS[i].length * compoundVolume,
-      overage: compoundOverage,
+      overage: 0,
     })),
     { source: "2x nitrocefin", location: `${sourceBlock} / ${nitrocefinAnchor}`, serves: csv(allWells), needed: allWells.length * nitrocefinVolume, overage: nitrocefinOverage },
   ];
@@ -145,10 +152,10 @@ export default function Tem1ActivityScreen() {
 
   const values = {
     pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, platereader: plateReader, plate_home: plateHome, shaker, shaker_slot: shakerSlot,
-    working_plate: "wellplate_pcr_parts_4", blb_source: sourceBlock, dmso_source: sourceBlock, tem1_stock_source: sourceBlock,
+    working_plate: workingPlate, blb_source: sourceBlock, dmso_source: sourceBlock, tem1_stock_source: sourceBlock,
     blb_anchor: vehicleAnchor, blb_anchor_2: noEnzymeAnchor, dmso_anchor: "hole_9", tem1_stock_anchor: "hole_1", tem1_intermediate_anchor: "hole_2", tem1_working_anchor: enzymeAnchor,
     enzyme_anchor: enzymeAnchor, no_enzyme_anchor: noEnzymeAnchor, vehicle_anchor: vehicleAnchor, nitrocefin_anchor: nitrocefinAnchor,
-    positive_source_plate: positivePlate, positive_source_well: upper(positiveWell), positive_dest_well: "A1", vehicle_dest_well: "A2",
+    positive_source_plate: positivePlate, positive_source_well: upper(positiveWell), positive_dest_well: positiveDestWell, vehicle_dest_well: vehicleDestWell,
     positive_wells: csv(POSITIVE_WELLS), negative_wells: csv(NEGATIVE_WELLS), vehicle_wells: csv(VEHICLE_WELLS),
     tem1_wells: csv(tem1Wells), vehicle_addition_wells: csv(vehicleAdditionWells), all_assay_wells: csv(allWells),
     tem1_well_count: tem1Wells.length, negative_well_count: NEGATIVE_WELLS.length, vehicle_addition_count: vehicleAdditionWells.length,
