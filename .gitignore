@@ -15,3 +15,7 @@ data/assets/
 
 # Optional: keep full kinetics local by default (push run_*_summary.json instead)
 pvjthomas/local/kinetics/
+
+# Cursor skills — installed locally (K-Dense / scientific-agent-skills); not vendored in repo
+.cursor/skills/
+
