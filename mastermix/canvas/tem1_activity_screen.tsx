@@ -82,7 +82,6 @@ export default function Tem1ActivityScreen() {
   const [tipbox, setTipbox] = useState(String(initial("tipbox", firstName(["tipbox_10ul", "tipbox_120ul"], "tipbox_10ul_1"))));
   const [sourceBlock, setSourceBlock] = useState(String(initial("source_block", firstName(["coldblock_wellplate", "coldblock_large", "coldblock_small"], "coldblock_wellplate"))));
   const [assayPlate, setAssayPlate] = useState(String(initial("assay_plate", firstName(["wellplate_96_flatbottom"], "wellplate_96_flatbottom"))));
-  const [plateReader, setPlateReader] = useState(String(initial("platereader", firstName(["plate_reader"], "plate_reader"))));
   const [plateHome, setPlateHome] = useState(String(initial("plate_home", firstName(["wellplate_holder_tags", "wellplate_holder_fixture_plate", "plate_stand_holder"], "wellplate_holder_tags"))));
   const [shaker, setShaker] = useState(String(initial("shaker", firstName(["wellplate_shaker"], "wellplate_shaker_1"))));
   const [shakerSlot, setShakerSlot] = useState(String(initial("shaker_slot", "slot_1")));
@@ -95,13 +94,6 @@ export default function Tem1ActivityScreen() {
   const [nitrocefinStockAnchor, setNitrocefinStockAnchor] = useState(String(initial("nitrocefin_stock_anchor", "hole_4")));
   const [plateMixMin, setPlateMixMin] = useState(Number(initial("plate_mix_minutes", 1)));
   const [waitMin, setWaitMin] = useState(Number(initial("preincubation_minutes", 10)));
-  const [kineticSecondReadS, setKineticSecondReadS] = useState(Number(initial("kinetic_second_read_s", 30)));
-  const [kineticIntervalS, setKineticIntervalS] = useState(Number(initial("kinetic_interval_s", 30)));
-  const [kineticTotalTimeS, setKineticTotalTimeS] = useState(Number(initial("kinetic_total_time_s", 600)));
-  const [readerTemperatureC, setReaderTemperatureC] = useState(Number(initial("reader_temperature_c", 25)));
-  const [readerEquilibrationS, setReaderEquilibrationS] = useState(Number(initial("reader_equilibration_s", 120)));
-  const [slopeWindowStartS, setSlopeWindowStartS] = useState(Number(initial("slope_window_start_s", 180)));
-  const [slopeWindowEndS, setSlopeWindowEndS] = useState(Number(initial("slope_window_end_s", 480)));
   const [runName, setRunName] = useState(String(initial("run_name", "tem1_activity_screen")));
   const [sourceOverage, setSourceOverage] = useState(30);
   const [compoundOverage, setCompoundOverage] = useState(10);
@@ -160,7 +152,7 @@ export default function Tem1ActivityScreen() {
   ].map((r) => ({ ...r, nitrocefinVol: nitrocefinVolume, total: r.prepVol + r.addVol + nitrocefinVolume }));
 
   const values = {
-    pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, platereader: plateReader, plate_home: plateHome, shaker, shaker_slot: shakerSlot,
+    pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, plate_home: plateHome, shaker, shaker_slot: shakerSlot,
     working_plate: workingPlate, blb_source: sourceBlock, dmso_source: sourceBlock, tem1_stock_source: sourceBlock,
     blb_anchor: blbAnchor, blb_anchor_2: noEnzymeAnchor, dmso_anchor: "hole_9", nitrocefin_blb_anchor: nitrocefinBlbAnchor, nitrocefin_stock_anchor: nitrocefinStockAnchor, tem1_stock_anchor: "hole_1", tem1_intermediate_anchor: "hole_2", tem1_working_anchor: enzymeAnchor,
     nitrocefin_anchor: nitrocefinAnchor,
@@ -173,9 +165,6 @@ export default function Tem1ActivityScreen() {
     stock_volume_ul: 2.5, compound_blb_volume_ul: 47.5, vehicle_dmso_volume_ul: 5, vehicle_blb_volume_ul: 95, nitrocefin_stock_volume_ul: 6.25, nitrocefin_blb_volume_ul: 1243.75, nitrocefin_mix_volume_ul: 100,
     tem1_stock_volume_ul: 2, tem1_step1_blb_volume_ul: 198, tem1_intermediate_volume_ul: 100, tem1_step2_blb_volume_ul: 900, tem1_mix_volume_ul: 100, mix_volume_ul: 10, mix_cycles: 5,
     plate_mix_minutes: plateMixMin, preincubation_minutes: waitMin,
-    kinetic_second_read_s: kineticSecondReadS, kinetic_interval_s: kineticIntervalS, kinetic_total_time_s: kineticTotalTimeS,
-    reader_temperature_c: readerTemperatureC, reader_equilibration_s: readerEquilibrationS,
-    slope_window_start_s: slopeWindowStartS, slope_window_end_s: slopeWindowEndS,
     run_name: runName.trim() || "tem1_activity_screen",
     ...Object.fromEntries(activeCompounds.flatMap((c, i) => [
       [`compound_${i + 1}_source_plate`, c.plate],
@@ -188,12 +177,9 @@ export default function Tem1ActivityScreen() {
 
   function localErrors() {
     const e: string[] = [];
-    if (!pipette || !tipbox || !sourceBlock || !assayPlate || !plateReader || !plateHome || !shaker) e.push("Select all required world objects.");
+    if (!pipette || !tipbox || !sourceBlock || !assayPlate || !plateHome || !shaker) e.push("Select all required world objects.");
     if (!(plateMixMin >= 0)) e.push("Plate mix time must be zero or positive.");
     if (!(waitMin >= 0)) e.push("Pre-incubation time must be zero or positive.");
-    if (!(kineticSecondReadS >= 0) || !(kineticIntervalS > 0) || !(kineticTotalTimeS >= 0)) e.push("Kinetic read times must be valid (interval > 0).");
-    if (!(readerEquilibrationS >= 0)) e.push("Reader equilibration time must be zero or positive.");
-    if (!(slopeWindowStartS >= 0) || !(slopeWindowEndS >= slopeWindowStartS)) e.push("Slope window must be zero or a valid start–end range.");
     if (sourceOverage < 0 || compoundOverage < 0 || nitrocefinOverage < 0) e.push("Deck-loading overage values must be zero or positive.");
     const wellRe = /^[A-H](?:[1-9]|1[0-2])$/;
     if (!wellRe.test(upper(positiveWell))) e.push("Positive-control source well must be A1-H12.");
@@ -238,18 +224,10 @@ export default function Tem1ActivityScreen() {
         <div style={STYLE.grid2}>
           <div><label style={STYLE.label}>Plate mix minutes</label><input style={STYLE.field} type="number" min={0} step={0.25} value={plateMixMin} onChange={(e) => setPlateMixMin(Number(e.target.value))} /></div>
           <div><label style={STYLE.label}>Pre-incubation minutes</label><input style={STYLE.field} type="number" min={0} step={0.5} value={waitMin} onChange={(e) => setWaitMin(Number(e.target.value))} /></div>
-          <div><label style={STYLE.label}>Reader temp (°C)</label><input style={STYLE.field} type="number" min={18} max={50} step={0.5} value={readerTemperatureC} onChange={(e) => setReaderTemperatureC(Number(e.target.value))} /></div>
-          <div><label style={STYLE.label}>Equilibration (s)</label><input style={STYLE.field} type="number" min={0} step={15} value={readerEquilibrationS} onChange={(e) => setReaderEquilibrationS(Number(e.target.value))} /></div>
-          <div><label style={STYLE.label}>Read interval (s)</label><input style={STYLE.field} type="number" min={1} step={1} value={kineticIntervalS} onChange={(e) => setKineticIntervalS(Number(e.target.value))} /></div>
-          <div><label style={STYLE.label}>Kinetic duration (s)</label><input style={STYLE.field} type="number" min={0} step={30} value={kineticTotalTimeS} onChange={(e) => setKineticTotalTimeS(Number(e.target.value))} /></div>
-          <div><label style={STYLE.label}>Slope window start (s)</label><input style={STYLE.field} type="number" min={0} step={30} value={slopeWindowStartS} onChange={(e) => setSlopeWindowStartS(Number(e.target.value))} /></div>
-          <div><label style={STYLE.label}>Slope window end (s)</label><input style={STYLE.field} type="number" min={0} step={30} value={slopeWindowEndS} onChange={(e) => setSlopeWindowEndS(Number(e.target.value))} /></div>
           <div><label style={STYLE.label}>Run name</label><input style={STYLE.field} value={runName} onChange={(e) => setRunName(e.target.value)} /></div>
         </div>
         <p style={STYLE.sub}>
-          After nitrocefin, the plate loads into the reader at {readerTemperatureC} °C, equilibrates {readerEquilibrationS}s,
-          then reads A490 every {kineticIntervalS}s for {Math.round(kineticTotalTimeS / 60)} min ({Math.floor(kineticTotalTimeS / kineticIntervalS) + 1} timepoints).
-          Analysis uses slope from {slopeWindowStartS}–{slopeWindowEndS}s kinetic time ({readerEquilibrationS + slopeWindowStartS}–{readerEquilibrationS + slopeWindowEndS}s from lid close).
+          The robot stops after nitrocefin addition and run-log capture. Move the plate to the reader manually and start the A490 method from Gen5.
         </p>
         <p style={STYLE.sub}>
           Nitrocefin is added in a stagger-aware order: no-TEM-1 controls first, then clavulanate and inhibitor-class compounds, then substrate-control compounds, with the vehicle + TEM-1 max-activity wells last. The run-log completion time for each nitrocefin batch is that condition's t0 for analysis.
@@ -261,7 +239,6 @@ export default function Tem1ActivityScreen() {
           <div><label style={STYLE.label}>Starting tip box</label>{selectObj(tipbox, setTipbox, objectOptions(["tipbox_10ul", "tipbox_120ul"]))}</div>
           <div><label style={STYLE.label}>Reagent cold block</label>{selectObj(sourceBlock, setSourceBlock, objectOptions(["coldblock_wellplate", "coldblock_large", "coldblock_small"]))}</div>
           <div><label style={STYLE.label}>Assay plate</label>{selectObj(assayPlate, setAssayPlate, objectOptions(["wellplate_96_flatbottom"]))}</div>
-          <div><label style={STYLE.label}>Plate reader</label>{selectObj(plateReader, setPlateReader, objectOptions(["plate_reader"]))}</div>
           <div><label style={STYLE.label}>Plate home</label>{selectObj(plateHome, setPlateHome, objectOptions(["wellplate_holder_tags", "wellplate_holder_fixture_plate", "plate_stand_holder"]))}</div>
           <div><label style={STYLE.label}>Plate shaker</label>{selectObj(shaker, setShaker, objectOptions(["wellplate_shaker"]))}</div>
           <div><label style={STYLE.label}>Shaker slot</label><select style={STYLE.field} value={shakerSlot} onChange={(e) => setShakerSlot(e.target.value)}>{["slot_1", "slot_2", "slot_3", "slot_4"].map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
