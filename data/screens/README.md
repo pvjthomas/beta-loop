@@ -63,7 +63,7 @@ When a plate design changes, add a new `v{N+1}` directory; **do not edit** prior
 | Version | Label | Status |
 |---------|-------|--------|
 | **v1** | `r3-discovery-v1` | **Pending sign-off** — 8 compounds × triplicate + 6 QC controls; [compound table with R2 priors](../../pvjthomas/runs/3/v1/selection_rationale.md) |
-| v2 | `r3-discovery-v2` | **Deprecated** — alternate 6-compound layout; do not use ([`DEPRECATED.md`](3/v2/DEPRECATED.md)) |
+| v2 | `r3-discovery-v2` | **Deprecated** — alternate 6-compound layout; do not use ([`DEPRECATED.md`](3/v2-deprecated/DEPRECATED.md)) |
 
 ```bash
 python ml/scripts/build_screen3.py --version 1   # active 8-compound layout

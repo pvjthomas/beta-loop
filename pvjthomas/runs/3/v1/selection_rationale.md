@@ -5,7 +5,7 @@
 **Supersedes:** `data/screens/2/v5/compound_list.json`  
 **Canonical list:** [`compound_list.json`](../../../../data/screens/3/v1/compound_list.json)
 
-> **Note:** Run 3 v2 is [deprecated](../../../../data/screens/3/v2/DEPRECATED.md). This v1 plate is the active design.
+> **Note:** Run 3 v2 is [deprecated](../../../../data/screens/3/v2-deprecated/DEPRECATED.md). This v1 plate is the active design.
 
 ---
 

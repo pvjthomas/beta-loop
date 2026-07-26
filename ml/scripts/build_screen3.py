@@ -499,12 +499,12 @@ def make_steps(cfg: ScreenVersion):
                 "change_from_v5": "vehicle controls removed",
             },
             "files": {
-                "compound_list": f"data/screens/3/v{cfg.version}/compound_list.json",
-                "compound_list_csv": f"data/screens/3/v{cfg.version}/compound_list.csv",
-                "plate_map": f"data/screens/3/v{cfg.version}/plate_map.json",
-                "plate_map_png": f"data/screens/3/v{cfg.version}/plate_map.png",
-                "plate_map_by_compound_png": f"data/screens/3/v{cfg.version}/plate_map_by_compound.png",
-                "plate_map_concentrations_png": f"data/screens/3/v{cfg.version}/plate_map_concentrations.png",
+                "compound_list": f"{_screen_data_prefix(cfg.version)}/compound_list.json",
+                "compound_list_csv": f"{_screen_data_prefix(cfg.version)}/compound_list.csv",
+                "plate_map": f"{_screen_data_prefix(cfg.version)}/plate_map.json",
+                "plate_map_png": f"{_screen_data_prefix(cfg.version)}/plate_map.png",
+                "plate_map_by_compound_png": f"{_screen_data_prefix(cfg.version)}/plate_map_by_compound.png",
+                "plate_map_concentrations_png": f"{_screen_data_prefix(cfg.version)}/plate_map_concentrations.png",
                 "selection_rationale": f"pvjthomas/runs/3/v{cfg.version}/selection_rationale.md",
                 "active_plate_map": "data/plate_map_r3.json",
                 "active_selection_rationale": "pvjthomas/selection_rationale.md",
@@ -521,7 +521,7 @@ def make_steps(cfg: ScreenVersion):
                     "superseded_by": "data/screens/3/v1/manifest.json",
                     "files": {
                         **manifest["files"],
-                        "deprecated_notice": "data/screens/3/v2/DEPRECATED.md",
+                        "deprecated_notice": "data/screens/3/v2-deprecated/DEPRECATED.md",
                     },
                 }
             )
@@ -553,13 +553,13 @@ def make_steps(cfg: ScreenVersion):
                 [
                     "> **DEPRECATED** — Do not use. Active design is "
                     "[Run 3 v1](../v1/selection_rationale.md). See "
-                    "[`DEPRECATED.md`](../../../../data/screens/3/v2/DEPRECATED.md).",
+                    "[`DEPRECATED.md`](../../../../data/screens/3/v2-deprecated/DEPRECATED.md).",
                     "",
                     f"**Round:** 3 · **Version:** {cfg.version} (`r3-discovery-v{cfg.version}`)  ",
                     "**Status:** deprecated  ",
                     f"**Supersedes:** `{cfg.supersedes}`  ",
                     "**Superseded by:** [`data/screens/3/v1/`](../../../../data/screens/3/v1/)  ",
-                    f"**Canonical list:** [`compound_list.json`](../../../../data/screens/3/v{cfg.version}/compound_list.json)",
+                    f"**Canonical list:** [`compound_list.json`](../../../../{_screen_data_prefix(cfg.version)}/compound_list.json)",
                 ]
             )
         else:
@@ -568,10 +568,10 @@ def make_steps(cfg: ScreenVersion):
                     f"**Round:** 3 · **Version:** {cfg.version} (`r3-discovery-v{cfg.version}`)  ",
                     "**Status:** pending sign-off  ",
                     f"**Supersedes:** `{cfg.supersedes}`  ",
-                    f"**Canonical list:** [`compound_list.json`](../../../../data/screens/3/v{cfg.version}/compound_list.json)",
+                    f"**Canonical list:** [`compound_list.json`](../../../../{_screen_data_prefix(cfg.version)}/compound_list.json)",
                     "",
                     "> **Note:** Run 3 v2 is "
-                    "[deprecated](../../../../data/screens/3/v2/DEPRECATED.md). This v1 plate is the active design.",
+                    "[deprecated](../../../../data/screens/3/v2-deprecated/DEPRECATED.md). This v1 plate is the active design.",
                 ]
             )
         lines.extend(
@@ -686,8 +686,19 @@ def make_steps(cfg: ScreenVersion):
     }
 
 
+def _screen_subdir(version: int) -> str:
+    """On-disk folder name; deprecated v2 lives outside the normal v{N} path."""
+    if version == 2:
+        return "v2-deprecated"
+    return f"v{version}"
+
+
+def _screen_data_prefix(version: int) -> str:
+    return f"data/screens/3/{_screen_subdir(version)}"
+
+
 def _screen_dir(version: int) -> Path:
-    return REPO / "data" / "screens" / "3" / f"v{version}"
+    return REPO / "data" / "screens" / "3" / _screen_subdir(version)
 
 
 def _runs_dir(version: int) -> Path:

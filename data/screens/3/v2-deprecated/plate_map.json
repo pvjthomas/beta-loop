@@ -9,7 +9,7 @@
   "exclude_compound_ids": [
     "T19709"
   ],
-  "compound_list": "data/screens/3/v2/compound_list.json",
+  "compound_list": "data/screens/3/v2-deprecated/compound_list.json",
   "rationale_doc": "pvjthomas/runs/3/v2/selection_rationale.md",
   "layout_notes": "96-well flat bottom, column-strip layout: no edge wells (rows A/H, cols 1/12 empty). X-spaced sample columns only (no horizontally adjacent samples): B/D/F @ 2/4/6/8/10, then C/E/G @ 5/9, then C/E/G @ 3/7 for overflow. Controls (6): 3\u00d7 no-TEM-1 @ D3/D7/E11; 3\u00d7 clavulanic acid @ F3/F7/G11. No vehicle controls.",
   "layout": "column_strip",
@@ -212,7 +212,7 @@
       "functional_class": "unknown"
     }
   },
-  "versioned_path": "data/screens/3/v2/plate_map.json",
+  "versioned_path": "data/screens/3/v2-deprecated/plate_map.json",
   "rationale_doc_active": "pvjthomas/selection_rationale.md",
   "version_label": "r3-discovery-v2",
   "control_summary": {

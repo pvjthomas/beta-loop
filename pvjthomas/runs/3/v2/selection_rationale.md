@@ -1,12 +1,12 @@
 # Round 3 / version 2 — surprise & unknown retest plate (6 compounds)
 
-> **DEPRECATED** — Do not use. Active design is [Run 3 v1](../v1/selection_rationale.md). See [`DEPRECATED.md`](../../../../data/screens/3/v2/DEPRECATED.md).
+> **DEPRECATED** — Do not use. Active design is [Run 3 v1](../v1/selection_rationale.md). See [`DEPRECATED.md`](../../../../data/screens/3/v2-deprecated/DEPRECATED.md).
 
 **Round:** 3 · **Version:** 2 (`r3-discovery-v2`)  
 **Status:** deprecated  
 **Supersedes:** `data/screens/3/v1/compound_list.json`  
 **Superseded by:** [`data/screens/3/v1/`](../../../../data/screens/3/v1/)  
-**Canonical list:** [`compound_list.json`](../../../../data/screens/3/v2/compound_list.json)
+**Canonical list:** [`compound_list.json`](../../../../data/screens/3/v2-deprecated/compound_list.json)
 
 ---
 

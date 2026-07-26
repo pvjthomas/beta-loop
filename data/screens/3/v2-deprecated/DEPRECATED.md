@@ -1,5 +1,6 @@
 # Deprecated — Run 3 v2
 
+**Folder:** `data/screens/3/v2-deprecated/` (renamed so teammates do not pick this layout by mistake)  
 **Status:** deprecated (2026-07-26)  
 **Do not use for robot scheduling or sign-off.**
 
