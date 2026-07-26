@@ -67,6 +67,15 @@ CATEGORY_HATCH: dict[str, str | None] = {
     "control": "..",
 }
 
+HATCH_LEGEND_ITEMS: list[tuple[str, str | None, str]] = [
+    ("tier1_inhibitor", None, "Tier-1 inhibitor — solid fill"),
+    ("substrate_control", "---", "Substrate control — horizontal lines"),
+    ("diverse_pick", "xxx", "Diverse / unknown — crosshatch"),
+    ("vehicle", "....", "Vehicle (DMSO) — dots"),
+    ("no_tem1", "++", "No TEM-1 — grid"),
+    ("pos_ctrl", "///", "Positive control — diagonal lines"),
+]
+
 COMPOUND_PALETTE: list[str] = [
     "#2563EB",
     "#DC2626",
@@ -372,15 +381,93 @@ def _draw_well(
     ax.add_patch(rect)
 
 
-def _render_colored_plate(
+def _color_legend_groups(
+    legend: plt.Legend,
+    group_order: list[str],
+    highlight_groups: set[str],
+    *,
+    color: str = "#DC2626",
+) -> None:
+    for text, group in zip(legend.get_texts(), group_order):
+        if group in highlight_groups:
+            text.set_color(color)
+            text.set_fontweight("bold")
+
+
+
+def _add_hatch_legend_below(
+    ax: plt.Axes,
+    compound_legend: plt.Legend,
+    *,
+    legend_bbox_x: float = 1.01,
+) -> None:
+    """Draw a B&W hatch-pattern key directly under the compound legend."""
+    fig = ax.figure
+    fig.canvas.draw()
+    bbox_axes = compound_legend.get_window_extent().transformed(ax.transAxes.inverted())
+
+    row_h = 0.034
+    swatch_w = 0.038
+    swatch_h = 0.022
+    text_x = legend_bbox_x + swatch_w + 0.012
+    y = bbox_axes.y0 - 0.03
+
+    ax.text(
+        legend_bbox_x,
+        y,
+        "Hatch Legend",
+        transform=ax.transAxes,
+        fontsize=8,
+        fontweight="bold",
+        va="top",
+        ha="left",
+        color="black",
+        clip_on=False,
+    )
+    y -= 0.028
+
+    with plt.rc_context({"hatch.color": "black", "hatch.linewidth": 1.4}):
+        for _, hatch, label in HATCH_LEGEND_ITEMS:
+            swatch = Rectangle(
+                (legend_bbox_x, y - swatch_h),
+                swatch_w,
+                swatch_h,
+                transform=ax.transAxes,
+                facecolor="white",
+                edgecolor="black",
+                linewidth=1.4,
+                hatch=hatch,
+                clip_on=False,
+                zorder=10,
+            )
+            ax.add_patch(swatch)
+            ax.text(
+                text_x,
+                y - swatch_h / 2,
+                label,
+                transform=ax.transAxes,
+                va="center",
+                ha="left",
+                fontsize=7,
+                color="black",
+                clip_on=False,
+            )
+            y -= row_h
+
+
+def draw_plate_map_on_axes(
+    ax: plt.Axes,
     df: pd.DataFrame,
     *,
     color_by: ColorMode = "sample_type",
-    title: str | None = None,
     catalog: dict[str, dict[str, Any]] | None = None,
-) -> plt.Figure:
-    """Draw a 96-well plate colored by sample type or compound group."""
+    highlight_groups: set[str] | None = None,
+    include_hatch_legend: bool = False,
+    legend_bbox_x: float = 1.01,
+) -> None:
+    """Draw a plate map on an existing axes with optional hatch legend below compound legend."""
     catalog = catalog or {}
+    highlight_groups = highlight_groups or set()
     color_column = (
         "sample_type"
         if color_by in {"sample_type", "concentration"}
@@ -413,8 +500,8 @@ def _render_colored_plate(
         categories[i][j] = _group_category(group, color_by=color_by, catalog=catalog)
 
     legend_cols = 1 if len(group_order) <= 12 else 2
-    fig_width = 14 if legend_cols == 1 else 16
-    fig, ax = plt.subplots(figsize=(fig_width, 5.8))
+    legend_fontsize = 6.5 if color_by == "compound" else 8
+
     ax.set_xlim(-0.5, PLATE_COLS - 0.5)
     ax.set_ylim(PLATE_ROWS - 0.5, -0.5)
     ax.set_facecolor(EMPTY_COLOR)
@@ -457,15 +544,51 @@ def _render_colored_plate(
         )
         for group in group_order
     ]
-    ax.legend(
+    compound_legend = ax.legend(
         handles=legend_handles,
         title=legend_title,
         loc="upper left",
-        bbox_to_anchor=(1.01, 1.0),
+        bbox_to_anchor=(legend_bbox_x, 1.0),
         frameon=True,
-        fontsize=6.5 if color_by == "compound" else 8,
+        fontsize=legend_fontsize,
         title_fontsize=9,
         ncol=legend_cols,
+    )
+    _color_legend_groups(compound_legend, group_order, highlight_groups)
+
+    if include_hatch_legend:
+        ax.add_artist(compound_legend)
+        _add_hatch_legend_below(
+            ax,
+            compound_legend,
+            legend_bbox_x=legend_bbox_x,
+        )
+
+
+def _render_colored_plate(
+    df: pd.DataFrame,
+    *,
+    color_by: ColorMode = "sample_type",
+    title: str | None = None,
+    catalog: dict[str, dict[str, Any]] | None = None,
+) -> plt.Figure:
+    """Draw a 96-well plate colored by sample type or compound group."""
+    legend_cols = 1
+    color_column = (
+        "sample_type"
+        if color_by in {"sample_type", "concentration"}
+        else "compound_group"
+    )
+    present_groups = list(dict.fromkeys(df[color_column].tolist()))
+    group_count = len(present_groups)
+    legend_cols = 1 if group_count <= 12 else 2
+    fig_width = 14 if legend_cols == 1 else 16
+    fig, ax = plt.subplots(figsize=(fig_width, 5.8))
+    draw_plate_map_on_axes(
+        ax,
+        df,
+        color_by=color_by,
+        catalog=catalog,
     )
 
     if title:

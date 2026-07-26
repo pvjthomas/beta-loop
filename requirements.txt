@@ -17,6 +17,9 @@ google-adk
 numpy
 pandas
 scipy
+scikit-learn
+matplotlib
+pillow
 wellmap
 pypdf
 
