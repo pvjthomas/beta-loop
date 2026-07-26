@@ -1,3 +1,13 @@
+# TODO (from pvjthomas): Plate dilution helper — extend this module to:
+#   - Batch-plan stock → working plate from compound_list.json (per-compound target uM)
+#   - Apply C1V1=C2V2 + 10× assay transfer rule (5 uL into 50 uL)
+#   - Flag pipette-infeasible volumes (<0.5 uL) and propose serial intermediates
+#     (see T1262: 10 mM → 200 uM intermediate → 10 uM working for 1 uM final)
+#   - Compute matched vehicle DMSO % and warn on solubility cap (1000 uM max final)
+#   - Reference: mastermix/skills/utils.py pipette limits (0.5–10 / 10–120 uL),
+#     ml/agent/tools/reverse.py _recommend_screen_conc_uM(), TEM1_COLD_BLOCK_LOADING.md
+# Changhu to implement when ready.
+
 """
 Simple dilution calculator.
 

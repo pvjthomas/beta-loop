@@ -11,6 +11,7 @@ Versioned plate maps for each nitrocefin screen run (robot team contract).
 |------|---------|---------|
 | **Round** | Closed-loop screening iteration | `plate_map_r**1**.json`, `assay/run_**1**_summary.json` |
 | **Version** | Plate-design revision within a round | `screens/1/v**2**/plate_map.json` |
+| **Post-run** | Artifacts after the physical screen executes | `screens/2/post-run/` |
 
 Version numbers are **assay-plan revisions**, not round numbers. Round is always in the filename (`_r1`, `_r2`).
 
@@ -19,10 +20,14 @@ Version numbers are **assay-plan revisions**, not round numbers. Round is always
 ```
 screens/
   {round}/           # matches round number (1, 2, …)
-    v{version}/      # plate-design revision within that round
+    v{version}/      # plate-design revision within that round (pre-run)
       plate_map.json
       plate_map.png
       manifest.json
+    post-run/        # after the robot run (logs, timing QC, reader exports, analysis/)
+      kinetics_r2.csv
+      r2_gen5_export.pdf
+      analysis/      # annotated CSV, parsed JSON, EDA summaries
 ```
 
 Selection rationale mirrors the same `{round}/v{version}/` path under `pvjthomas/runs/`.
@@ -52,6 +57,12 @@ When a plate design changes, add a new `v{N+1}` directory; **do not edit** prior
 | v1 | `r2-discovery-v1` | Superseded — 24 unique compounds × triplicate + `compound_list.json` / `.csv` |
 | v2 | `r2-discovery-v2` | Superseded — 10 compounds (4 tier-1 + 4 substrate + 2 diverse) × triplicate |
 | **v3** | `r2-discovery-v3` | **Pending sign-off** — same layout as v2 with literature-backed per-compound concentrations in `compound_list.json` (T1262 @ 1 µM) |
+
+### Post-run (Round 2)
+
+| Path | Label | Status |
+|------|-------|--------|
+| [`2/post-run/`](2/post-run/) | `r2-discovery-v5-exec` | Run log, timing analysis, plate reader export (`kinetics_r2.csv`), and EDA derivatives |
 
 ## Plate map visualization
 

@@ -15,7 +15,7 @@ Or call run_compound_selection_pipeline() for a full offline pass (no live Paper
 ## Screening rounds
 1. Before Round 1: load_literature_summary(), prioritize_compounds() or review selection draft.
 2. After Round 1: analyze_kinetics(round_number=1), design_next_plate() for Round 2.
-3. After Round 2: analyze_kinetics(round_number=2) and summarize IC50-ready hits.
+3. After Round 2: audit_run2_data_tool(), consolidate per report, then analyze_kinetics(round_number=2).
 
 Rules:
 - Prefer load_literature_summary() over live Paperclip for Round 1 timing.
@@ -103,4 +103,9 @@ Steps:
 
 Round 2 is 8-point dose-response (3–100 µM) on top R1 hits ≥50% inhibition.
 Flag Tier-1 inhibitor failures for human QC — likely assay issue, not a drop.
+
+After physical Run 2 completes:
+1. audit_run2_data_tool() — scan for scattered artifacts; recommend post-run/ consolidation (does not move files)
+2. generate_run2_artifacts() — nitrocefin timing, reader metadata, promote plate_map_r2, run_2_summary.json
+3. analyze_kinetics(round_number=2) if only refreshing analysis from existing CSV
 """

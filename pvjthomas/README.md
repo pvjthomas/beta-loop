@@ -23,6 +23,14 @@ Shared deliverables land in `data/` at repo root. Task 2 code lives under **`ml/
 
 See [ml/CLOSED_LOOP.md](../ml/CLOSED_LOOP.md) — agent, analysis, and plate files are tracked there.
 
+**Kinetics / median scoring** (canonical: [runs/2/v5/run2_decision_tree.md](runs/2/v5/run2_decision_tree.md), [PLAN.md](../PLAN.md) § Assay logic):
+
+- [x] Document median scoring — control medians (3/3 vehicle, 3/3 no-TEM-1); compound call = median of 3/3 well scores
+- [x] Implement in `ml/analysis/kinetics.py` + unit tests (`ml/agent/tests/unit/test_kinetics.py`)
+- [ ] Run `analyze_kinetics_file()` on first real Run 2 CSV; confirm Q1/Q2/Q3 gates match hand read
+- [ ] Write `data/assay/run_2_summary.json` with per-compound `median_pct_inhibition` and decision-tree labels
+- [ ] Wire ADK `analyze_kinetics()` tool to return compound-level medians (not per-well hits only)
+
 ## This folder (`pvjthomas/`)
 
 Use for bio/integration artifacts only:

@@ -18,6 +18,7 @@ import shutil
 from datetime import datetime
 
 from .modules import ExecutionInfoContext, execution_dir, print_log, project_data_dir
+from .timing_summary import write_run_log_timing_summary, workflow_id_from_metadata
 
 
 def save_run_folder(run_name: str = "run"):
@@ -59,7 +60,10 @@ def save_run_folder(run_name: str = "run"):
     logs.mkdir(parents=True, exist_ok=True)
     captures.mkdir(parents=True, exist_ok=True)
 
+    meta_path = src / "metadata.json"
+
     # Run log: copy the raw jsonl and render a readable .txt (one line per event).
+    copied_run_log = False
     for jl in sorted(src.glob("run_log_*.jsonl")):
         try:
             shutil.copy(jl, logs / "run_log.jsonl")
@@ -78,9 +82,27 @@ def save_run_folder(run_name: str = "run"):
                 msg = e.get("msg", "")
                 lines.append(f"{t}  [{typ}] {label}{(' — ' + msg) if msg else ''}".rstrip())
             (logs / "run_log.txt").write_text("\n".join(lines) + "\n")
+            copied_run_log = True
         except Exception as ex:
             print_log(f"save_run_folder: run log copy failed: {ex}")
         break  # only the current run's log
+
+    if copied_run_log:
+        try:
+            timing_out = write_run_log_timing_summary(
+                logs,
+                workflow_id=workflow_id_from_metadata(meta_path),
+                project_data=project_data_dir(create=False),
+                log_warning=print_log,
+            )
+            if timing_out is not None:
+                print_log(
+                    f"save_run_folder: wrote {timing_out.name}",
+                    runlog=True,
+                    runlog_type="event",
+                )
+        except Exception as ex:
+            print_log(f"save_run_folder: timing summary failed: {ex}")
 
     # Any images produced this run (best-effort; typically empty in simulation).
     # src (execution_dir) and out (project data) are different trees, so globbing
@@ -95,7 +117,6 @@ def save_run_folder(run_name: str = "run"):
                 pass
 
     # Metadata + input values snapshot.
-    meta_path = src / "metadata.json"
     if meta_path.exists():
         try:
             shutil.copy(meta_path, out / "metadata.json")

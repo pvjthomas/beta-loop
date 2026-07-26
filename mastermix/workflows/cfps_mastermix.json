@@ -46,6 +46,14 @@
     { "name": "seal_index",   "type": "integer", "description": "1-based seal position in the holder to pick", "defaultValue": 1 },
     { "name": "run_name",     "type": "string",  "description": "Name for this run's saved output folder (<run_name>_<timestamp>)", "defaultValue": "cfps_run" }
   ],
+  "timing_phases": [
+    { "phase": "setup", "match": ["record shaker state", "log plate map", "pick up pipette"] },
+    { "phase": "mastermix_build", "match": ["make positive-control master mix", "make negative-control master mix", "make sample master mix"] },
+    { "phase": "plate_loading", "match": ["dispense positive-control mix", "dispense negative-control mix", "dispense sample mix"] },
+    { "phase": "plate_seal", "match": ["seal plate", "re-grab sealed plate"] },
+    { "phase": "incubation", "match": ["ensure shaker off", "open shaker", "load plate into shaker", "close shaker", "start shaker"] },
+    { "phase": "teardown", "match": ["place pipette back", "save run folder"] }
+  ],
   "nodes": [
     { "node_id": "start_0", "type": "start", "label": "Start" },
 

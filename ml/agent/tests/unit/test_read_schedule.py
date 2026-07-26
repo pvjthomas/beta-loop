@@ -10,6 +10,7 @@ from analysis.read_schedule import (
     ReadTimepoint,
     build_read_schedule,
     nitrocefin_tem1_default_schedule,
+    platereader_kinetic_test_schedule,
     schedule_to_dict,
 )
 
@@ -108,6 +109,19 @@ def test_gen5_notes_mention_temperature_and_equilibration() -> None:
     assert "25" in notes
     assert "120" in notes
     assert "180" in notes and "480" in notes
+
+
+def test_platereader_kinetic_test_schedule_3_min() -> None:
+    """Plate reader unit-test workflow: 25 C, 30 s interval, 3 min window."""
+    schedule = platereader_kinetic_test_schedule()
+    assert schedule.temperature_c == 25.0
+    assert schedule.equilibration_s == 30.0
+    assert schedule.kinetic_duration_s == 180.0
+    assert schedule.total_plate_time_s == 210.0
+    assert [p.time_s for p in schedule.read_points] == [0.0, 30.0, 60.0, 90.0, 120.0, 150.0, 180.0]
+    assert len(schedule.read_points) == 7
+    assert schedule.slope_window_start_s == 60.0
+    assert schedule.slope_window_end_s == 180.0
 
 
 def test_nitrocefin_tem1_default_schedule() -> None:

@@ -177,16 +177,17 @@
   <header class="top">
     <p class="eyebrow">workflow · <span class="path">mastermix/workflows/tem1_activity_screen.json</span></p>
     <h1>Running the combined TEM-1 screen</h1>
-    <p class="lede">One workflow file now does the whole job: it dilutes its own reagents — TEM-1 enzyme, 9 active test compounds plus a known-active control, matched vehicle, and (just-in-time) nitrocefin — then builds a 36-well assay plate, mixes it, pre-incubates, develops the color reaction in a stagger-aware order, and runs a real kinetic A490 read.</p>
+    <p class="lede">One workflow file now does the dilution and dosing job end to end: it dilutes its own reagents — TEM-1 enzyme, 9 active test compounds plus a known-active control, matched vehicle, and (just-in-time) nitrocefin — then builds a 36-well assay plate, mixes it, pre-incubates, and develops the color reaction in a stagger-aware order. It then <strong>stops</strong>: the plate reader is no longer touched by the robot at all.</p>
     <div class="updated-banner">
-      <span class="tag">regenerated · v4</span>
-      <span>Latest fix ("fix compound 10"): <code>vehicle_addition_wells</code> had been left as <code>D3,D7,D11,B3,B7,B11</code> after negative/vehicle wells were relabeled to <code>E11</code>/<code>C11</code> elsewhere — it's now correctly <code>D3,D7,E11,B3,B7,C11</code>, matching <code>negative_wells</code> + <code>vehicle_wells</code>. The same commit also removed compound slot 10 <strong>entirely</strong> from the workflow graph (not just emptied its wells) — see the callout below the roster table for a residual mismatch this leaves in the dilution skill.</span>
+      <span class="tag">regenerated · v5</span>
+      <span>Two upstream changes since the last version: (1) <strong>"remove plate reader steps"</strong> — the automated kinetic-read section (grab plate → open/load/close reader → <code>run_kinetic_schedule</code> → unload → return) was deleted from the production workflow entirely; the robot now stops after nitrocefin dosing and hands the plate to a human for a manually-started Gen5 kinetic read. (2) <strong>"fix compound 10"</strong> (round 2) — <code>prepare_tem1_dilution_plate</code>'s Python signature had <code>compound_10_source_plate</code> as a required argument with no default, but the workflow stopped passing it; that parameter is now removed from the skill entirely, matching the workflow. The earlier mismatch callout below is now resolved.</span>
     </div>
   </header>
 
   <section>
-    <div class="section-head"><span class="section-num">01</span><span class="section-title">Six phases</span></div>
+    <div class="section-head"><span class="section-num">01</span><span class="section-title">Five phases, then a hand-off</span></div>
     <h2 class="section-h">The shape of the protocol</h2>
+    <p class="body-p">Every node falls into one of five phases, executed strictly in sequence (every edge is <code>on_success</code> — no branching, no retries). The robot's job now ends at phase V; reading the plate is a separate, manual step.</p>
     <div class="phases">
       <div class="phase">
         <span class="phase-num">0</span>
@@ -215,8 +216,8 @@
       </div>
       <div class="phase">
         <span class="phase-num">V</span>
-        <span class="phase-title">Kinetic read &amp; wrap up</span>
-        <span class="phase-meta">21× A490, save run</span>
+        <span class="phase-title">Save run · robot stops</span>
+        <span class="phase-meta">plate reader is manual now</span>
       </div>
     </div>
   </section>
@@ -448,90 +449,84 @@
     </div>
     <p class="body-p" style="margin-top:12px;">From <code>compound_list.csv</code>: T1262's 1 µM comes from a "10× IC50" rule (ChEMBL IC50 = 0.1 µM); every other compound falls back to a 50 µM project-default HTS concentration, since no TEM-1/nitrocefin IC50 was found in open repositories for them. Slot 10 no longer appears here at all — it was removed from the workflow, not just left empty (see next section).</p>
 
-    <div class="updated-banner" style="border-color: var(--red); background: var(--red-soft);">
-      <span class="tag" style="border-color: var(--red); color: var(--red);">mismatch</span>
-      <span><code>tem1_activity_screen.json</code>'s <code>prepare_dilutions</code> node no longer passes <code>compound_10_source_plate</code> (removed in "fix compound 10"), but <code>prepare_tem1_dilution_plate</code>'s Python signature still declares <code>compound_10_source_plate: SkillObject</code> with <strong>no default value</strong> — unlike <code>compound_10_source_well</code>/<code>compound_10_dest_well</code>, which do (<code>"E5"</code>/<code>"A12"</code>). If the execution engine calls the skill strictly by the workflow's parameter map, this is a missing required argument and <code>prepare_dilutions</code> — the very first node in the graph — would fail before anything else runs. The skill itself hasn't been updated to drop slot 10 the way the workflow was.</span>
+    <div class="updated-banner" style="border-color: var(--teal); background: var(--teal-soft);">
+      <span class="tag" style="border-color: var(--teal); color: var(--teal);">resolved</span>
+      <span>A prior version of this page flagged a mismatch here: <code>prepare_dilutions</code> stopped passing <code>compound_10_source_plate</code>, but <code>prepare_tem1_dilution_plate</code>'s signature still required it with no default — a missing-argument crash waiting to happen. A follow-up "fix compound 10" commit removed <code>compound_10_source_plate</code>/<code>compound_10_source_well</code>/<code>compound_10_dest_well</code> from the skill's signature entirely, matching the workflow. No longer an issue.</span>
     </div>
   </section>
 
   <section>
-    <div class="section-head"><span class="section-num">07</span><span class="section-title">Reagent map</span></div>
-    <h2 class="section-h">Every cold-block hole, what's in it, and how it got there</h2>
+    <div class="section-head"><span class="section-num">07</span><span class="section-title">Deck setup</span></div>
+    <h2 class="section-h">What to load before pressing start</h2>
+    <p class="body-p">Straight from <code>mastermix/TEM1_COLD_BLOCK_LOADING.md</code>, the canonical operator loading table. Four holes start empty — the robot fills them during the run; the rest need real reagent in them before the workflow begins.</p>
     <div class="table-wrap">
       <table class="dtable">
-        <thead><tr><th>Hole</th><th>Contents</th><th>Prepared by</th></tr></thead>
+        <thead><tr><th>Hole</th><th>Load before starting</th><th class="num">Load at least</th><th>Prepared by</th></tr></thead>
         <tbody>
-          <tr><td><code>hole_1</code></td><td>100 ng/µL TEM-1 stock</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_2</code></td><td>1 ng/µL TEM-1 intermediate</td><td>Phase 0</td></tr>
-          <tr><td><code>hole_3</code></td><td>200 µM T1262 intermediate</td><td>Phase 0</td></tr>
-          <tr><td><code>hole_4</code></td><td>20 mM nitrocefin stock</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_5</code></td><td>BLB tube 1 (compound/control dilutions)</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_6</code></td><td>BLB tube 2 (TEM-1 dilution, vehicle, no-enzyme)</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_7</code></td><td>BLB for just-in-time nitrocefin dilution</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_8</code></td><td>0.1 ng/µL TEM-1 working solution</td><td>Phase 0</td></tr>
-          <tr><td><code>hole_9</code></td><td>100% DMSO</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_10</code></td><td>100 µM (2×) nitrocefin working solution</td><td>Phase IV</td></tr>
+          <tr><td><code>hole_1</code></td><td>100 ng/µL purified TEM-1 stock</td><td class="num">4 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_2</code></td><td><em>empty tube/well</em></td><td class="num">—</td><td>Phase 0 → 200 µL, 1 ng/µL intermediate</td></tr>
+          <tr><td><code>hole_3</code></td><td><em>empty tube/well</em></td><td class="num">—</td><td>Phase 0 → 50 µL, 200 µM T1262 intermediate</td></tr>
+          <tr><td><code>hole_4</code></td><td>20 mM nitrocefin stock in DMSO (protect from light)</td><td class="num">8.25 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_5</code></td><td>BLB — compound/control dilutions + T1262 intermediate</td><td class="num">554 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_6</code></td><td>BLB — TEM-1 dilution, vehicle prep, no-TEM-1 wells</td><td class="num">1283 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_7</code></td><td>BLB — just-in-time nitrocefin dilution only</td><td class="num">1293.75 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_8</code></td><td><em>empty tube/well</em></td><td class="num">—</td><td>Phase 0 → 1000 µL, 0.1 ng/µL TEM-1 working</td></tr>
+          <tr><td><code>hole_9</code></td><td>100% DMSO</td><td class="num">10 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_10</code></td><td><em>empty, light-protected if possible</em></td><td class="num">—</td><td>Phase IV → 1250 µL, 100 µM nitrocefin working</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="body-p" style="margin-top:12px;">Every real dilution this screen depends on is now performed inside this one workflow — TEM-1, all 10 compounds plus control, vehicle, and nitrocefin. Only the raw stocks and buffers arrive pre-loaded.</p>
+    <p class="body-p" style="margin-top:12px;"><code>hole_6</code> is UI-labeled "no-enzyme prep" because it supplies the no-TEM-1 control wells, but physically it's just BLB — don't load enzyme there.</p>
+
+    <h2 class="section-h" style="margin-top:28px; font-size:16px;">Plus, outside the cold block</h2>
+    <div class="table-wrap">
+      <table class="dtable">
+        <thead><tr><th>Item</th><th>Location</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Positive control — clavulanic acid (T19860)</td><td><code>wellplate_pcr_parts_1</code>, well <code>H7</code></td><td>Source for the positive-control working solution</td></tr>
+          <tr><td>9 test compound stocks</td><td>source PCR plates/wells — see the roster in §06</td><td>Robot prepares each working solution before assay setup</td></tr>
+          <tr><td>Working plate</td><td><code>wellplate_pcr_parts_4</code></td><td>Starts empty — robot fills row A (positive control, vehicle, 9 compounds) in Phase 0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="body-p" style="margin-top:12px;">Every real dilution this screen depends on is now performed inside this one workflow — TEM-1, all 10 compounds plus control, vehicle, and nitrocefin. Only the raw stocks and buffers above arrive pre-loaded.</p>
   </section>
 
   <section>
     <div class="section-head"><span class="section-num">08</span><span class="section-title">Phase V</span></div>
-    <h2 class="section-h">A real kinetic read, not a snapshot</h2>
+    <h2 class="section-h">The robot stops; the reader is manual now</h2>
     <div class="two-col">
       <div>
-        <p class="body-p">Place pipette → grab plate → open → load → close reader → <strong>one skill call</strong>, <code>platereader_run_kinetic_schedule</code>, which equilibrates at 25°C for 2 min, then reads A490 every 30 s for 10 min (21 reads total) → open → unload → close → return plate → save run.</p>
-        <p class="body-p">This replaced the earlier version's 3 hand-scheduled reads (initial + 2 endpoints) with a proper time-series: 21 evenly spaced points is enough to fit a reaction-rate slope, not just compare two snapshots.</p>
+        <p class="body-p">Place pipette → <strong><code>save_run_folder</code></strong> → end. That's it — no <code>grab_plate</code>, no <code>open_reader</code>/<code>load_reader</code>/<code>close_reader</code>, no <code>run_kinetic_schedule</code>, no <code>platereader</code> input at all. The canvas now says it directly: <em>"The robot stops after nitrocefin addition and run-log capture. Move the plate to the reader manually and start the A490 method from Gen5."</em></p>
+        <p class="body-p">This replaces the previous version's fully-automated kinetic read (21 scripted single-reads via <code>platereader_run_kinetic_schedule</code>). That approach had a real problem: each single-read click sequence in <code>platereader_measure</code> takes ~100+ seconds of GUI automation, far longer than the intended 30 s interval between reads — so the recorded read timestamps didn't match when the reads actually happened. Handing this to a human running Gen5's own native kinetic protocol sidesteps that entirely: Gen5 handles the internal 30 s timing itself.</p>
       </div>
       <div class="param-card">
-        <h3>Kinetic schedule parameters</h3>
+        <h3>What still exists, just relocated</h3>
         <ul class="rules">
-          <li><strong>Equilibration:</strong> 120 s at 25°C after the lid closes, before the first read</li>
-          <li><strong>Reads:</strong> every 30 s from t=0 to t=600 s (21 points) — <code>data/screens/2/v5/kinetic_schedule.json</code> lists each one with its own <code>read_label</code> (<code>initial</code>, <code>t030s</code>, <code>t060s</code>, …)</li>
-          <li><strong>Slope-fit window:</strong> 180–480 s — the region of the curve actually used to compute each condition's reaction rate, avoiding the equilibration tail and any late plateau</li>
-          <li><strong>Total time in reader:</strong> 120 + 600 = 720 s (12 min)</li>
+          <li><code>platereader_run_kinetic_schedule</code> and the <code>read_schedule.py</code> timing math are unchanged — they're just no longer wired into this production workflow</li>
+          <li>A new isolated workflow, <code>test_platereader_kinetic_schedule.json</code>, exercises the skill directly with a 3-read, 2-second schedule — fast enough to smoke-test in simulation without pretending it represents a real hardware timing guarantee</li>
+          <li><code>kinetic_second_read_s</code>, <code>reader_temperature_c</code>, <code>slope_window_start_s</code>, etc. are gone from <code>tem1_activity_screen.json</code>'s inputs — that configuration now lives on the Gen5 side, set by the operator</li>
         </ul>
       </div>
     </div>
-    <p class="body-p" style="margin-top:14px;">Every nitrocefin dispense node (Phase IV) now also carries a <code>timing_label</code> (<code>positive_control</code>, <code>compound_1</code>, …) — <code>batched_dispense_mastermix</code> records the actual wall-clock moment nitrocefin hits each condition. Since dosing is staggered across ~13 batches, not simultaneous, this timestamp is what lets analysis line up each condition's own reaction start against the one shared plate-reader clock.</p>
+    <p class="body-p" style="margin-top:14px;">Every nitrocefin dispense node (Phase IV) still carries a <code>timing_label</code> (<code>positive_control</code>, <code>compound_1</code>, …) — <code>batched_dispense_mastermix</code> records the actual wall-clock moment nitrocefin hits each condition. Since dosing is staggered across ~13 batches, not simultaneous, this timestamp is what lets analysis line up each condition's own reaction start against whatever clock the manually-run Gen5 kinetic read produces.</p>
   </section>
 
   <section>
     <div class="section-head"><span class="section-num">09</span><span class="section-title">Timing</span></div>
-    <h2 class="section-h">Where the clock goes</h2>
+    <h2 class="section-h">Where the robot's clock goes</h2>
     <div class="stats">
       <div class="stat"><div class="stat-label">Plate mix</div><div class="stat-value">1<span class="unit">min</span></div></div>
       <div class="stat"><div class="stat-label">Pre-incubation</div><div class="stat-value">10<span class="unit">min</span></div></div>
-      <div class="stat"><div class="stat-label">Reader equilibration</div><div class="stat-value">2<span class="unit">min</span></div></div>
-      <div class="stat"><div class="stat-label">Kinetic window</div><div class="stat-value">10<span class="unit">min, 21 reads</span></div></div>
-      <div class="stat"><div class="stat-label">Slope-fit window</div><div class="stat-value">180–480<span class="unit">s</span></div></div>
       <div class="stat"><div class="stat-label">Conditions</div><div class="stat-value">12<span class="unit">total</span></div></div>
       <div class="stat"><div class="stat-label">Wells used</div><div class="stat-value">36<span class="unit">/ 96</span></div></div>
+      <div class="stat"><div class="stat-label">Plate read</div><div class="stat-value" style="font-size:15px;">manual<span class="unit">Gen5</span></div></div>
     </div>
-  </section>
-
-  <section>
-    <div class="section-head"><span class="section-num">10</span><span class="section-title">Changelog</span></div>
-    <h2 class="section-h">What changed since the last walkthrough</h2>
-    <ul class="rules changelog">
-      <li><strong>One workflow, not two:</strong> the dilution-plate workflow is now the first node (<code>prepare_dilutions</code>) inside this file, instead of a separate <code>tem1_dilution_plate.json</code> that had to be run first by hand.</li>
-      <li><strong>The stock/working-plate mismatch is fixed:</strong> compound, positive-control, and vehicle dispenses now source from the diluted working plate — previously they pointed at the same raw 10 mM stock wells the dilution plate itself used, a 20× overshoot.</li>
-      <li><strong>TEM-1 is now really diluted:</strong> a genuine 2-step 100 ng/µL → 0.1 ng/µL dilution runs in Phase 0, instead of assuming <code>hole_8</code> arrives pre-loaded.</li>
-      <li><strong>Nitrocefin is now really diluted, and just-in-time:</strong> a dedicated <code>prepare_nitrocefin_working_solution</code> skill dilutes 20 mM stock to 100 µM immediately before dosing, rather than assuming <code>hole_10</code> arrives pre-loaded.</li>
-      <li><strong>New low-dose branch:</strong> T1262 tazobactam gets its own 200 µM intermediate tube to hit a 1 µM assay target, instead of the standard 50 µM every other compound uses.</li>
-      <li><strong>Nitrocefin dosing is stagger-aware:</strong> negative → positive → 10 compounds → vehicle last, so the fastest-reacting condition accumulates the least uncontrolled time before the first read.</li>
-      <li><strong>Kinetic read:</strong> 3 A490 timepoints (initial, +5 min, +10 min) instead of a single read.</li>
-      <li><strong>R2 v5 relayout ("change blb hole"):</strong> clavulanic acid is no longer double-counted as both the positive control and a test compound, which bumped every compound down one slot — T1262 tazobactam moved from Compound 2 to <strong>Compound 1</strong>. The roster dropped to 9 active compounds; slot 10 is now a defined-but-empty placeholder (its dispense and nitrocefin nodes still exist in the graph but skip at runtime). The plate itself moved from a 39-well row-triplet "spaced interior" layout to a 36-well column-strip layout with no horizontally adjacent occupied wells.</li>
-      <li><strong>Real kinetic read ("nitrocefin kinetic read schedule"):</strong> the 3 hand-scheduled A490 reads were replaced by <code>platereader_run_kinetic_schedule</code> — 120 s equilibration at 25°C, then 21 reads at 30 s intervals over 10 min, with a defined 180–480 s slope-fit window. Every nitrocefin dispense node also gained a <code>timing_label</code> so each condition's actual dosing time is recorded against the shared reader clock.</li>
-      <li><strong>"fix compound 10":</strong> <code>vehicle_addition_wells</code> was still the pre-relabel union (<code>D11,B11</code>) after <code>negative_wells</code>/<code>vehicle_wells</code> moved to <code>E11</code>/<code>C11</code> — the no-TEM-1 and vehicle-plus-TEM-1 wells would have gotten no vehicle addition at all. Fixed to <code>D3,D7,E11,B3,B7,C11</code>. Slot 10 was also fully deleted from the workflow graph (nodes, edges, and inputs) instead of left as an empty placeholder — which now leaves <code>prepare_tem1_dilution_plate</code>'s Python signature out of sync (see the mismatch callout above).</li>
-    </ul>
   </section>
 
   <footer class="foot">
     <span>mastermix/workflows/tem1_activity_screen.json · canvas/tem1_activity_screen.tsx</span>
-    <span>skills: prepare_tem1_dilution_plate · prepare_nitrocefin_working_solution · batched_dispense_mastermix · platereader_*</span>
+    <span>skills: prepare_tem1_dilution_plate · prepare_nitrocefin_working_solution · batched_dispense_mastermix</span>
   </footer>
 
 </div>

@@ -55,6 +55,7 @@ Canonical paths:
 - `data/screens/2/v5/plate_map.png`
 - `data/screens/2/v5/plate_map_by_compound.png`
 - `data/screens/2/v5/kinetic_schedule.json`
+- `data/screens/2/post-run/` — robot run log, timing analysis, plate reader export (`kinetics_r2.csv`), EDA under `analysis/` (see [`manifest.json`](../../data/screens/2/post-run/manifest.json))
 
 ### Reports & tables
 
@@ -110,6 +111,12 @@ Code:
 2. Promote: `cp data/screens/2/v5/plate_map.json data/plate_map_r2.json`
 3. Point active rationale at [`pvjthomas/runs/2/v5/selection_rationale.md`](../runs/2/v5/selection_rationale.md)
 4. Run on robot / plate reader; merge results back via `ml/analysis/` pipeline
+5. **Run 2 kinetics** — canonical CSV at `data/screens/2/post-run/kinetics_r2.csv` (promoted copy: `data/kinetics_r2.csv`):
+   - [ ] `analyze_kinetics_run("data/screens/2/post-run/kinetics_r2.csv", run=2, version=5)` → outputs under `post-run/analysis/r2_*`
+   - [ ] `analyze_kinetics_file(...)` → check Q1 (≥29/36 wells), Q2, Q3
+   - [ ] Confirm compound calls use **median of 3/3** well scores per `compound_id` (T1262/T6685/T14081 ≥50; substrates <20)
+   - [ ] Emit `data/assay/run_2_summary.json` with labels (`confirmed_hit`, `confirmed_substrate`, etc.)
+   - [ ] If Q2 fail → [hand_q2_enzyme_check.md](../runs/2/v5/hand_q2_enzyme_check.md); if Q3 fail → [hand_q3_inhibition_check.md](../runs/2/v5/hand_q3_inhibition_check.md)
 
 ---
 
