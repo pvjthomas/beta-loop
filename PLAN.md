@@ -30,7 +30,7 @@
 |--------|------|-------------------|
 | **Robotics** | Lab robotics | Zeon workflows, hardware booking, sim → bench execution |
 | **You** | Hardware / bioengineer | Scientific QC, gate thresholds, integration glue, demo narrative |
-| **ML** | **Philip** | Google ADK agent, Paperclip literature, analysis pipeline, in silico prioritization |
+| **ML** | **Philip** | Google ADK agent, literature search (open repos + optional Paperclip), analysis pipeline, in silico prioritization |
 
 ---
 
@@ -74,9 +74,10 @@ By demo time we show a real **data → decision → better result** story:
 | **Phase B** — ADK forward / reverse / bridge pipeline | ✓ scaffold in [`ml/agent/`](ml/agent/) |
 | [`data/reference_inhibitors.csv`](data/reference_inhibitors.csv) | ✓ seeded |
 | [`ml/workflows/compound_selection/state.json`](ml/workflows/compound_selection/state.json) + draft plate | ✓ offline run |
-| Forward Paperclip batch searches | ✓ batch `.txt` in `data/compound_literature/` + `state.forward.literature_searches` (2026-07-25) |
+| Forward literature batch searches | ✓ batch `.txt` in `data/compound_literature/` + `state.forward.literature_searches` (2026-07-25) |
+| Reverse literature (open repos, v3 plate) | ✓ 23/23 IDs in `refs/` + `literature_search_cache.json` (2026-07-25) |
 | Forward agent test suite (Tier 1–3) | ✓ 31 tests — clavulanate fixture → v3 screen subset (23) → full library (105); see [`ml/agent/tests/FORWARD_TEST_PLAN.md`](ml/agent/tests/FORWARD_TEST_PLAN.md) |
-| **Forward agent live run + screening priors (Philip P0)** | **Partial** — live forward + Paperclip batch ✓ (2026-07-25); **next:** curate refs + `compound_assay_priors` for T1262/T1631/T14081 (T19860 is gold) |
+| **Forward agent live run + screening priors (Philip P0)** | **Partial** — forward ✓ · reverse lit ✓ · **next:** ChEMBL/manual curation for Tier-1 Ki/IC50 (T19860 is gold) |
 | GNINA docking + `dock_score` column | Optional — pipeline built; Mac needs Docker or remote Linux (see [COMPOUND_SELECTION.md § R2 macOS](pvjthomas/COMPOUND_SELECTION.md#step-r2--docking-gnina)) |
 | Promote draft → active `plate_map_r1.json` for discovery | ✗ needs sign-off |
 
@@ -138,7 +139,7 @@ Skills are provided; we choose execution order, volumes, and variables. Workflow
 
 Build the agent layer that decides **what to test** and learns from results:
 
-1. **Before Round 1** — Paperclip literature, GNINA priors, plate layout for ~24 compounds
+1. **Before Round 1** — literature priors (open repos + ChEMBL), GNINA priors, plate layout for ~24 compounds
 2. **After Round 1** — normalize kinetics, rank hits, agent designs Round 2 (dose-response + follow-ups)
 3. **After Round 2** — IC50 on best inhibitors; demo the R1 → R2 pivot
 
@@ -331,24 +332,21 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 
 ---
 
-## Paperclip — literature search
+## Literature search
 
-[Paperclip](https://paperclip.gxl.ai/) (GXL) indexes 11M+ full-text papers, clinical trials, FDA docs, ChEMBL, PDB, and UniProt. We use it **instead of generic web search** to ground the agent before any wet lab runs.
+The agent searches **open biomedical repositories by default** (Europe PMC, PubMed, ChEMBL, Semantic Scholar, OpenAlex) via [`ml/agent/tools/literature_repositories.py`](ml/agent/tools/literature_repositories.py). **[Paperclip](https://paperclip.gxl.ai/)** (GXL) remains available for optional full-text map when open-repo abstracts lack Ki/IC50 or nitrocefin assay detail.
 
-**Why it fits this project:** The compound library is mostly β-lactam antibiotics (substrates) with a few true inhibitors (clavulanate, sulbactam, tazobactam). Paperclip lets the agent learn which scaffolds inhibit TEM-1 vs. get hydrolyzed, and what nitrocefin assay conditions / IC50 ranges look like in prior work — directly matching the hackathon brief's "before the experiment" agent tasks.
+**Why this stack fits the project:** The compound library is mostly β-lactam antibiotics (substrates) with a few true inhibitors (clavulanate, sulbactam, tazobactam). Open repos + ChEMBL give structured Ki/IC50 without map quota; Paperclip supplements full-text extraction when needed — directly matching the hackathon brief's "before the experiment" agent tasks.
 
 ### Install (ML person, Phase 0)
 
-Run in **your terminal** (sign-in opens a browser):
+**Open repositories** — no install beyond Python stdlib; optional API keys improve rate limits (see [REQUIREMENTS.md](REQUIREMENTS.md)).
+
+**Paperclip** (optional supplement) — run in **your terminal** (sign-in opens a browser):
 
 ```bash
 curl -fsSL https://paperclip.gxl.ai/install.sh | bash
 paperclip config   # verify auth
-```
-
-Also install the Python SDK (for ADK tool):
-
-```bash
 pip install -r requirements.txt   # includes gxl-paperclip
 export PAPERCLIP_API_KEY="pk_..." # or use paperclip login credentials
 ```
@@ -357,34 +355,40 @@ export PAPERCLIP_API_KEY="pk_..." # or use paperclip login credentials
 
 Full setup details: `REQUIREMENTS.md`
 
-### When Paperclip runs in our loop
+### When literature search runs in our loop
 
 | When | Who | Action |
 |------|-----|--------|
-| **Phase 0 (tonight)** | Philip | Batch literature searches → `data/compound_literature/` (optional; per-compound refs partially done) |
+| **Phase 0 (tonight)** | Philip | Batch searches → `data/compound_literature/` (repos or Paperclip) |
 | **Phase 0 (tonight)** | Philip | Summarize into `data/literature_summary.json` | ✓ |
-| **Before Round 1** | ADK agent | `search_literature()` tool — confirm inhibitor scaffolds, assay pitfalls |
+| **Before Round 1** | ADK agent | `reverse_literature_check()` + `search_chembl_activities()` — per-compound priors |
+| **Before Round 1** | ADK agent | `load_literature_summary()` — fast priors without live API |
 | **After Round 1** | ADK agent | Optional: lookup analogs / IC50 priors for R2 dose-response design |
-| **Demo / pitch** | You | Cite one Paperclip finding that shaped Round 1 plate (e.g. "known inhibitors at 50 µM") |
+| **Demo / pitch** | You | Cite one literature finding that shaped Round 1 plate (e.g. "known inhibitors at 50 µM") |
 
 ### Phase 0 search queries (run tonight)
 
-Save each output to `data/compound_literature/`:
+**Preferred — agent / Python (open repos):**
+
+```python
+from agent.tools.literature import search_literature, search_chembl_activities, save_literature_search
+
+save_literature_search(
+    "TEM-1 beta-lactamase inhibitor clavulanate sulbactam tazobactam",
+    source="europe_pmc",
+    limit=20,
+    filename="tem1_inhibitors.txt",
+)
+save_literature_search("nitrocefin beta-lactamase assay IC50 kinetic", source="europe_pmc", limit=10)
+search_chembl_activities("clavulanic acid", target_query="TEM-1")
+```
+
+**Optional Paperclip CLI** — save each output to `data/compound_literature/`:
 
 ```bash
 paperclip search "TEM-1 beta-lactamase inhibitor clavulanate sulbactam tazobactam" -n 20 \
-  > data/compound_literature/tem1_inhibitors.txt
+  > data/compound_literature/tem1_inhibitors_paperclip.txt
 
-paperclip search "nitrocefin beta-lactamase assay IC50 kinetic" -n 10 \
-  > data/compound_literature/nitrocefin_assay.txt
-
-paperclip search "beta-lactam antibiotic substrate vs beta-lactamase inhibitor" -n 10 \
-  > data/compound_literature/substrate_vs_inhibitor.txt
-```
-
-Optional synthesis across top result set:
-
-```bash
 paperclip map --from s_<result_id> \
   "What IC50 values and pre-incubation times were used for TEM-1 inhibitors in nitrocefin assays?" \
   > data/compound_literature/ic50_synthesis.txt
@@ -406,22 +410,26 @@ paperclip map --from s_<result_id> \
 }
 ```
 
-ML writes this after Paperclip searches; agent loads it in `prioritize_compounds()` and `design_next_plate()`.
+ML writes this after literature searches; agent loads it in `prioritize_compounds()` and `design_next_plate()`.
 
 ### ADK integration
 
-Register as function tool on the decision-making `LlmAgent`:
+Register as function tools on the decision-making `LlmAgent`:
 
 | Tool | Backend | Purpose |
 |------|---------|---------|
-| `search_literature(query)` | `gxl_paperclip.PaperclipClient` | Live search during agent reasoning |
+| `search_literature(query, source=...)` | Open repos + optional Paperclip | Live search during agent reasoning |
+| `search_chembl_activities(compound_name)` | ChEMBL REST API | Structured Ki/IC50 vs TEM-1 |
+| `reverse_literature_check(...)` | Open repos (default) | Per-compound priors → `refs/{id}.json` |
+| `map_literature_results(...)` | Paperclip only | Full-text Ki/IC50 extraction from `s_*` searches |
 | `load_literature_summary()` | reads `data/literature_summary.json` | Fast priors without API call |
+| `list_literature_sources()` | — | List all registered backends |
 
-Implementation: `agent/tools/literature.py` (see repo structure below).
+Implementation: [`ml/agent/tools/literature.py`](ml/agent/tools/literature.py), [`literature_repositories.py`](ml/agent/tools/literature_repositories.py), [`reverse.py`](ml/agent/tools/reverse.py).
 
-### Paperclip in the demo (30 sec)
+### Literature in the demo (30 sec)
 
-> "Before touching the robot, our agent searched 11M papers via Paperclip and identified clavulanate-class compounds as true inhibitors vs. β-lactam antibiotics as substrates — so Round 1 deliberately mixed both. Round 1 data confirmed the literature priors; Round 2 ran dose-response only on the inhibitor class."
+> "Before touching the robot, our agent searched Europe PMC, ChEMBL, and PubMed — and identified clavulanate-class compounds as true inhibitors vs. β-lactam antibiotics as substrates — so Round 1 deliberately mixed both. Round 1 data confirmed the literature priors; Round 2 ran dose-response only on the inhibitor class."
 
 ---
 
@@ -855,30 +863,30 @@ zeon_hack/
 
 | Deliverable | Where it lives | Status |
 |-------------|----------------|--------|
-| **Run forward agent live** | `ml/workflows/compound_selection/state.json` + `snapshots/forward/v1/` | ✓ 2026-07-25 (Paperclip batch + finalize v1) |
-| **Screen concentration per compound** | `refs/{id}.json` → `assay_recommendations.tem1_nitrocefin.screen_conc_uM` | T19860 @ 50 µM ✓ · others TBD |
-| **Literature evidence (PMID, Ki/IC50, methods)** | `refs/{id}.json` → `entries[]` | T19860 gold ✓ · T1262/T14081/T1631 stubs only |
-| **Agent-facing priors summary** | `data/literature_summary.json` → `compound_assay_priors` | T19860 + T14979 ✓ · expand to full v3 plate |
+| **Run forward agent live** | `ml/workflows/compound_selection/state.json` + `snapshots/forward/v1/` | ✓ 2026-07-25 |
+| **Reverse literature (open repos)** | `refs/{id}.json` + `literature_search_cache.json` | ✓ 23/23 v3 plate IDs · Ki extraction mostly T19860 only |
+| **Screen concentration per compound** | `refs/{id}.json` → `assay_recommendations.tem1_nitrocefin.screen_conc_uM` | T19860 @ 50 µM ✓ · others `project_default` |
+| **Literature evidence (PMID, Ki/IC50, methods)** | `refs/{id}.json` → `entries[]` | T19860 gold ✓ · Tier-1 inhibitors need ChEMBL/manual curation |
+| **Agent-facing priors summary** | `data/literature_summary.json` → `compound_assay_priors` | 23/23 IDs @ 50 µM · expand Ki/rationale |
 | **Human rationale** | `pvjthomas/runs/1/v3/selection_rationale.md` | Draft ✓ · update after priors land |
 
-**Command (offline Paperclip):**
+**Commands:**
 
 ```bash
 cd ml/agent && PYTHONPATH=. python3 -c "
-from agent.tools.forward import (
-    seed_reference_inhibitors, run_forward_literature_searches,
-    match_literature_to_library, write_literature_summary_from_forward,
-    finalize_forward_run,
-)
-seed_reference_inhibitors()
-run_forward_literature_searches(save_raw=True)  # skip if priors already baked
-match_literature_to_library()
-write_literature_summary_from_forward()
-print(finalize_forward_run(version=1))
+from agent.tools.reverse import reverse_literature_check
+from agent.tools.literature import search_chembl_activities
+
+# Re-run per-compound search (open repos; cached when search_version matches)
+print(reverse_literature_check(compound_ids=None, tiers=[1,2,3,4], use_cache=True))
+
+# Structured Ki/IC50 for Tier-1 inhibitors
+for name in ['clavulanic acid', 'sulbactam', 'tazobactam', 'enmetazobactam']:
+    print(search_chembl_activities(name, target_query='TEM-1'))
 "
 ```
 
-Then **manually curate** each forward-hit ref to T19860 quality (Paperclip map/full-text → Ki/IC50 → `screen_conc_uM` rationale).
+Then **manually curate** Tier-1 inhibitor refs to T19860 quality (ChEMBL activities + optional Paperclip map → Ki/IC50 → `screen_conc_uM` rationale).
 
 ### Everyone else
 

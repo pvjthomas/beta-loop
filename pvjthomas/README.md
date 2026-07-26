@@ -29,6 +29,7 @@ Use for bio/integration artifacts only:
 
 | Path | Purpose |
 |------|---------|
+| [`output/`](output/) | Written reports (e.g. Phase A inventory) |
 | [`local/`](local/) | Gitignored Paperclip dumps, GNINA poses, debug caches |
 | [`runs/`](runs/) | Selection rationale per screen version |
 | [`.claude/skills/paperclip/`](.claude/skills/paperclip/SKILL.md) | Paperclip skill for Claude Code |

@@ -17,13 +17,15 @@ Master timeline: [PLAN.md](../PLAN.md).
 | **Compound library** | ✓ Done — `data/compounds.csv` (105 compounds, tier/scaffold tags) |
 | **Compound dossiers** | ✓ Done — `data/compound_dossiers.json` |
 | **Python env** | ✓ Done — `.venv` + full `requirements.txt` |
-| **Paperclip env** | ✓ Done — CLI + SDK installed, auth working |
+| **Paperclip env** | ✓ Optional — CLI + SDK for full-text map supplement |
+| **Open literature repos** | ✓ Done — Europe PMC, PubMed, ChEMBL, Semantic Scholar, OpenAlex |
 | **Literature priors** | ✓ Done — `data/literature_summary.json` + per-compound refs in `data/compound_literature/refs/` |
+| **Reverse literature (v3 plate)** | ✓ Done — 23/23 IDs searched via open repos · Ki extraction mostly T19860 |
 | **Phase B ADK pipeline** | ✓ Done — forward / reverse / bridge / merger sub-agents |
 | **Offline selection run** | ✓ Done — `ml/workflows/compound_selection/state.json`, draft plate, neighbors |
 | **Forward v1 snapshot** | ✓ Done — `ml/workflows/compound_selection/snapshots/forward/v1/` |
 | **Forward agent tests (Tier 1–3)** | ✓ Done — 31 tests; clavulanate → v3 screen (23) → full library (105); see [FORWARD_TEST_PLAN.md](agent/tests/FORWARD_TEST_PLAN.md) |
-| **Forward agent live run + screening priors** | **Partial** — live forward + Paperclip batch ✓ · **next:** curate priors for T1262/T14081/T1631 |
+| **Forward agent live run + screening priors** | **Partial** — forward ✓ · reverse lit ✓ (open repos) · **next:** ChEMBL/manual curation for Tier-1 Ki/IC50 |
 | **ADK coordinator + tools** | ✓ Done — literature, kinetics, plates, selection, chem |
 | **Analysis — kinetics** | ✓ Done — `ml/analysis/kinetics.py` + `analyze_kinetics()` tool |
 | **Analysis — R2 plate design** | ✓ Done — `ml/analysis/plates.py` + `design_next_plate()` tool |
@@ -31,7 +33,7 @@ Master timeline: [PLAN.md](../PLAN.md).
 | **R1 active plate** | ✓ Done — `data/plate_map_r1.json` v2 validation (8 wells) |
 | **Discovery layouts archived** | ✓ Done — `data/screens/1/v1`, `v2`, `v3` |
 | **R2 discovery draft** | ✓ Done — `ml/workflows/compound_selection/plate_map_r2_draft.json` (24 compounds) |
-| **Paperclip batch searches** | ✓ Done — `data/compound_literature/*.txt` (2026-07-25) |
+| **Paperclip batch searches** | ✓ Optional — `data/compound_literature/*.txt` (2026-07-25) |
 | **Forward Tier 4 Paperclip CI** | ✗ Optional — baseline logged; `test_paperclip_clavulanic.py` manual/nightly |
 | **GNINA docking** | Optional — pipeline built; Mac: Docker `--no_gpu` or remote Linux ([Step R2 macOS](../pvjthomas/COMPOUND_SELECTION.md#step-r2--docking-gnina)) |
 | **`analysis/ic50.py`** | ✗ Not done — 4PL fit deferred until R2 data |
@@ -49,10 +51,10 @@ Master timeline: [PLAN.md](../PLAN.md).
 
 | Step | Task | Status |
 |------|------|--------|
-| 1 | Run forward agent live (seed → Paperclip → match → finalize v1) | ✓ 2026-07-25 |
-| 2 | Curate inhibitor refs to T19860 quality (PMID, Ki/IC50, `assay_recommendations`) | T19860 ✓ · T1262/T14081/T1631 stubs |
-| 3 | Set **screen concentration (µM)** + rationale per forward hit | 50 µM project default · document per compound |
-| 4 | Patch `literature_summary.json` → `compound_assay_priors` for v3 plate | Partial |
+| 1 | Run forward agent live (seed → literature search → match → finalize v1) | ✓ 2026-07-25 |
+| 2 | Run reverse literature check (open repos per v3 plate compound) | ✓ 2026-07-25 |
+| 3 | Curate Tier-1 inhibitor refs to T19860 quality (ChEMBL + optional Paperclip map) | T19860 ✓ · T1262/T14081/T1631 stubs |
+| 4 | Apply **concentration rules** → `assay_recommendations` + `compound_assay_priors` | Mostly `project_default @ 50 µM` |
 | 5 | Sign off discovery plate → promote to `data/plate_map_r2.json` | Blocked on steps 1–4 + R1 validation |
 
 ---

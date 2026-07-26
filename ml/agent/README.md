@@ -18,7 +18,8 @@ beta_loop_coordinator (root_agent)          ← adk run / adk web entry point
 │   └── round2_designer                     ← R1 analysis + R2 design
 └── Tools (also on coordinator)
     ├── run_compound_selection_pipeline()   ← offline F→R→B→merge
-    ├── load_literature_summary() / search_literature()
+    ├── load_literature_summary() / search_literature() / search_chembl_activities()
+    ├── reverse_literature_check()          ← per-compound open-repo search
     ├── classify_scaffolds_rdkit()
     ├── find_tanimoto_neighbors()
     └── analyze_kinetics() / design_next_plate()
@@ -28,7 +29,7 @@ Human-in-the-loop: draft plates live in `ml/workflows/compound_selection/` until
 
 ## Run
 
-From repo root (with `.env` configured for Vertex + Paperclip):
+From repo root (with `.env` configured for Vertex; optional `PAPERCLIP_API_KEY`, `NCBI_API_KEY`):
 
 ```bash
 source .venv/bin/activate
@@ -42,7 +43,7 @@ adk run ml/agent
 adk web ml/agent --port 8000
 ```
 
-### Offline pipeline (no live Paperclip)
+### Offline pipeline (no live API calls)
 
 ```bash
 python -c "
@@ -54,12 +55,24 @@ print(json.dumps(run_compound_selection_pipeline(), indent=2))
 "
 ```
 
+### Reverse literature (open repositories)
+
+```bash
+cd ml/agent && PYTHONPATH=. python3 -c "
+from agent.tools.reverse import reverse_literature_check
+print(reverse_literature_check(tiers=[1,2,3,4], use_cache=True))
+"
+```
+
+Default sources: `europe_pmc`, `pubmed`, `chembl`, `semantic_scholar`, `openalex`. Optional Paperclip: pass `sources=['pmc','biorxiv','proteins']`.
+
 ### Example ADK prompts
 
 | Phase | Prompt |
 |-------|--------|
-| **Phase B full** | "Run compound selection pipeline without live Paperclip searches." |
+| **Phase B full** | "Run compound selection pipeline without live literature searches." |
 | **Forward only** | "Delegate to forward_agent: seed references, match literature to library, and finalize v1." |
+| **Reverse lit** | "Run reverse_literature_check for all Tier 1–4 compounds; then search_chembl_activities for tazobactam and sulbactam." |
 | **Reverse only** | "Delegate to reverse_agent: classify scaffolds with RDKit and rank Tier 3." |
 | **Bridge only** | "Delegate to bridge_agent: find Tanimoto neighbors and Tier 2 analogs." |
 | **Merge** | "Delegate to selection_merger: merge tiers and write plate draft." |
@@ -74,9 +87,9 @@ print(json.dumps(run_compound_selection_pipeline(), indent=2))
 | `ml/workflows/compound_selection/state.json` | ✓ | Pipeline state (forward/reverse/bridge/merge) |
 | `ml/workflows/compound_selection/plate_map_r2_draft.json` | ✓ | Round 2 draft plate — not for robot |
 | `ml/workflows/compound_selection/neighbors.json` | ✓ | Tanimoto neighbor summary |
-| `data/compound_literature/refs/{id}.json` | ✓ | Per-compound lit refs (forward hits) |
+| `data/compound_literature/refs/{id}.json` | ✓ | Per-compound lit refs (forward + reverse) |
 | `ml/workflows/compound_selection/snapshots/forward/v1/` | ✓ | Frozen forward research agent v1 snapshot + manifest |
-| `pvjthomas/local/literature/` | ✗ | Raw Paperclip dumps |
+| `pvjthomas/local/literature/` | ✗ | Raw search dumps (repos + optional Paperclip) |
 | `pvjthomas/local/docking/` | ✗ | GNINA poses (when run) |
 | `pvjthomas/local/similarity/` | ✗ | Cluster debug / FP caches |
 
@@ -84,10 +97,12 @@ print(json.dumps(run_compound_selection_pipeline(), indent=2))
 
 | Module | Tools |
 |--------|-------|
+| `tools/literature.py` | `search_literature`, `search_chembl_activities`, `map_literature_results`, `load_literature_summary`, `list_literature_sources` |
+| `tools/literature_repositories.py` | Europe PMC, PubMed, ChEMBL, Semantic Scholar, OpenAlex |
 | `tools/forward.py` | `seed_reference_inhibitors`, `match_literature_to_library`, `build_compound_groups`, `search_literature_only_forms`, `finalize_forward_run`, … |
 
-See [`tests/FORWARD_TEST_PLAN.md`](tests/FORWARD_TEST_PLAN.md) for v1 test plan. **Status (2026-07-25):** Tier 1–3 complete (31+ tests); live forward + Paperclip batch ✓. **Philip P0:** curate screen concentrations and literature evidence for discovery plate compounds (T19860 is the template).
-| `tools/reverse.py` | `classify_scaffolds_rdkit`, `run_gnina_batch` (stub), `rank_by_dock_score`, … |
+See [`tests/FORWARD_TEST_PLAN.md`](tests/FORWARD_TEST_PLAN.md) for v1 test plan. **Status (2026-07-25):** Tier 1–3 complete (31+ tests); live forward ✓; reverse lit ✓ for v3 plate (open repos). **Philip P0:** curate Tier-1 inhibitor Ki/IC50 and apply concentration rules (T19860 is the template).
+| `tools/reverse.py` | `reverse_literature_check`, `classify_scaffolds_rdkit`, `run_gnina_batch`, `rank_by_dock_score`, … |
 | `tools/bridge.py` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` |
 | `tools/selection.py` | `run_compound_selection_pipeline`, `generate_round2_plate_draft`, … |
 | `tools/chem.py` | RDKit helpers (Tanimoto, SMARTS, name normalize) |

@@ -43,16 +43,16 @@ Assign Task 1 vs Task 2 to learsch and changhu at kickoff; Philip spans both rol
 | Demo narrative & pitch | assist | **lead** | assist |
 | ADK agent & LoopAgent | — | review | **lead** |
 | Kinetics analysis & IC50 | — | review | **lead** |
-| Paperclip literature search | — | — | **lead** |
+| Literature search (repos + optional Paperclip) | — | — | **lead** |
 | GNINA / compound priors | — | — | **lead** |
 | File schemas | review | **approve** | **lead** |
 | R2 plate map sign-off | review | **approve** | **lead** |
 
 ## Handoff points
 
-### H0: Paperclip → ML (Phase 0, before hackathon)
-- **Artifact:** `data/compound_literature/*.txt` + `data/literature_summary.json`
-- **Verify:** known inhibitors listed, assay conc/timing documented
+### H0: Literature → ML (Phase 0, before hackathon)
+- **Artifact:** `data/compound_literature/*.txt` + `data/literature_summary.json` + `data/compound_literature/refs/`
+- **Verify:** known inhibitors listed, assay conc/timing documented, concentration source tagged (`literature` / `10x_ki` / `project_default`)
 
 ### H1: ML → Robotics (before each screen)
 - **Artifact:** `data/plate_map_r{N}.json`

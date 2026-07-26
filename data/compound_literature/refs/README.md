@@ -1,6 +1,14 @@
 # Structured compound literature refs (git-tracked)
 
-Curated citations and activity data per compound. **Raw Paperclip output** stays in [`pvjthomas/local/literature/`](../../../pvjthomas/local/README.md).
+Curated citations and activity data per compound. **Raw search output** stays in [`pvjthomas/local/literature/`](../../../pvjthomas/local/README.md).
+
+Each ref may include `assay_recommendations.tem1_nitrocefin`:
+
+- `screen_conc_uM` — recommended final assay concentration
+- `screen_conc_source` — `literature` | `10x_ic50` | `10x_ki` | `project_default`
+- `screen_rationale` — human-readable justification
+
+See [`pvjthomas/COMPOUND_SELECTION.md`](../../../pvjthomas/COMPOUND_SELECTION.md) Step F5 for the concentration rule priority.
 
 ## Files
 

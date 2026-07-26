@@ -103,20 +103,28 @@ Reverse literature check (`reverse_literature_check`) defaults to the five open 
 
 ### Integration with ADK agent
 
-Replace generic web search with a dedicated tool:
+Literature tools live in [`ml/agent/tools/literature.py`](ml/agent/tools/literature.py):
 
 ```python
-# agent/tools/literature.py (stub)
-from gxl_paperclip import PaperclipClient
+from agent.tools.literature import (
+    search_literature,
+    search_chembl_activities,
+    map_literature_results,
+    load_literature_summary,
+    list_literature_sources,
+)
 
-def search_literature(query: str, limit: int = 10) -> str:
-    """Search scientific literature for TEM-1 inhibitor context."""
-    client = PaperclipClient.from_env()
-    result = client.search(query, limit=limit, source="pmc")
-    return result.output
+list_literature_sources()
+search_literature("TEM-1 tazobactam Ki nitrocefin", source="europe_pmc", limit=10)
+search_chembl_activities("tazobactam", target_query="TEM-1")
+
+# Paperclip map — only for Paperclip search result ids (s_*)
+# map_literature_results("Extract Ki/IC50...", from_results="s_abc123")
 ```
 
-Register as an ADK function tool on the `LlmAgent` decision-maker.
+Per-compound reverse search: `reverse_literature_check()` in [`ml/agent/tools/reverse.py`](ml/agent/tools/reverse.py) — defaults to open repositories, not Paperclip.
+
+Register these as ADK function tools on the `LlmAgent` decision-maker.
 
 ---
 

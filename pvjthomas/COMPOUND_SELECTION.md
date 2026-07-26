@@ -176,7 +176,7 @@ Build a **defensible Round 1 plate (~24 compounds)** and **rules for Round 2** s
 ```mermaid
 flowchart TB
   subgraph forward [Forward — literature first]
-    L1[Paperclip / ChEMBL: TEM-1 inhibitors]
+    L1[Europe PMC / ChEMBL / Paperclip: TEM-1 inhibitors]
     L2[Extract names + SMILES + IC50 priors]
     L3[Match to library by name / InChIKey / SMILES]
     L4{Direct hit in library?}
@@ -186,7 +186,7 @@ flowchart TB
     R1[Parse all 105 library SMILES from compounds.csv]
     R2[Tag scaffold class: inhibitor vs antibiotic]
     R3[GNINA dock vs TEM-1 1JQL]
-    R4[Paperclip: any literature on these compounds?]
+    R4[Open repos + optional Paperclip map per compound]
   end
 
   subgraph bridge [Bridge — when no overlap]
@@ -238,11 +238,29 @@ Build `data/reference_inhibitors.csv` (may extend beyond library):
 
 | Source | What to pull |
 |--------|----------------|
-| **Paperclip** | TEM-1 / class A β-lactamase inhibitors, nitrocefin IC50 |
-| **ChEMBL** (via Paperclip SQL or web) | Target = TEM-1, activity type IC50/Ki |
+| **Open repositories** (default) | Europe PMC, PubMed, ChEMBL, Semantic Scholar, OpenAlex — via `search_literature()` / `search_chembl_activities()` |
+| **ChEMBL** | Structured Ki/IC50 vs beta-lactamase targets — prefer `search_chembl_activities(name, target_query="TEM-1")` |
+| **Paperclip** (optional) | Full-text map on `pmc` / `biorxiv` / `proteins` when repos lack assay detail |
 | **Manual seed** | Clavulanate, sulbactam, tazobactam, avibactam (if mentioned) |
 
 Columns: `name`, `smiles`, `ic50_uM`, `assay`, `source`, `pmid_or_chembl_id`
+
+### 0.3 Literature backends (Phase B)
+
+Implemented in [`ml/agent/tools/literature.py`](../ml/agent/tools/literature.py) and [`literature_repositories.py`](../ml/agent/tools/literature_repositories.py).
+
+| Backend | Sources | API key | Best for |
+|---------|---------|---------|----------|
+| **Open repositories** (default) | `europe_pmc`, `pubmed`, `chembl`, `semantic_scholar`, `openalex` | Optional (`NCBI_API_KEY`, `S2_API_KEY`, `OPENALEX_API_KEY`) | Discovery, structured ChEMBL activities, no map quota |
+| **Paperclip** (supplement) | `pmc`, `biorxiv`, `proteins`, `trials/us` | `PAPERCLIP_API_KEY` | Full-text `map` extraction when repos return titles only |
+
+**Pipeline defaults:**
+
+- **`reverse_literature_check()`** — searches all five open repositories per compound; parses output directly (no Paperclip map unless you pass Paperclip sources).
+- **`run_forward_literature_searches()`** — batch forward pass still uses Paperclip `pmc` (historical); agent tools accept any source.
+- **`map_literature_results()`** — Paperclip only (`s_*` result ids); repository hits (`repo_*`) use `search_chembl_activities()` or manual curation instead.
+
+List registered backends: `list_literature_sources()`.
 
 ---
 
@@ -250,17 +268,29 @@ Columns: `name`, `smiles`, `ic50_uM`, `assay`, `source`, `pmid_or_chembl_id`
 
 **Question:** *Which published inhibitors do we already have on the shelf?*
 
-### Step F1 — Literature search (Paperclip)
+### Step F1 — Literature search
 
-Run and save under `data/compound_literature/`:
+**Preferred (agent / Python — no Paperclip required):**
+
+```python
+from agent.tools.literature import search_literature, search_chembl_activities, list_literature_sources
+
+list_literature_sources()
+search_literature("TEM-1 beta-lactamase inhibitor IC50 nitrocefin", source="europe_pmc", limit=30)
+search_chembl_activities("tazobactam", target_query="TEM-1")
+search_literature("clavulanic acid sulbactam tazobactam beta-lactamase inhibitor", source="chembl", limit=20)
+```
+
+Save batch output under `data/compound_literature/` via `save_literature_search()` or the forward agent.
+
+**Optional Paperclip (full-text map):**
 
 ```bash
 paperclip search "TEM-1 beta-lactamase inhibitor IC50 nitrocefin" -n 30
-paperclip search "clavulanic acid sulbactam tazobactam beta-lactamase inhibitor" -n 20
 paperclip map --from s_<id> "List compound names, SMILES if given, and IC50 values for TEM-1 inhibitors"
 ```
 
-Optional: Paperclip → ChEMBL/PDB for structured affinities.
+Use Paperclip map when open-repo hits lack Ki/IC50 or nitrocefin assay conditions in the abstract.
 
 ### Step F2 — Normalize hits
 
@@ -316,12 +346,18 @@ For **each compound on the Round 1 screen** (especially Tier-1 inhibitors + posi
 
 **Still needed (stubs today):** T1262, T14081, T1631/T6685 — forward match ✓ but no PMID-backed entries or `assay_recommendations` yet.
 
+**Screen concentration rules** (implemented in `_recommend_screen_conc_uM()` in [`ml/agent/tools/reverse.py`](../ml/agent/tools/reverse.py)):
+
+1. **Literature nitrocefin assay concentration** — use the inhibitor concentration reported in a nitrocefin/TEM-1 paper (`screen_conc_source: literature`).
+2. **10× IC50 or 10× Ki** — IC50 preferred when both exist; capped at library solubility (`10 mM stock → 1000 µM max final` from 5 µL into 50 µL).
+3. **Project default 50 µM** — when no assay concentration or Ki/IC50 is extracted (`screen_conc_source: project_default`).
+
 **Workflow:**
 
-1. **Run forward agent** — seed → Paperclip → match → finalize v1 (see [PLAN.md](../PLAN.md) next actions). ✓ Done 2026-07-25.
-2. **Paperclip map/full-text** per forward hit — extract Ki/IC50, enzyme conc, nitrocefin conc, buffer/pH.
-3. **Pick screen concentration** — default project conc **50 µM** unless literature or solubility dictates otherwise; document multiplier vs Ki.
-4. **Write ref JSON + patch `literature_summary.json`** — one canonical ref per inhibitor group (Case A alternates get thin pointers).
+1. **Run forward agent** — seed → literature search → match → finalize v1 (see [PLAN.md](../PLAN.md) next actions). ✓ Done 2026-07-25.
+2. **Per compound:** `reverse_literature_check(compound_ids=[...])` across open repos; add `search_chembl_activities()` for Tier-1 inhibitors; optional Paperclip map for full-text gaps.
+3. **Extract Ki/IC50, enzyme conc, nitrocefin conc, buffer/pH** — from ChEMBL activities, repository parse, or Paperclip map.
+4. **Apply concentration rules** — write `assay_recommendations.tem1_nitrocefin` + patch `literature_summary.json` → `compound_assay_priors`.
 5. **Update `pvjthomas/runs/1/v3/selection_rationale.md`** — cite priors per well before Philip sign-off.
 
 **Gate:** Do not promote `data/screens/1/v3/` → active `data/plate_map_r1.json` until Tier-1 inhibitor priors are at T19860 quality.
@@ -439,11 +475,34 @@ Check `ml/workflows/compound_selection/state.json` → `reverse.dock_rank.tier3_
 
 ### Step R3 — Reverse literature check
 
-For each **Tier 1 / Tier 2** candidate, quick Paperclip grep:
+For each plate compound (default: Tier 1–2; v3 discovery run used all tiers), the agent runs **`reverse_literature_check()`** — open-repository search per compound, not Paperclip-only.
 
-```bash
-paperclip search "<compound name> beta-lactamase" -n 5
+**Default sources:** `europe_pmc`, `pubmed`, `chembl`, `semantic_scholar`, `openalex` (see §0.3).
+
+```python
+from agent.tools.reverse import reverse_literature_check
+from agent.tools.literature import search_chembl_activities
+
+# All 23 unique IDs on the v3 discovery plate
+reverse_literature_check(
+    compound_ids=["T19860", "T1262", ...],  # or tiers=[1, 2, 3, 4]
+    sources=["europe_pmc", "pubmed", "chembl", "semantic_scholar", "openalex"],
+    extract_activity=True,
+    write_refs=True,
+)
+
+# Structured Ki/IC50 for known inhibitors (complement repo search)
+search_chembl_activities("tazobactam", target_query="TEM-1")
 ```
+
+Outputs:
+
+- `data/compound_literature/refs/{id}.json` — appended entries + `assay_recommendations`
+- `data/literature_summary.json` → `compound_assay_priors`
+- `ml/workflows/compound_selection/literature_search_cache.json` — cached searches
+- Raw text: `pvjthomas/local/literature/{id}/reverse_{source}_*.txt`
+
+**Optional Paperclip map** — pass `sources=["pmc", "biorxiv", "proteins"]` or run `map_literature_results()` on a Paperclip `s_*` result when open-repo abstracts lack Ki/IC50.
 
 Ask: published as inhibitor, substrate, or not tested?
 
@@ -558,7 +617,7 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 | Sub-agent | Tools | Output |
 |-----------|-------|--------|
 | `forward_agent` | `seed_reference_inhibitors`, `match_literature_to_library` | `reference_inhibitors.csv`, `compound_literature/refs/*.json` |
-| `reverse_agent` | `classify_scaffolds_rdkit`, `run_gnina_batch`, `rank_by_dock_score` | `selection/state.json` |
+| `reverse_agent` | `classify_scaffolds_rdkit`, `reverse_literature_check`, `run_gnina_batch`, `rank_by_dock_score` | `selection/state.json`, `compound_literature/refs/*.json` |
 | `bridge_agent` | `find_tanimoto_neighbors`, `cluster_library`, `assign_tier2_analogs` | `similarity/neighbors.json` |
 | `selection_merger` | `merge_tier_assignments`, `generate_round2_plate_draft` | `selection/plate_map_r2_draft.json` |
 
@@ -574,8 +633,8 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 | `data/compounds.csv` | Full library + tags, tiers | ✓ Phase A |
 | `data/compound_dossiers.json` | Per-compound summaries | ✓ |
 | `data/reference_inhibitors.csv` | Literature / ChEMBL gold set | ✓ seeded |
-| `data/compound_literature/refs/*.json` | Per-compound Paperclip curation + **screen conc priors** | Partial — **T19860 gold**; T1262/T14081/T1631/T6685 stubs need PMID evidence |
-| `data/compound_literature/*.txt` | Raw Paperclip batch outputs | Optional |
+| `data/compound_literature/refs/*.json` | Per-compound literature curation + **screen conc priors** | Partial — **T19860 gold**; others mostly `project_default @ 50 µM` |
+| `data/compound_literature/*.txt` | Raw batch search outputs (repos or Paperclip) | Optional |
 | `data/literature_summary.json` | Structured priors for agent | ✓ |
 | `ml/workflows/compound_selection/plate_map_r2_draft.json` | Agent-generated 24-compound layout | ✓ draft |
 | `data/plate_map_r2.json` | **Active** Round 2 robot plate (after sign-off) | ✗ |
@@ -591,17 +650,18 @@ The forward / reverse / bridge strategy above is implemented as deterministic to
 
 1. [x] Parse library SMILES → `data/compounds.csv` (Phase A)
 2. [x] Forward: seed `reference_inhibitors.csv` + match literature → library (offline)
-3. [x] Match literature → library (exact + Tanimoto; T19860 curated via Paperclip)
+3. [x] Match literature → library (exact + Tanimoto; T19860 curated)
 4. [x] Forward agent test suite (Tier 1–3) — see [`ml/agent/tests/FORWARD_TEST_PLAN.md`](../ml/agent/tests/FORWARD_TEST_PLAN.md)
-5. [ ] **Run forward agent live** — Paperclip searches → match → finalize v1 snapshot ← **P0**
-6. [ ] **Screening priors for discovery plate** — concentration + saved literature evidence per compound (T19860 template) ← **P0**
-7. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
-8. [ ] Reverse: GNINA dock → `dock_score` / `gnina_cnn_affinity` (see **Step R2 — macOS setup**; defer until forward priors done if needed)
-9. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
-10. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r2_draft.json` (24 compounds)
-11. [x] Validation plate v2 → active `data/plate_map_r1.json`
-12. [ ] Promote discovery v3 plate (`data/screens/1/v3/`) after validation passes + **Step F5 complete** + Philip sign-off
-13. [ ] Share full discovery plate with Chang for screen workflow
+5. [x] **Run forward agent live** — literature search → match → finalize v1 snapshot
+6. [x] **Reverse literature check** — open repos per v3 plate compound (23 IDs) ✓ 2026-07-25
+7. [ ] **Screening priors to T19860 quality** — ChEMBL + manual curation for Tier-1 inhibitors; apply concentration rules ← **P0**
+8. [x] Reverse: RDKit scaffold tags (`classify_scaffolds_rdkit`)
+9. [ ] Reverse: GNINA dock → `dock_score` / `gnina_cnn_affinity` (see **Step R2 — macOS setup**; defer until forward priors done if needed)
+10. [x] Bridge: Tanimoto neighbors + Tier 2 analog assignment
+11. [x] Merge tiers → `ml/workflows/compound_selection/plate_map_r2_draft.json` (24 compounds)
+12. [x] Validation plate v2 → active `data/plate_map_r1.json`
+13. [ ] Promote discovery v3 plate (`data/screens/1/v3/`) after validation passes + **Step F5 complete** + Philip sign-off
+14. [ ] Share full discovery plate with Chang for screen workflow
 
 ---
 

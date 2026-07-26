@@ -132,10 +132,10 @@ def _scaffold_class_for_compound(compound: dict[str, Any]) -> str:
 
 def _build_reverse_query(name: str, scaffold_class: str) -> str:
     if scaffold_class == "inhibitor":
-        return f"TEM-1 {name} beta-lactamase inhibitor nitrocefin Ki IC50"
+        return f"TEM-1 {name} nitrocefin colorimetric assay inhibitor concentration Ki IC50"
     if scaffold_class == "antibiotic_substrate":
-        return f"TEM-1 {name} beta-lactamase nitrocefin hydrolysis substrate"
-    return f"TEM-1 {name} beta-lactamase nitrocefin"
+        return f"TEM-1 {name} nitrocefin colorimetric assay hydrolysis substrate Ki IC50"
+    return f"TEM-1 {name} nitrocefin colorimetric assay concentration Ki IC50"
 
 
 def _build_map_question(name: str, scaffold_class: str) -> str:
@@ -216,15 +216,26 @@ def _entry_has_useful_activity(entry: dict[str, Any]) -> bool:
     )
 
 
+def _screen_conc_source_priority(source: str | None) -> int:
+    """Higher = stronger evidence for concentration rule (1 > 2 > 3 default)."""
+    if source == "literature":
+        return 3
+    if source and source.startswith("10x_"):
+        return 2
+    return 1
+
+
 def _pick_best_entry(entries: list[dict[str, Any]]) -> dict[str, Any] | None:
     if not entries:
         return None
 
-    def rank(entry: dict[str, Any]) -> tuple[int, int, int]:
-        activity = 1 if _entry_has_useful_activity(entry) else 0
+    def rank(entry: dict[str, Any]) -> tuple[int, int, int, int]:
+        # Rule 1: nitrocefin-assay inhibitor concentration beats Ki/IC50 (rule 2).
+        lit_conc = 1 if entry.get("literature_inhibitor_uM") else 0
         ki_ic50 = 1 if entry.get("ki_uM") or entry.get("ic50_uM") else 0
-        nitrocefin = 1 if entry.get("nitrocefin_uM") else 0
-        return (activity, ki_ic50, nitrocefin)
+        assay_ctx = 1 if entry.get("nitrocefin_uM") or entry.get("enzyme_nM") else 0
+        any_activity = 1 if _entry_has_useful_activity(entry) else 0
+        return (lit_conc, ki_ic50, assay_ctx, any_activity)
 
     return sorted(entries, key=rank, reverse=True)[0]
 
@@ -498,8 +509,18 @@ def _merge_reverse_ref(
         payload["cap_truncated"] = True
 
     best = _pick_best_entry(new_entries)
-    if best and not payload.get("assay_recommendations"):
-        payload["assay_recommendations"] = _assay_recommendations_from_entry(best, compound)
+    if best:
+        new_recs = _assay_recommendations_from_entry(best, compound)
+        existing = payload.get("assay_recommendations", {}).get("tem1_nitrocefin", {})
+        new_block = new_recs.get("tem1_nitrocefin", {})
+        existing_pri = _screen_conc_source_priority(existing.get("screen_conc_source"))
+        new_pri = _screen_conc_source_priority(new_block.get("screen_conc_source"))
+        if not existing or new_pri > existing_pri or (
+            new_pri == existing_pri
+            and new_pri > 1
+            and new_block.get("screen_conc_uM") != existing.get("screen_conc_uM")
+        ):
+            payload["assay_recommendations"] = new_recs
         if _entry_has_useful_activity(best):
             payload["support"] = "strong"
 
@@ -524,10 +545,15 @@ def _patch_literature_summary_prior(compound: dict[str, Any], entry: dict[str, A
     summary = json.loads(LITERATURE_SUMMARY_JSON.read_text())
     priors = summary.setdefault("compound_assay_priors", {})
     compound_id = str(compound["compound_id"])
-    if compound_id in priors and priors[compound_id].get("literature_ki_uM_tem1"):
-        return
-
     screen_rec = _recommend_screen_conc_uM(entry, compound)
+    existing = priors.get(compound_id, {})
+    existing_pri = _screen_conc_source_priority(existing.get("screen_conc_source"))
+    new_pri = _screen_conc_source_priority(screen_rec["screen_conc_source"])
+    if existing and new_pri < existing_pri:
+        return
+    if existing and new_pri == existing_pri and existing.get("recommended_screen_uM") == screen_rec["screen_conc_uM"]:
+        if existing.get("literature_ki_uM_tem1") and not entry.get("ki_uM"):
+            return
     prior: dict[str, Any] = {
         "name": compound.get("name"),
         "recommended_screen_uM": screen_rec["screen_conc_uM"],
@@ -1035,3 +1061,86 @@ def reverse_literature_check(
         "cache_path": str(LITERATURE_SEARCH_CACHE_JSON),
         "results": results,
     }
+
+
+def _chembl_activity_to_entry(activity: dict[str, Any], compound_name: str) -> dict[str, Any]:
+    stype = (activity.get("standard_type") or "").upper()
+    sval = activity.get("standard_value")
+    sunit = (activity.get("standard_units") or "").lower()
+    if sval is None:
+        return {}
+    try:
+        val = float(sval)
+    except (TypeError, ValueError):
+        return {}
+    if sunit in ("nm", "nanom", "nmol/l", "nmol/l"):
+        val_uM = val / 1000.0
+    else:
+        val_uM = val
+
+    entry: dict[str, Any] = {
+        "source": "chembl",
+        "target": activity.get("target_pref_name") or "TEM-1",
+        "assay": "nitrocefin",
+        "note": (
+            f"ChEMBL {stype}={sval} {sunit} vs {activity.get('target_pref_name')}; "
+            f"assay: {(activity.get('assay_description') or '')[:200]}"
+        ),
+    }
+    if stype == "KI":
+        entry["ki_uM"] = val_uM
+    elif stype in ("IC50", "IC90"):
+        entry["ic50_uM"] = val_uM
+    elif stype == "KD":
+        entry["ki_uM"] = val_uM
+    else:
+        entry["ic50_uM"] = val_uM
+    return entry
+
+
+def enrich_from_chembl_activities(
+    compound_ids: list[str] | None = None,
+    *,
+    skip_curated: bool = True,
+) -> dict[str, Any]:
+    """Supplement refs with structured ChEMBL Ki/IC50 (concentration rule 2)."""
+    from agent.tools.literature import search_chembl_activities
+
+    compounds = load_compounds()
+    if compound_ids:
+        id_set = set(compound_ids)
+        targets = [c for c in compounds if c["compound_id"] in id_set]
+    else:
+        targets = [c for c in compounds if not c.get("exclude")]
+
+    enriched: list[dict[str, Any]] = []
+    for compound in targets:
+        compound_id = str(compound["compound_id"])
+        name = str(compound.get("name") or compound_id)
+        chembl = search_chembl_activities(name, target_query="TEM-1")
+        activities = chembl.get("activities") or []
+        if not activities:
+            enriched.append({"compound_id": compound_id, "status": "no_activities"})
+            continue
+
+        entries = [_chembl_activity_to_entry(a, name) for a in activities]
+        entries = [e for e in entries if e]
+        if not entries:
+            enriched.append({"compound_id": compound_id, "status": "no_parsed_activities"})
+            continue
+
+        ref_outcome = _merge_reverse_ref(compound, entries, skip_curated=skip_curated)
+        best = _pick_best_entry(entries)
+        if best and ref_outcome.get("status") == "written":
+            _patch_literature_summary_prior(compound, best, ref_outcome["ref_path"])
+        enriched.append(
+            {
+                "compound_id": compound_id,
+                "status": ref_outcome.get("status"),
+                "activities": len(activities),
+                "ki_uM": best.get("ki_uM") if best else None,
+                "ic50_uM": best.get("ic50_uM") if best else None,
+            }
+        )
+
+    return {"status": "ok", "enriched": enriched}
