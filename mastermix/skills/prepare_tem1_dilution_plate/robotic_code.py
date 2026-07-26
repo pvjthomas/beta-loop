@@ -154,6 +154,7 @@ def prepare_tem1_dilution_plate(
         ("Compound 9", compound_9_source_plate, compound_9_source_well, compound_9_dest_well),
         ("Compound 10", compound_10_source_plate, compound_10_source_well, compound_10_dest_well),
     ]
+    working_solutions = [s for s in working_solutions if str(s[2]).strip() and str(s[3]).strip()]
     compound_dests = [dest for _, _, _, dest in working_solutions]
 
     _rl("▶ Preparing purified TEM-1 working solution: 100 ng/uL stock -> 1 ng/uL intermediate -> 0.1 ng/uL working solution")
@@ -166,7 +167,7 @@ def prepare_tem1_dilution_plate(
 
     _rl("▶ Preparing T1262 tazobactam 200 uM intermediate for 1 uM assay condition")
     _transfer_chunked(found, blb_source, blb_anchor, blb_source, tazobactam_intermediate_anchor, float(tazobactam_intermediate_blb_volume_ul), "BLB to T1262 intermediate", speed)
-    _transfer_one(found, compound_2_source_plate, compound_2_source_well, blb_source, tazobactam_intermediate_anchor, float(tazobactam_stock_volume_ul), "T1262 stock to intermediate", speed)
+    _transfer_one(found, compound_1_source_plate, compound_1_source_well, blb_source, tazobactam_intermediate_anchor, float(tazobactam_stock_volume_ul), "T1262 stock to intermediate", speed)
     _mix_container(found, blb_source, tazobactam_intermediate_anchor, float(tazobactam_stock_volume_ul) + float(tazobactam_intermediate_blb_volume_ul), mix_volume_ul, mix_cycles, speed)
 
     _rl(f"▶ Preparing {len(working_solutions)} compound/control working solutions and one vehicle well")
@@ -195,8 +196,8 @@ def prepare_tem1_dilution_plate(
     )
 
     for label, source_plate, source_well, dest_well in working_solutions:
-        if label == "Compound 2":
-            _transfer_one(found, blb_source, tazobactam_intermediate_anchor, working_plate, dest_well, float(stock_volume_ul), "Compound 2 T1262 intermediate", speed)
+        if label == "Compound 1":
+            _transfer_one(found, blb_source, tazobactam_intermediate_anchor, working_plate, dest_well, float(stock_volume_ul), "Compound 1 T1262 intermediate", speed)
         else:
             _transfer_one(found, source_plate, source_well, working_plate, dest_well, float(stock_volume_ul), label, speed)
     _transfer_one(found, dmso_source, dmso_anchor, working_plate, vehicle_dest_well, float(vehicle_dmso_volume_ul), "Vehicle DMSO", speed)

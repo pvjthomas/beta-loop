@@ -36,16 +36,15 @@ const S: Record<string, React.CSSProperties> = {
 };
 
 const DEFAULT_ITEMS = [
-  ["T14979 Clavulanate lithium", "wellplate_pcr_parts_1", "G6", "A3"],
+  ["T1262 Tazobactam (1 uM assay)", "wellplate_pcr_parts_1", "B10", "A3"],
   ["T6685 Sulbactam sodium", "wellplate_pcr_parts_1", "F2", "A4"],
-  ["T1262 Tazobactam", "wellplate_pcr_parts_1", "B10", "A5"],
-  ["T14081 Enmetazobactam", "wellplate_pcr_parts_1", "F7", "A6"],
-  ["T1631 Sulbactam", "wellplate_pcr_parts_2", "A10", "A7"],
-  ["T13038 Sultamicillin", "wellplate_pcr_parts_2", "B10", "A8"],
-  ["T0814L Ampicillin", "wellplate_pcr_parts_1", "B4", "A9"],
-  ["T20022 Cephalexin", "wellplate_pcr_parts_1", "H8", "A10"],
-  ["T0224 Meropenem", "wellplate_pcr_parts_2", "A3", "A11"],
-  ["T7733 Cefotaxime", "wellplate_pcr_parts_1", "E5", "A12"],
+  ["T14081 Enmetazobactam", "wellplate_pcr_parts_1", "F7", "A5"],
+  ["T1005 Amoxicillin", "wellplate_pcr_parts_1", "A8", "A6"],
+  ["T1008 Cephalexin", "wellplate_pcr_parts_1", "A9", "A7"],
+  ["T0224 Meropenem", "wellplate_pcr_parts_2", "A3", "A8"],
+  ["T0985 Oxacillin sodium salt", "wellplate_pcr_parts_2", "A4", "A9"],
+  ["T0138 Cefpiramide acid", "wellplate_pcr_parts_1", "A2", "A10"],
+  ["T8390 Cefazolin", "wellplate_pcr_parts_1", "F3", "A11"],
 ] as const;
 
 const objName = (o: Obj) => o.displayName || o.name || o.uuid;
@@ -152,7 +151,7 @@ export default function Tem1DilutionPlate() {
       <div style={S.content}>
         <div style={S.eyebrow}>TEM-1 beta-lactamase · working-solution prep</div>
         <h1 style={S.h1}>Dilution Plate</h1>
-        <p style={S.sub}>Prepares 500 uM working solutions for 10 compounds plus clavulanate control, and a 5% DMSO matched vehicle on the fourth PCR plate.</p>
+        <p style={S.sub}>Prepares working solutions for the 9 R2 v5 compounds plus clavulanate control, and a 5% DMSO matched vehicle on the fourth PCR plate.</p>
 
         <h2 style={S.h2}>Deck Objects</h2>
         <div style={S.grid2}>

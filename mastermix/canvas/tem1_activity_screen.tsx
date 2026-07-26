@@ -44,23 +44,23 @@ const STYLE: Record<string, React.CSSProperties> = {
 };
 
 const HOLES = ["hole_1", "hole_2", "hole_3", "hole_4", "hole_5", "hole_6", "hole_7", "hole_8", "hole_9", "hole_10"];
-const POSITIVE_WELLS = ["F3", "F7", "F11"];
-const NEGATIVE_WELLS = ["D3", "D7", "D11"];
-const VEHICLE_WELLS = ["B3", "B7", "B11"];
+const POSITIVE_WELLS = ["F3", "F7", "G11"];
+const NEGATIVE_WELLS = ["D3", "D7", "E11"];
+const VEHICLE_WELLS = ["B3", "B7", "C11"];
 const COMPOUND_WELLS = [
-  ["B2", "B4", "B6"], ["B8", "B10", "C3"], ["C5", "C7", "C9"], ["C11", "D2", "D4"], ["D6", "D8", "D10"],
-  ["E3", "E5", "E7"], ["E9", "E11", "F2"], ["F4", "F6", "F8"], ["F10", "G3", "G5"], ["G7", "G9", "G11"],
+  ["B2", "D2", "F2"], ["B4", "D4", "F4"], ["B6", "D6", "F6"], ["B8", "D8", "F8"], ["B10", "D10", "F10"],
+  ["C5", "E5", "G5"], ["C9", "E9", "G9"], ["C3", "E3", "G3"], ["C7", "E7", "G7"], [],
 ];
 const DEFAULT_COMPOUNDS = [
-  "T19860 Clavulanic Acid", "T1262 Tazobactam (1 uM)", "T6685 Sulbactam sodium", "T14081 Enmetazobactam", "T1005 Amoxicillin",
-  "T1008 Cephalexin", "T0224 Meropenem", "T0985 Oxacillin sodium salt", "T0138 Cefpiramide acid", "T8390 Cefazolin",
+  "T1262 Tazobactam (1 uM)", "T6685 Sulbactam sodium", "T14081 Enmetazobactam", "T1005 Amoxicillin", "T1008 Cephalexin",
+  "T0224 Meropenem", "T0985 Oxacillin sodium salt", "T0138 Cefpiramide acid", "T8390 Cefazolin", "Unused slot 10",
 ];
-const DEFAULT_SOURCE_WELLS = ["H7", "B10", "F2", "F7", "A8", "A9", "A3", "A4", "A2", "F3"];
+const DEFAULT_SOURCE_WELLS = ["B10", "F2", "F7", "A8", "A9", "A3", "A4", "A2", "F3", ""];
 const DEFAULT_SOURCE_PLATES = [
   "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
-  "wellplate_pcr_parts_1", "wellplate_pcr_parts_2", "wellplate_pcr_parts_2", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
+  "wellplate_pcr_parts_2", "wellplate_pcr_parts_2", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1", "wellplate_pcr_parts_1",
 ];
-const ACTIVE_COMPOUND_COUNT = 10;
+const ACTIVE_COMPOUND_COUNT = 9;
 
 const objName = (o: Obj) => o.displayName || o.name || o.uuid;
 const csv = (xs: string[]) => xs.join(",");
@@ -88,8 +88,8 @@ export default function Tem1ActivityScreen() {
   const [shakerSlot, setShakerSlot] = useState(String(initial("shaker_slot", "slot_1")));
 
   const [enzymeAnchor, setEnzymeAnchor] = useState(String(initial("enzyme_anchor", "hole_8")));
-  const [noEnzymeAnchor, setNoEnzymeAnchor] = useState(String(initial("no_enzyme_anchor", "hole_7")));
-  const [vehicleAnchor, setVehicleAnchor] = useState(String(initial("vehicle_anchor", "hole_5")));
+  const [noEnzymeAnchor, setNoEnzymeAnchor] = useState(String(initial("no_enzyme_anchor", "hole_6")));
+  const [blbAnchor, setBlbAnchor] = useState(String(initial("blb_anchor", "hole_5")));
   const [nitrocefinAnchor, setNitrocefinAnchor] = useState(String(initial("nitrocefin_anchor", "hole_10")));
   const [nitrocefinBlbAnchor, setNitrocefinBlbAnchor] = useState(String(initial("nitrocefin_blb_anchor", "hole_7")));
   const [nitrocefinStockAnchor, setNitrocefinStockAnchor] = useState(String(initial("nitrocefin_stock_anchor", "hole_4")));
@@ -129,7 +129,7 @@ export default function Tem1ActivityScreen() {
   const vehicleDestWell = "A2";
   const deckRows = [
     { source: "TEM-1 stock", location: `${sourceBlock} / hole_1`, serves: "TEM-1 dilution prep", needed: 2, overage: 2 },
-    { source: "BLB tube 1", location: `${sourceBlock} / ${vehicleAnchor}`, serves: "compound/control working solutions + T1262 intermediate", needed: (ACTIVE_COMPOUND_COUNT + 1) * 47.5 + 49, overage: sourceOverage },
+    { source: "BLB tube 1", location: `${sourceBlock} / ${blbAnchor}`, serves: "compound/control working solutions + T1262 intermediate", needed: (ACTIVE_COMPOUND_COUNT + 1) * 47.5 + 49, overage: sourceOverage },
     { source: "BLB tube 2", location: `${sourceBlock} / ${noEnzymeAnchor}`, serves: "TEM-1 dilution + vehicle + no-enzyme wells", needed: 198 + 900 + 95 + NEGATIVE_WELLS.length * enzymeVolume, overage: sourceOverage },
     { source: "DMSO", location: `${sourceBlock} / hole_9`, serves: "matched vehicle prep", needed: 5, overage: 5 },
     { source: "Raw compound/control stocks", location: "source wells below", serves: "working plate prep (T1262 uses 1 uL serial dilution)", needed: (ACTIVE_COMPOUND_COUNT + 1) * 2.5 - 1.5, overage: compoundOverage },
@@ -157,8 +157,8 @@ export default function Tem1ActivityScreen() {
   const values = {
     pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, platereader: plateReader, plate_home: plateHome, shaker, shaker_slot: shakerSlot,
     working_plate: workingPlate, blb_source: sourceBlock, dmso_source: sourceBlock, tem1_stock_source: sourceBlock,
-    blb_anchor: vehicleAnchor, blb_anchor_2: noEnzymeAnchor, dmso_anchor: "hole_9", nitrocefin_blb_anchor: nitrocefinBlbAnchor, nitrocefin_stock_anchor: nitrocefinStockAnchor, tem1_stock_anchor: "hole_1", tem1_intermediate_anchor: "hole_2", tem1_working_anchor: enzymeAnchor,
-    enzyme_anchor: enzymeAnchor, no_enzyme_anchor: noEnzymeAnchor, vehicle_anchor: vehicleAnchor, nitrocefin_anchor: nitrocefinAnchor,
+    blb_anchor: blbAnchor, blb_anchor_2: noEnzymeAnchor, dmso_anchor: "hole_9", nitrocefin_blb_anchor: nitrocefinBlbAnchor, nitrocefin_stock_anchor: nitrocefinStockAnchor, tem1_stock_anchor: "hole_1", tem1_intermediate_anchor: "hole_2", tem1_working_anchor: enzymeAnchor,
+    enzyme_anchor: enzymeAnchor, no_enzyme_anchor: noEnzymeAnchor, vehicle_anchor: vehicleDestWell, nitrocefin_anchor: nitrocefinAnchor,
     positive_source_plate: positivePlate, positive_source_well: upper(positiveWell), positive_dest_well: positiveDestWell, vehicle_dest_well: vehicleDestWell,
     positive_wells: csv(POSITIVE_WELLS), negative_wells: csv(NEGATIVE_WELLS), vehicle_wells: csv(VEHICLE_WELLS),
     tem1_wells: csv(tem1Wells), vehicle_addition_wells: csv(vehicleAdditionWells), all_assay_wells: csv(allWells),
@@ -168,7 +168,7 @@ export default function Tem1ActivityScreen() {
     stock_volume_ul: 2.5, compound_blb_volume_ul: 47.5, vehicle_dmso_volume_ul: 5, vehicle_blb_volume_ul: 95, nitrocefin_stock_volume_ul: 6.25, nitrocefin_blb_volume_ul: 1243.75, nitrocefin_mix_volume_ul: 100,
     tem1_stock_volume_ul: 2, tem1_step1_blb_volume_ul: 198, tem1_intermediate_volume_ul: 100, tem1_step2_blb_volume_ul: 900, tem1_mix_volume_ul: 100, mix_volume_ul: 10, mix_cycles: 5,
     plate_mix_minutes: plateMixMin, preincubation_minutes: waitMin, endpoint_read_1_minutes: endpointRead1Min, endpoint_read_2_minutes: endpointRead2Min, run_name: runName.trim() || "tem1_activity_screen",
-    ...Object.fromEntries(compounds.flatMap((c, i) => [
+    ...Object.fromEntries(activeCompounds.flatMap((c, i) => [
       [`compound_${i + 1}_source_plate`, c.plate],
       [`compound_${i + 1}_source_well`, upper(c.well)],
       [`compound_${i + 1}_dest_well`, `A${i + 3}`],
@@ -186,11 +186,11 @@ export default function Tem1ActivityScreen() {
     if (sourceOverage < 0 || compoundOverage < 0 || nitrocefinOverage < 0) e.push("Deck-loading overage values must be zero or positive.");
     const wellRe = /^[A-H](?:[1-9]|1[0-2])$/;
     if (!wellRe.test(upper(positiveWell))) e.push("Positive-control source well must be A1-H12.");
-    compounds.forEach((c, i) => {
+    activeCompounds.forEach((c, i) => {
       if (!c.plate) e.push(`Select a source plate for compound ${i + 1}.`);
       if (!wellRe.test(upper(c.well))) e.push(`Compound ${i + 1} source well must be A1-H12.`);
     });
-    const usedHoles = [enzymeAnchor, noEnzymeAnchor, vehicleAnchor, nitrocefinAnchor, nitrocefinBlbAnchor, nitrocefinStockAnchor, "hole_1", "hole_2", "hole_9"];
+    const usedHoles = [enzymeAnchor, noEnzymeAnchor, blbAnchor, nitrocefinAnchor, nitrocefinBlbAnchor, nitrocefinStockAnchor, "hole_1", "hole_2", "hole_9"];
     if (new Set(usedHoles).size !== usedHoles.length) e.push("Use separate cold-block holes for enzyme, BLB, DMSO, nitrocefin stock, and nitrocefin working solution.");
     return e;
   }
@@ -220,7 +220,7 @@ export default function Tem1ActivityScreen() {
         <div style={STYLE.eyebrow}>TEM-1 beta-lactamase · nitrocefin activity screen</div>
         <h1 style={STYLE.h1}>Single-Plate Activity Screen</h1>
         <p style={STYLE.sub}>
-          Builds the R2 v4 spaced interior 39-well plate: 9 controls and 10 test compounds in triplicate, with edge wells left empty.
+          Builds the R2 v5 column-strip 36-well plate: 9 controls and 9 test compounds in triplicate, with edge wells left empty.
         </p>
 
         <h2 style={STYLE.h2}>Run Timing</h2>
@@ -254,7 +254,7 @@ export default function Tem1ActivityScreen() {
         <div style={STYLE.grid4}>
           <div><label style={STYLE.label}>TEM-1 prep</label>{holeSelect(enzymeAnchor, setEnzymeAnchor)}</div>
           <div><label style={STYLE.label}>No-enzyme prep</label>{holeSelect(noEnzymeAnchor, setNoEnzymeAnchor)}</div>
-          <div><label style={STYLE.label}>BLB tube 1</label>{holeSelect(vehicleAnchor, setVehicleAnchor)}</div>
+          <div><label style={STYLE.label}>BLB tube 1</label>{holeSelect(blbAnchor, setBlbAnchor)}</div>
           <div><label style={STYLE.label}>Nitrocefin BLB</label>{holeSelect(nitrocefinBlbAnchor, setNitrocefinBlbAnchor)}</div>
           <div><label style={STYLE.label}>Nitrocefin stock</label>{holeSelect(nitrocefinStockAnchor, setNitrocefinStockAnchor)}</div>
           <div><label style={STYLE.label}>2x nitrocefin</label>{holeSelect(nitrocefinAnchor, setNitrocefinAnchor)}</div>
@@ -309,7 +309,7 @@ export default function Tem1ActivityScreen() {
         <h2 style={STYLE.h2}>Plate Layout</h2>
         <div style={STYLE.card}>
           <p style={STYLE.sub}>
-            {chip("Positive", "positive")} {csv(POSITIVE_WELLS)} · {chip("No TEM-1", "negative")} {csv(NEGATIVE_WELLS)} · {chip("Vehicle + TEM-1", "vehicle")} {csv(VEHICLE_WELLS)} · {chip("10 test compounds", "compound")} {allCompoundWells.length} wells
+            {chip("Positive", "positive")} {csv(POSITIVE_WELLS)} · {chip("No TEM-1", "negative")} {csv(NEGATIVE_WELLS)} · {chip("Vehicle + TEM-1", "vehicle")} {csv(VEHICLE_WELLS)} · {chip("9 test compounds", "compound")} {allCompoundWells.length} wells
           </p>
           <table style={STYLE.table}>
             <tbody>
@@ -352,7 +352,7 @@ export default function Tem1ActivityScreen() {
         {errors.length > 0 && <div style={STYLE.error}>{errors.map((e, i) => <div key={i}>- {e}</div>)}</div>}
 
         <button type="button" style={STYLE.button} onClick={() => { const e = localErrors(); setHostErrors([]); if (e.length === 0) { zeon.submit(values); setSnapshot(live); } }}>
-          {confirmed ? "Setup confirmed" : `Confirm 39-well screen (${waitMin || 0} min pre-incubation)`}
+          {confirmed ? "Setup confirmed" : `Confirm 36-well screen (${waitMin || 0} min pre-incubation)`}
         </button>
       </div>
     </div>
