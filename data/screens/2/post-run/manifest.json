@@ -15,6 +15,11 @@
     "timing_analysis": "data/screens/2/post-run/r2_timing_log_analysis.md",
     "kinetics_csv": "data/screens/2/post-run/kinetics_r2.csv",
     "gen5_pdf": "data/screens/2/post-run/r2_gen5_export.pdf",
+    "nitrocefin_timing_json": "data/screens/2/post-run/nitrocefin_timing.json",
+    "reader_lid_close_utc": "data/screens/2/post-run/reader_lid_close_utc.txt",
+    "plate_map_active": "data/plate_map_r2.json",
+    "assay_summary": "data/assay/run_2_summary.json",
+    "decision_report": "data/screens/2/post-run/run2_decision_report.md",
     "analysis": {
       "annotated_csv": "data/screens/2/post-run/analysis/r2_kinetics_annotated.csv",
       "parsed_json": "data/screens/2/post-run/analysis/r2_parsed.json",

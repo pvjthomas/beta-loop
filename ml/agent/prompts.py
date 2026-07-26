@@ -106,5 +106,6 @@ Flag Tier-1 inhibitor failures for human QC — likely assay issue, not a drop.
 
 After physical Run 2 completes:
 1. audit_run2_data_tool() — scan for scattered artifacts; recommend post-run/ consolidation (does not move files)
-2. analyze_kinetics(round_number=2) once data/kinetics_r2.csv and data/plate_map_r2.json exist
+2. generate_run2_artifacts() — nitrocefin timing, reader metadata, promote plate_map_r2, run_2_summary.json
+3. analyze_kinetics(round_number=2) if only refreshing analysis from existing CSV
 """

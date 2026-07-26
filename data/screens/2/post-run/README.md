@@ -9,7 +9,12 @@ Robot execution outputs for the physical screen, after the plate design in [`../
 | `manifest.json` | Links this run to plate version v5 and artifact paths |
 | `kinetics_r2.csv` | Plate reader kinetic export (Gen5 A490 time course) |
 | `r2_gen5_export.pdf` | Source Gen5 PDF export |
+| `run2_decision_report.md` | **Readable decision-tree outcome** (QC gates, compound calls, next action) |
+| `nitrocefin_timing.json` | Per-well nitrocefin t0 from robot run log (Q1T) |
+| `reader_lid_close_utc.txt` | Plate reader protocol start (UTC) from Gen5 export |
 | `analysis/` | EDA derivatives (annotated CSV, parsed JSON, round/pattern summaries, LLM context) |
+
+Regenerate timing + assay summary: `python ml/scripts/generate_run2_artifacts.py` or agent tool `generate_run2_artifacts()`.
 
 ### `analysis/` layout
 

@@ -409,6 +409,7 @@ Substrate controls     3/3    HOT
 | Plate map | `data/screens/2/v5/plate_map.json` |
 | Timing metadata | `nitrocefin_timing.json` in run folder |
 | Output summary | `data/assay/run_2_summary.json` (labels + QC gates per compound) |
+| **Readable report** | `data/screens/2/post-run/run2_decision_report.md` (generated from summary JSON) |
 | Hit threshold | Median inhibition score ≥50 across 3/3 sample wells (`HIT_THRESHOLD_PCT = 50.0`) |
 
 ---
