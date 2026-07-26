@@ -65,6 +65,7 @@ export default function Tem1DilutionPlate() {
   const [dmsoSource, setDmsoSource] = useState(String(initial("dmso_source", "coldblock_wellplate")));
   const [workingPlate, setWorkingPlate] = useState(String(initial("working_plate", "wellplate_pcr_parts_4")));
   const [blbAnchor, setBlbAnchor] = useState(String(initial("blb_anchor", "hole_5")));
+  const [blbAnchor2, setBlbAnchor2] = useState(String(initial("blb_anchor_2", "hole_6")));
   const [dmsoAnchor, setDmsoAnchor] = useState(String(initial("dmso_anchor", "hole_9")));
   const [positivePlate, setPositivePlate] = useState(String(initial("positive_source_plate", "wellplate_pcr_parts_1")));
   const [positiveWell, setPositiveWell] = useState(String(initial("positive_source_well", "H7")));
@@ -92,13 +93,15 @@ export default function Tem1DilutionPlate() {
   const workingUM = stockWorkingTotal > 0 ? 10000 * stockVol / stockWorkingTotal : 0;
   const finalAssayUM = workingUM * 5 / 50;
   const vehiclePct = vehicleTotal > 0 ? 100 * vehicleDmsoVol / vehicleTotal : 0;
-  const blbNeeded = items.length * compoundBlbVol + compoundBlbVol + vehicleBlbVol;
+  const blbTube1Needed = items.length * compoundBlbVol + compoundBlbVol;
+  const blbTube2Needed = vehicleBlbVol;
+  const blbNeeded = blbTube1Needed + blbTube2Needed;
   const stockNeeded = stockVol;
   const dmsoNeeded = vehicleDmsoVol;
 
   const values = {
     pipette, tipbox, blb_source: blbSource, dmso_source: dmsoSource, working_plate: workingPlate,
-    blb_anchor: blbAnchor, dmso_anchor: dmsoAnchor,
+    blb_anchor: blbAnchor, blb_anchor_2: blbAnchor2, dmso_anchor: dmsoAnchor,
     positive_source_plate: positivePlate, positive_source_well: upper(positiveWell), positive_dest_well: upper(positiveDest), vehicle_dest_well: upper(vehicleDest),
     stock_volume_ul: stockVol, compound_blb_volume_ul: compoundBlbVol, vehicle_dmso_volume_ul: vehicleDmsoVol, vehicle_blb_volume_ul: vehicleBlbVol, mix_volume_ul: mixVol, mix_cycles: Math.round(mixCycles),
     ...Object.fromEntries(items.flatMap((it, i) => [
@@ -147,7 +150,8 @@ export default function Tem1DilutionPlate() {
           <div><label style={S.label}>Working plate</label>{selectObj(workingPlate, setWorkingPlate, pcrPlates)}</div>
         </div>
         <div style={{ ...S.grid4, marginTop: 10 }}>
-          <div><label style={S.label}>BLB anchor</label><input style={S.field} value={blbAnchor} onChange={(e) => setBlbAnchor(e.target.value)} /></div>
+          <div><label style={S.label}>BLB tube 1 anchor</label><input style={S.field} value={blbAnchor} onChange={(e) => setBlbAnchor(e.target.value)} /></div>
+          <div><label style={S.label}>BLB tube 2 anchor</label><input style={S.field} value={blbAnchor2} onChange={(e) => setBlbAnchor2(e.target.value)} /></div>
           <div><label style={S.label}>DMSO anchor</label><input style={S.field} value={dmsoAnchor} onChange={(e) => setDmsoAnchor(e.target.value)} /></div>
         </div>
 
@@ -161,7 +165,7 @@ export default function Tem1DilutionPlate() {
         <div style={S.card}>
           <p style={S.sub}>Compound/control working solution: {ul(stockVol)} of 10 mM stock + {ul(compoundBlbVol)} BLB = {ul(stockWorkingTotal)} at {Math.round(workingUM)} uM. In the 50 uL assay, 5 uL gives {Math.round(finalAssayUM)} uM final.</p>
           <p style={S.sub}>Vehicle working solution: {ul(vehicleDmsoVol)} DMSO + {ul(vehicleBlbVol)} BLB = {ul(vehicleTotal)} at {Math.round(vehiclePct * 10) / 10}% DMSO.</p>
-          <p style={S.sub}>Deck loading needed before overage: BLB {ul(blbNeeded)}, DMSO {ul(dmsoNeeded)}, each compound/control stock {ul(stockNeeded)}.</p>
+          <p style={S.sub}>Deck loading needed before overage: BLB total {ul(blbNeeded)} split as tube 1 ({blbAnchor}) {ul(blbTube1Needed)} and tube 2 ({blbAnchor2}) {ul(blbTube2Needed)}; DMSO {ul(dmsoNeeded)}; each compound/control stock {ul(stockNeeded)}.</p>
         </div>
 
         <h2 style={S.h2}>Working Plate Map</h2>

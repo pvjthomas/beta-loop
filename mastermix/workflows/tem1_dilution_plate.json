@@ -14,7 +14,8 @@
     { "name": "blb_source", "type": "object", "is_array": false, "description": "Source object containing BLB diluent.", "defaultValue": "coldblock_wellplate" },
     { "name": "dmso_source", "type": "object", "is_array": false, "description": "Source object containing 100% DMSO for vehicle working solution.", "defaultValue": "coldblock_wellplate" },
     { "name": "working_plate", "type": "object", "is_array": false, "description": "PCR plate where working solutions are prepared.", "defaultValue": "wellplate_pcr_parts_4" },
-    { "name": "blb_anchor", "type": "string", "description": "Anchor/hole containing BLB diluent.", "defaultValue": "hole_5" },
+    { "name": "blb_anchor", "type": "string", "description": "Anchor/hole containing BLB diluent for compound/control working-solution dilutions.", "defaultValue": "hole_5" },
+    { "name": "blb_anchor_2", "type": "string", "description": "Second BLB anchor/hole for vehicle BLB and other BLB-only additions; keeps BLB tubes under 1.5 mL.", "defaultValue": "hole_6" },
     { "name": "dmso_anchor", "type": "string", "description": "Anchor/hole containing 100% DMSO.", "defaultValue": "hole_9" },
 
     { "name": "positive_source_plate", "type": "object", "is_array": false, "description": "T19860 Clavulanic Acid source plate.", "defaultValue": "wellplate_pcr_parts_1" },
@@ -74,7 +75,7 @@
         "positive_source_plate": { "$input": "positive_source_plate" },
         "compound_1_source_plate": { "$input": "compound_1_source_plate" }, "compound_2_source_plate": { "$input": "compound_2_source_plate" }, "compound_3_source_plate": { "$input": "compound_3_source_plate" }, "compound_4_source_plate": { "$input": "compound_4_source_plate" }, "compound_5_source_plate": { "$input": "compound_5_source_plate" },
         "compound_6_source_plate": { "$input": "compound_6_source_plate" }, "compound_7_source_plate": { "$input": "compound_7_source_plate" }, "compound_8_source_plate": { "$input": "compound_8_source_plate" }, "compound_9_source_plate": { "$input": "compound_9_source_plate" }, "compound_10_source_plate": { "$input": "compound_10_source_plate" },
-        "blb_anchor": { "$input": "blb_anchor" }, "dmso_anchor": { "$input": "dmso_anchor" },
+        "blb_anchor": { "$input": "blb_anchor" }, "blb_anchor_2": { "$input": "blb_anchor_2" }, "dmso_anchor": { "$input": "dmso_anchor" },
         "positive_source_well": { "$input": "positive_source_well" }, "positive_dest_well": { "$input": "positive_dest_well" }, "vehicle_dest_well": { "$input": "vehicle_dest_well" },
         "compound_1_source_well": { "$input": "compound_1_source_well" }, "compound_1_dest_well": { "$input": "compound_1_dest_well" },
         "compound_2_source_well": { "$input": "compound_2_source_well" }, "compound_2_dest_well": { "$input": "compound_2_dest_well" },

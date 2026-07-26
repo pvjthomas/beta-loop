@@ -9,6 +9,7 @@ parameter_descriptions:
   tipbox: "Starting tip rack; same-type racks are selected automatically by the pipette helpers."
   blb_source: "Source object containing BLB diluent."
   blb_anchor: "Anchor/hole containing BLB diluent."
+  blb_anchor_2: "Second anchor/hole containing BLB diluent, used for vehicle BLB and to keep each tube under 1.5 mL."
   dmso_source: "Source object containing 100% DMSO for vehicle working solution."
   dmso_anchor: "Anchor/hole containing 100% DMSO."
   working_plate: "PCR plate where working solutions are prepared."
