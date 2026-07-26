@@ -242,5 +242,5 @@ cd ml/agent
 PYTHONPATH=../ pytest tests/unit/test_run_log_timing.py tests/unit/test_save_run_folder_timing.py -q
 ```
 
-Reference log: `run_log_exec_tem1_activity_screen_hack_world_22_20260725_230432(1).txt`
-(repo root). Human write-up of that run: `pvjthomas/output/r2_timing_log_analysis.md`.
+Reference log: `data/screens/2/post-run/run_log_exec_tem1_activity_screen_hack_world_22_20260725_230432.txt`.
+Human write-up: `data/screens/2/post-run/r2_timing_log_analysis.md`.

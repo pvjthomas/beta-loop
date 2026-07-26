@@ -1,3 +1,54 @@
+# Kinetics interpretation request
+
+Context marker: `LLM_INTERPRETATION_INPUT` v1.0
+
+## Your tasks
+- Summarize QC gate pass/fail and plausible root causes (controls, timing, slope window).
+- Interpret notable pattern buckets (flat rows, high A0, rising, peak-decline, wavelength divergence).
+- Reconcile compound hit calls with tier/substrate priors; flag surprises and timing suspects.
+- Recommend follow-up (adjust slope window, re-run controls, dose-response picks) if warranted.
+
+## Run metadata (deterministic)
+- Round 2 | slope window 30–210 s
+- Incubator setpoint: 37.0 °C
+- Kinetic duration: 900.0 s
+
+## QC gates (deterministic)
+- pos_ctrl_median_pct: 107.7
+- q1_pass: True
+- q1t_timing_stagger: False
+- q1t_timing_unknown: True
+- q2_pass: False
+- q3_pass: True
+
+## Hits (deterministic)
+- T6685: 107.7% @ 50 µM
+- T1005: 100.0% @ 50 µM
+- T0224: 100.0% @ 50 µM
+- T1262: 84.6% @ 1.0 µM
+- T1008: 76.9% @ 50 µM
+- T14081: 61.5% @ 50 µM
+- T0138: 61.5% @ 50 µM
+
+## Pattern buckets (deterministic)
+- Flat rows: {'A': ['A1', 'A2', 'A3', 'A5', 'A7', 'A8'], 'H': ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8', 'H9', 'H10', 'H11', 'H12']}
+- High initial signal: F6 A0=0.325, D6 A0=0.298, G5 A0=0.28, B6 A0=0.278, D4 A0=0.266, B4 A0=0.257
+- Rising: D10 (0.2→0.278), E9 (0.068→0.179), G3 (0.071→0.126), E5 (0.195→0.233), B7 (0.095→0.135), C7 (0.114→0.139)
+- Peak then decline: G5 peak@0:00:00, D10 peak@0:05:30, G9 peak@0:05:30, C7 peak@0:07:00, E5 peak@0:06:30, B10 peak@0:05:00
+
+## Compound scores (deterministic)
+- T6685: 107.7% (confirmed_hit)
+- T1005: 100.0% (surprise_hit)
+- T0224: 100.0% (surprise_hit)
+- T1262: 84.6% (confirmed_hit)
+- T1008: 76.9% (surprise_hit)
+- T14081: 61.5% (confirmed_hit)
+- T0138: 61.5% (novel_hit)
+- T0985: 30.8% (likely substrate)
+- T8390: 30.8% (borderline)
+
+## Full deterministic pattern summary
+
 # Kinetics pattern summary
 
 Primary wavelength: 490 nm
@@ -73,3 +124,6 @@ Early slope window: 30–210 s
 - A5: Gen5 Max V = -8.0 @ 405 nm
 - A6: Gen5 Max V = -6.0 @ 490 nm
 - A6: Gen5 Max V = -6.0 @ 405 nm
+
+---
+Respond with: (1) QC assessment, (2) notable patterns, (3) hit confidence, (4) recommended next steps.

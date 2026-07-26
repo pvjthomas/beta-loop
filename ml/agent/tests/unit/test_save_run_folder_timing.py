@@ -10,7 +10,14 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 SKILLS_DIR = REPO_ROOT / "mastermix" / "skills" / "save_run_folder"
-SAMPLE_LOG = REPO_ROOT / "run_log_exec_tem1_activity_screen_hack_world_22_20260725_230432(1).txt"
+SAMPLE_LOG = (
+    REPO_ROOT
+    / "data"
+    / "screens"
+    / "2"
+    / "post-run"
+    / "run_log_exec_tem1_activity_screen_hack_world_22_20260725_230432.txt"
+)
 WORKFLOW_JSON = REPO_ROOT / "mastermix" / "workflows" / "tem1_activity_screen.json"
 
 sys.path.insert(0, str(SKILLS_DIR))

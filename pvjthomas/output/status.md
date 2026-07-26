@@ -55,6 +55,7 @@ Canonical paths:
 - `data/screens/2/v5/plate_map.png`
 - `data/screens/2/v5/plate_map_by_compound.png`
 - `data/screens/2/v5/kinetic_schedule.json`
+- `data/screens/2/post-run/` — robot run log + timing analysis (see [`manifest.json`](../../data/screens/2/post-run/manifest.json))
 
 ### Reports & tables
 
