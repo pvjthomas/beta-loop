@@ -72,17 +72,17 @@ def test_empty_plate_near_zero() -> None:
     print(f"OK  empty plate {SAMPLE_PDFS[0].name}")
 
 
-TEAM3_KINETIC_PDF = REPO_ROOT / "Team_3_Data.pdf"
+R2_KINETIC_PDF = REPO_ROOT / "data" / "screens" / "2" / "post-run" / "r2_gen5_export.pdf"
 
 
-def test_team3_kinetic_pdf() -> None:
-    if not TEAM3_KINETIC_PDF.exists():
-        raise FileNotFoundError(f"Sample kinetic PDF missing: {TEAM3_KINETIC_PDF}")
+def test_r2_kinetic_pdf() -> None:
+    if not R2_KINETIC_PDF.exists():
+        raise FileNotFoundError(f"Run 2 kinetic PDF missing: {R2_KINETIC_PDF}")
 
-    text = TEAM3_KINETIC_PDF.read_bytes()
+    text = R2_KINETIC_PDF.read_bytes()
     assert len(text) > 0
 
-    parsed = parse_gen5_kinetic_pdf(TEAM3_KINETIC_PDF)
+    parsed = parse_gen5_kinetic_pdf(R2_KINETIC_PDF)
     meta = parsed["metadata"]
     assert meta.get("export_type") == "kinetic"
     assert meta.get("wavelengths_nm") == [490, 405]
@@ -95,18 +95,18 @@ def test_team3_kinetic_pdf() -> None:
     _assert_close(timecourses["B3"][490][0]["absorbance"], 0.095)
     _assert_close(timecourses["D6"][490][0]["absorbance"], 0.298)
 
-    auto = parse_gen5_pdf(TEAM3_KINETIC_PDF, mode="auto")
+    auto = parse_gen5_pdf(R2_KINETIC_PDF, mode="auto")
     assert "timecourses" in auto
     assert len(auto.get("gen5_results", {})) == 96
-    print(f"OK  {TEAM3_KINETIC_PDF.name} — 96 wells × 31 reads @ 490 nm")
+    print(f"OK  {R2_KINETIC_PDF.name} — 96 wells × 31 reads @ 490 nm")
 
 
 def test_detect_kinetic_export() -> None:
-    if not TEAM3_KINETIC_PDF.exists():
+    if not R2_KINETIC_PDF.exists():
         return
     from pypdf import PdfReader
 
-    text = "\n".join(page.extract_text() or "" for page in PdfReader(str(TEAM3_KINETIC_PDF)).pages)
+    text = "\n".join(page.extract_text() or "" for page in PdfReader(str(R2_KINETIC_PDF)).pages)
     assert is_kinetic_export(text)
 
 
@@ -114,5 +114,5 @@ if __name__ == "__main__":
     test_all_sample_pdfs()
     test_spot_check_high_absorbance()
     test_empty_plate_near_zero()
-    test_team3_kinetic_pdf()
+    test_r2_kinetic_pdf()
     print("All Gen5 PDF parser tests passed.")

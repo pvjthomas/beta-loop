@@ -129,6 +129,16 @@ def analyze_kinetics_run(
         write_kinetics_llm_context,
         write_pattern_summary,
     )
+    from analysis.run2_paths import (
+        R2_ANALYSIS_DIR,
+        R2_KINETICS_ANNOTATED_CSV,
+        R2_LLM_CONTEXT_JSON,
+        R2_LLM_CONTEXT_MD,
+        R2_PARSED_JSON,
+        R2_PATTERN_SUMMARY_JSON,
+        R2_PATTERN_SUMMARY_MD,
+        R2_ROUND_SUMMARY_EDA_JSON,
+    )
 
     plate_map = resolve_plate_map(plate_map_json, run=run, version=version)
     if plate_map is None:
@@ -137,11 +147,38 @@ def analyze_kinetics_run(
     plate_map_path = plate_map_json or plate_map.get("versioned_path")
     rnd = round_number if round_number is not None else plate_map.get("round", 1)
 
-    out_dir = Path(output_dir) if output_dir else Path(kinetics_csv).parent
+    kinetics_path = Path(kinetics_csv)
+    if output_dir is not None:
+        out_dir = Path(output_dir)
+    elif run == 2:
+        out_dir = R2_ANALYSIS_DIR
+    else:
+        out_dir = kinetics_path.parent
     out_dir.mkdir(parents=True, exist_ok=True)
-    stem = Path(kinetics_csv).stem
+    stem = kinetics_path.stem
 
-    annotated_path = out_dir / f"{stem}_annotated.csv"
+    if run == 2:
+        annotated_path = R2_KINETICS_ANNOTATED_CSV
+        summary_path = R2_ROUND_SUMMARY_EDA_JSON
+        pattern_json_path = R2_PATTERN_SUMMARY_JSON
+        pattern_md_path = R2_PATTERN_SUMMARY_MD if write_pattern_markdown else None
+        llm_context_path = R2_LLM_CONTEXT_JSON
+        llm_prompt_path = R2_LLM_CONTEXT_MD
+        parsed_path = Path(parsed_json) if parsed_json else R2_PARSED_JSON
+    else:
+        annotated_path = out_dir / f"{stem}_annotated.csv"
+        summary_path = out_dir / f"round_summary_{stem}.json"
+        pattern_json_path = out_dir / f"pattern_summary_{stem}.json"
+        pattern_md_path = out_dir / f"pattern_summary_{stem}.md" if write_pattern_markdown else None
+        llm_context_path = out_dir / f"kinetics_llm_context_{stem}.json"
+        llm_prompt_path = out_dir / f"kinetics_llm_context_{stem}.md"
+        parsed_path = Path(parsed_json) if parsed_json else None
+        if parsed_path is None:
+            base_stem = stem.replace("_kinetics", "")
+            candidate = out_dir / f"{base_stem}_parsed.json"
+            if candidate.exists():
+                parsed_path = candidate
+
     write_annotated_kinetics_csv(
         kinetics_csv,
         annotated_path,
@@ -158,15 +195,7 @@ def analyze_kinetics_run(
         slope_window_end_s=slope_window_end_s,
         **analyze_kwargs,
     )
-    summary_path = out_dir / f"round_summary_{stem}.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n")
-
-    parsed_path = Path(parsed_json) if parsed_json else None
-    if parsed_path is None:
-        base_stem = stem.replace("_kinetics", "")
-        candidate = out_dir / f"{base_stem}_parsed.json"
-        if candidate.exists():
-            parsed_path = candidate
 
     gen5_results = None
     if parsed_path and parsed_path.exists():
@@ -179,8 +208,6 @@ def analyze_kinetics_run(
         parsed_json=parsed_path,
         gen5_results=gen5_results,
     )
-    pattern_json_path = out_dir / f"pattern_summary_{stem}.json"
-    pattern_md_path = out_dir / f"pattern_summary_{stem}.md" if write_pattern_markdown else None
     write_pattern_summary(
         pattern_report,
         pattern_json_path,
@@ -212,8 +239,6 @@ def analyze_kinetics_run(
         artifact_paths=artifact_paths,
         plate_map_json=plate_map_path,
     )
-    llm_context_path = out_dir / f"kinetics_llm_context_{stem}.json"
-    llm_prompt_path = out_dir / f"kinetics_llm_context_{stem}.md"
     write_kinetics_llm_context(
         llm_context,
         llm_context_path,

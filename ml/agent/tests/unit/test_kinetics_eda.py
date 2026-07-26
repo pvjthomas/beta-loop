@@ -18,36 +18,37 @@ from analysis.kinetics_eda import (  # noqa: E402
     format_llm_interpretation_prompt,
     summarize_kinetics_patterns,
 )
+from analysis.run2_paths import (  # noqa: E402
+    R2_GEN5_PDF,
+    R2_KINETICS_CSV,
+    R2_PARSED_JSON,
+)
 from gen5_pdf import parse_gen5_kinetic_pdf  # noqa: E402
 
-TEAM3_CSV = REPO_ROOT / "data" / "team3" / "Team_3_Data_kinetics.csv"
-TEAM3_PARSED = REPO_ROOT / "data" / "team3" / "Team_3_Data_parsed.json"
-TEAM3_PDF = REPO_ROOT / "Team_3_Data.pdf"
 PLATE_MAP = REPO_ROOT / "data" / "screens" / "2" / "v5" / "plate_map.json"
 
 
 @pytest.fixture(scope="module")
-def team3_parsed() -> dict:
-    if not TEAM3_PDF.exists():
-        pytest.skip("Team_3_Data.pdf not available")
-    return parse_gen5_kinetic_pdf(TEAM3_PDF)
+def r2_parsed() -> dict:
+    if not R2_GEN5_PDF.exists():
+        pytest.skip("Run 2 Gen5 PDF not available")
+    return parse_gen5_kinetic_pdf(R2_GEN5_PDF)
 
 
-def test_gen5_kinetic_results_parsed(team3_parsed: dict) -> None:
-    results = team3_parsed.get("gen5_results", {})
+def test_gen5_kinetic_results_parsed(r2_parsed: dict) -> None:
+    results = r2_parsed.get("gen5_results", {})
     assert len(results) == 96
     assert results["A1"][490]["max_v"] == pytest.approx(-2.0)
     assert results["F6"][490]["max_v"] == pytest.approx(14.0)
-    # Gen5 reports D5 (not G11) with strongly negative Max V in this export
     assert results["D5"][490]["max_v"] == pytest.approx(-58.0)
 
 
-@pytest.mark.skipif(not TEAM3_CSV.exists(), reason="Team 3 kinetics CSV missing")
-def test_team3_flat_rows() -> None:
+@pytest.mark.skipif(not R2_KINETICS_CSV.exists(), reason="Run 2 kinetics CSV missing")
+def test_r2_flat_rows() -> None:
     report = summarize_kinetics_patterns(
-        TEAM3_CSV,
+        R2_KINETICS_CSV,
         PLATE_MAP,
-        parsed_json=TEAM3_PARSED if TEAM3_PARSED.exists() else None,
+        parsed_json=R2_PARSED_JSON if R2_PARSED_JSON.exists() else None,
         gen5_results=_load_gen5_results(),
     )
     flat_a = report["flat_rows"].get("A", [])
@@ -56,12 +57,12 @@ def test_team3_flat_rows() -> None:
     assert len(flat_h) == 12, f"expected all of row H flat, got {flat_h}"
 
 
-@pytest.mark.skipif(not TEAM3_CSV.exists(), reason="Team 3 kinetics CSV missing")
-def test_team3_high_initial_wells() -> None:
+@pytest.mark.skipif(not R2_KINETICS_CSV.exists(), reason="Run 2 kinetics CSV missing")
+def test_r2_high_initial_wells() -> None:
     report = summarize_kinetics_patterns(
-        TEAM3_CSV,
+        R2_KINETICS_CSV,
         PLATE_MAP,
-        parsed_json=TEAM3_PARSED if TEAM3_PARSED.exists() else None,
+        parsed_json=R2_PARSED_JSON if R2_PARSED_JSON.exists() else None,
         gen5_results=_load_gen5_results(),
     )
     top_wells = {item["well"] for item in report["high_initial"][:6]}
@@ -71,12 +72,12 @@ def test_team3_high_initial_wells() -> None:
     assert d6["A0"] == pytest.approx(0.298, abs=0.01)
 
 
-@pytest.mark.skipif(not TEAM3_CSV.exists(), reason="Team 3 kinetics CSV missing")
-def test_team3_rising_and_peak_decline() -> None:
+@pytest.mark.skipif(not R2_KINETICS_CSV.exists(), reason="Run 2 kinetics CSV missing")
+def test_r2_rising_and_peak_decline() -> None:
     report = summarize_kinetics_patterns(
-        TEAM3_CSV,
+        R2_KINETICS_CSV,
         PLATE_MAP,
-        parsed_json=TEAM3_PARSED if TEAM3_PARSED.exists() else None,
+        parsed_json=R2_PARSED_JSON if R2_PARSED_JSON.exists() else None,
         gen5_results=_load_gen5_results(),
     )
     rising_wells = {item["well"] for item in report["rising"]}
@@ -89,24 +90,24 @@ def test_team3_rising_and_peak_decline() -> None:
     assert 240 <= d10["t_peak_s"] <= 360
 
 
-@pytest.mark.skipif(not TEAM3_CSV.exists(), reason="Team 3 kinetics CSV missing")
-def test_team3_wavelength_divergence() -> None:
+@pytest.mark.skipif(not R2_KINETICS_CSV.exists(), reason="Run 2 kinetics CSV missing")
+def test_r2_wavelength_divergence() -> None:
     report = summarize_kinetics_patterns(
-        TEAM3_CSV,
+        R2_KINETICS_CSV,
         PLATE_MAP,
-        parsed_json=TEAM3_PARSED if TEAM3_PARSED.exists() else TEAM3_PARSED,
+        parsed_json=R2_PARSED_JSON if R2_PARSED_JSON.exists() else R2_PARSED_JSON,
         gen5_results=_load_gen5_results(),
     )
     div_wells = {item["well"] for item in report["wavelength_divergence"]}
     assert "D6" in div_wells or "D8" in div_wells
 
 
-@pytest.mark.skipif(not TEAM3_CSV.exists(), reason="Team 3 kinetics CSV missing")
+@pytest.mark.skipif(not R2_KINETICS_CSV.exists(), reason="Run 2 kinetics CSV missing")
 def test_format_kinetics_summary_is_deterministic() -> None:
     report = summarize_kinetics_patterns(
-        TEAM3_CSV,
+        R2_KINETICS_CSV,
         PLATE_MAP,
-        parsed_json=TEAM3_PARSED if TEAM3_PARSED.exists() else None,
+        parsed_json=R2_PARSED_JSON if R2_PARSED_JSON.exists() else None,
         gen5_results=_load_gen5_results(),
     )
     text = format_kinetics_summary(report, PLATE_MAP)
@@ -116,18 +117,19 @@ def test_format_kinetics_summary_is_deterministic() -> None:
     assert format_kinetics_summary(report, PLATE_MAP) == text
 
 
-@pytest.mark.skipif(not TEAM3_CSV.exists(), reason="Team 3 kinetics CSV missing")
+@pytest.mark.skipif(not R2_KINETICS_CSV.exists(), reason="Run 2 kinetics CSV missing")
 def test_build_kinetics_llm_context_merges_deterministic_inputs() -> None:
     from analysis.kinetics import analyze_kinetics_file
+    from analysis.run2_paths import R2_KINETICS_CSV as kinetics_csv
 
     pattern = summarize_kinetics_patterns(
-        TEAM3_CSV,
+        kinetics_csv,
         PLATE_MAP,
-        parsed_json=TEAM3_PARSED if TEAM3_PARSED.exists() else None,
+        parsed_json=R2_PARSED_JSON if R2_PARSED_JSON.exists() else None,
         gen5_results=_load_gen5_results(),
     )
     round_summary = analyze_kinetics_file(
-        TEAM3_CSV,
+        kinetics_csv,
         plate_map_json=PLATE_MAP,
         round_number=2,
         slope_window_start_s=30,
@@ -135,8 +137,8 @@ def test_build_kinetics_llm_context_merges_deterministic_inputs() -> None:
     )
     plate_map = json.loads(PLATE_MAP.read_text())
     parsed_meta = None
-    if TEAM3_PARSED.exists():
-        parsed_meta = json.loads(TEAM3_PARSED.read_text()).get("metadata")
+    if R2_PARSED_JSON.exists():
+        parsed_meta = json.loads(R2_PARSED_JSON.read_text()).get("metadata")
 
     ctx = build_kinetics_llm_context(
         pattern,
@@ -144,9 +146,9 @@ def test_build_kinetics_llm_context_merges_deterministic_inputs() -> None:
         plate_map=plate_map,
         parsed_metadata=parsed_meta,
         artifact_paths={
-            "kinetics_csv": str(TEAM3_CSV),
-            "round_summary_json": "round_summary.json",
-            "pattern_summary_json": "pattern_summary.json",
+            "kinetics_csv": str(kinetics_csv),
+            "round_summary_json": "data/screens/2/post-run/analysis/r2_round_summary_eda.json",
+            "pattern_summary_json": "data/screens/2/post-run/analysis/r2_pattern_summary.json",
         },
         plate_map_json=PLATE_MAP,
     )
@@ -167,6 +169,6 @@ def test_build_kinetics_llm_context_merges_deterministic_inputs() -> None:
 
 
 def _load_gen5_results() -> dict | None:
-    if TEAM3_PDF.exists():
-        return parse_gen5_kinetic_pdf(TEAM3_PDF).get("gen5_results")
+    if R2_GEN5_PDF.exists():
+        return parse_gen5_kinetic_pdf(R2_GEN5_PDF).get("gen5_results")
     return None

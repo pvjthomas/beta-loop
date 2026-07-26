@@ -28,6 +28,7 @@ from agent.tools.forward import (
     write_literature_summary_from_forward,
 )
 from agent.tools.kinetics_tool import analyze_kinetics, load_round_summary
+from agent.tools.run2_data_audit import audit_run2_data_tool
 from agent.tools.literature import (
     list_literature_sources,
     load_literature_summary,
@@ -92,7 +93,7 @@ MERGE_TOOLS = [
     run_compound_selection_pipeline,
 ]
 COMPOUND_TOOLS = [load_compounds, prioritize_compounds]
-ANALYSIS_TOOLS = [analyze_kinetics, load_round_summary]
+ANALYSIS_TOOLS = [analyze_kinetics, load_round_summary, audit_run2_data_tool]
 PLATE_TOOLS = [load_plate_map, design_next_plate]
 
 forward_agent = Agent(

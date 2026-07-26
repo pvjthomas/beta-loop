@@ -12,6 +12,18 @@
   "plate_design": "data/screens/2/v5/manifest.json",
   "files": {
     "run_log": "data/screens/2/post-run/run_log_exec_tem1_activity_screen_hack_world_22_20260725_230432.txt",
-    "timing_analysis": "data/screens/2/post-run/r2_timing_log_analysis.md"
+    "timing_analysis": "data/screens/2/post-run/r2_timing_log_analysis.md",
+    "kinetics_csv": "data/screens/2/post-run/kinetics_r2.csv",
+    "gen5_pdf": "data/screens/2/post-run/r2_gen5_export.pdf",
+    "analysis": {
+      "annotated_csv": "data/screens/2/post-run/analysis/r2_kinetics_annotated.csv",
+      "parsed_json": "data/screens/2/post-run/analysis/r2_parsed.json",
+      "round_summary_eda": "data/screens/2/post-run/analysis/r2_round_summary_eda.json",
+      "pattern_summary_json": "data/screens/2/post-run/analysis/r2_pattern_summary.json",
+      "pattern_summary_md": "data/screens/2/post-run/analysis/r2_pattern_summary.md",
+      "llm_context_json": "data/screens/2/post-run/analysis/r2_kinetics_llm_context.json",
+      "llm_context_md": "data/screens/2/post-run/analysis/r2_kinetics_llm_context.md"
+    },
+    "promoted_kinetics_csv": "data/kinetics_r2.csv"
   }
 }

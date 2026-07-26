@@ -24,10 +24,10 @@ screens/
       plate_map.json
       plate_map.png
       manifest.json
-    post-run/        # after the robot run (logs, timing QC, reader exports)
-      manifest.json
-      run_log_exec_*.txt
-      r*_timing_log_analysis.md
+    post-run/        # after the robot run (logs, timing QC, reader exports, analysis/)
+      kinetics_r2.csv
+      r2_gen5_export.pdf
+      analysis/      # annotated CSV, parsed JSON, EDA summaries
 ```
 
 Selection rationale mirrors the same `{round}/v{version}/` path under `pvjthomas/runs/`.
@@ -62,7 +62,7 @@ When a plate design changes, add a new `v{N+1}` directory; **do not edit** prior
 
 | Path | Label | Status |
 |------|-------|--------|
-| [`2/post-run/`](2/post-run/) | `r2-discovery-v5-exec` | Run log + timing analysis from 2026-07-25 robot execution (plate design v5) |
+| [`2/post-run/`](2/post-run/) | `r2-discovery-v5-exec` | Run log, timing analysis, plate reader export (`kinetics_r2.csv`), and EDA derivatives |
 
 ## Plate map visualization
 
