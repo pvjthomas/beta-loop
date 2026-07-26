@@ -2,7 +2,7 @@
 
 Closed-loop TEM-1 β-lactamase inhibitor discovery for the [Zeon Systems AI for Science hackathon](https://luma.com/avi3l01q) (Track A).
 
-An ADK agent prioritizes compounds (Paperclip literature + GNINA docking), a Zeon robot runs the nitrocefin assay, and results feed back into the next plate design — two rounds, real wet lab.
+An ADK agent prioritizes compounds (open literature repositories + optional Paperclip + GNINA docking), a Zeon robot runs the nitrocefin assay, and results feed back into the next plate design — two rounds, real wet lab.
 
 ## Two main tasks
 
@@ -20,7 +20,7 @@ See **[PLAN.md](PLAN.md#two-main-tasks)** for details, owners, and how they conn
 | Folder | Member | Role |
 |--------|--------|------|
 | [pvjthomas/](pvjthomas/) | Philip | Bio / hardware / integration, assay QC, demo |
-| [ml/](ml/) | Philip | ADK agent, Paperclip, kinetics analysis |
+| [ml/](ml/) | Philip | ADK agent, literature search, kinetics analysis |
 | [learsch/](learsch/) | Rob (learsch) | Automation — expression (CFPS, GFP) |
 | [changhu/](changhu/) | Chang (changhu) | Automation — screening (assay, reader) |
 
@@ -29,7 +29,7 @@ See **[PLAN.md](PLAN.md#two-main-tasks)** for details, owners, and how they conn
 - **[ASSAY_WORKFLOW.md](ASSAY_WORKFLOW.md)** — three-assay pipeline (CFPS → GFP gate → nitrocefin screen)
 - **[PLAN.md](PLAN.md)** — full project plan, timeline, plate designs
 - **[ROLES.md](ROLES.md)** — ownership and handoffs
-- **[REQUIREMENTS.md](REQUIREMENTS.md)** — Paperclip, ADK, Python deps
+- **[REQUIREMENTS.md](REQUIREMENTS.md)** — literature backends, ADK, Python deps
 
 ## Quick start
 

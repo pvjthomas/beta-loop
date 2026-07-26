@@ -62,6 +62,17 @@ print(run_compound_selection_pipeline())
 "
 ```
 
-Or via ADK: `adk run ml/agent` → "Run compound selection pipeline without live Paperclip."
+Or via ADK: `adk run ml/agent` → "Run compound selection pipeline without live literature searches."
+
+**Reverse literature (per compound):**
+
+```bash
+cd ml/agent && PYTHONPATH=. python3 -c "
+from agent.tools.reverse import reverse_literature_check
+print(reverse_literature_check(tiers=[1,2,3,4], use_cache=True))
+"
+```
+
+Default backends: Europe PMC, PubMed, ChEMBL, Semantic Scholar, OpenAlex.
 
 **Promote to robot:** copy draft → `data/plate_map_r2.json` and snapshot → `data/screens/{round}/v{N}/` only after pvjthomas approval.

@@ -10,7 +10,7 @@ This repo splits **team contract** (small, final, shared) from **Philip workspac
 
 | Push to GitHub | Keep local (`pvjthomas/local/`) |
 |----------------|----------------------------------|
-| Schemas, plate maps, rationales | Raw Paperclip search/map dumps |
+| Schemas, plate maps, rationales | Raw literature search/map dumps |
 | Summary JSON/CSV/MD (&lt; ~500 KB) | GNINA poses (`.sdf`, `.pdbqt`), docking logs |
 | Final assay aggregates | Full plate-reader exports (if large) |
 | Structured compound literature refs | Unstructured literature walls of text |
@@ -92,7 +92,7 @@ Regenerate or patch dossiers after batch jobs; keep `compounds.csv` columns in s
 ## Workflow
 
 ```
-Paperclip search  →  pvjthomas/local/literature/T19860/*.txt   (local)
+Paperclip search  →  pvjthomas/local/literature/T19860/*.txt   (local; repos or Paperclip)
                   →  data/compound_literature/refs/T19860.json          (git, curated)
                   →  compound_dossiers.json literature fields (git)
 

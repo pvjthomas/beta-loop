@@ -8,7 +8,7 @@ Policy: [`data/STORAGE.md`](../../data/STORAGE.md)
 
 ```
 local/
-├── literature/{compound_id}/     # raw Paperclip search/map *.txt
+├── literature/{compound_id}/     # raw search dumps (open repos + optional Paperclip map)
 ├── docking/{compound_id}/        # GNINA .sdf, .pdbqt, logs
 ├── kinetics/                     # full kinetics_r{n}.csv from plate reader
 ├── similarity/                   # Tanimoto matrices, cluster debug

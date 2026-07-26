@@ -76,7 +76,7 @@ Minimal validation plate before the full compound screen.
 | Read | A490, initial slope |
 | Full assay priors | [`literature_summary.json`](literature_summary.json) → `compound_assay_priors.T19860` |
 
-**Literature raw files** (Philip local, not in git): `pvjthomas/local/literature/T19860/` — Paperclip searches + PMC12274840 full text. Curated summary is git-tracked at [`compound_literature/refs/T19860.json`](compound_literature/refs/T19860.json).
+**Literature raw files** (Philip local, not in git): `pvjthomas/local/literature/T19860/` — repository + optional Paperclip search dumps + PMC12274840 full text. Curated summary is git-tracked at [`compound_literature/refs/T19860.json`](compound_literature/refs/T19860.json).
 
 **Pass gate:** vehicle slope high · clavulanic ≥50% inhibition vs vehicle → proceed to Round 1 discovery (future v3+) or Round 2.
 
