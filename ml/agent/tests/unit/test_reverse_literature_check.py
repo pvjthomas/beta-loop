@@ -263,6 +263,34 @@ def test_reverse_literature_check_truncates_compound_cap(
 
 @patch("agent.tools.reverse.map_literature_results")
 @patch("agent.tools.reverse.search_literature")
+def test_reverse_literature_check_repository_skips_map(
+    mock_search,
+    mock_map,
+    clavulanate_workspace: dict,
+) -> None:
+    mock_search.return_value = {
+        "status": "ok",
+        "result_id": "repo_chembl_abc123",
+        "output": "Ki=0.5 uM vs TEM-1 beta-lactamase",
+    }
+
+    outcome = reverse_literature_check(
+        compound_ids=["T1262"],
+        skip_curated=False,
+        save_raw=False,
+        sources=["chembl"],
+    )
+
+    assert outcome["checked"] == 1
+    assert mock_search.call_count == 1
+    mock_map.assert_not_called()
+    row = outcome["results"][0]
+    assert row["searches"][0]["status"] == "ok"
+    assert row.get("maps") is None
+
+
+@patch("agent.tools.reverse.map_literature_results")
+@patch("agent.tools.reverse.search_literature")
 def test_reverse_literature_check_multi_source(
     mock_search,
     mock_map,

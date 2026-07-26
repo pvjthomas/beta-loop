@@ -7,7 +7,10 @@
 # Agent
 google-adk
 
-# Literature search (Paperclip — https://paperclip.gxl.ai/)
+# Literature search
+# - Paperclip (optional, quota-limited map): bash scripts/install-paperclip.sh
+# - K-Dense scientific-agent-skills (Cursor reference): bash scripts/install-scientific-skills.sh
+# - Open repositories (Europe PMC, PubMed, ChEMBL, Semantic Scholar, OpenAlex): stdlib urllib in agent/tools/literature_repositories.py
 # gxl-paperclip==0.7.11 — not on PyPI; use scripts/install-paperclip.sh
 
 # Analysis

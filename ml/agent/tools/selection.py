@@ -46,6 +46,69 @@ DEFAULT_DIVERSE_PICKS = [
 REPLICATES_PER_COMPOUND = 3
 
 
+def _scaffold_by_id(
+    compounds: dict[str, dict[str, Any]],
+    reverse_tags: list[dict[str, Any]],
+) -> dict[str, str]:
+    scaffold: dict[str, str] = {
+        cid: str(row.get("scaffold_class") or "")
+        for cid, row in compounds.items()
+    }
+    for tag in reverse_tags:
+        cid = tag.get("compound_id")
+        if cid and tag.get("scaffold_class"):
+            scaffold[str(cid)] = str(tag["scaffold_class"])
+    return scaffold
+
+
+def _pick_unique_tier(
+    candidates: list[str],
+    *,
+    compounds: dict[str, dict[str, Any]],
+    assigned: set[str],
+    limit: int,
+) -> list[str]:
+    """Return up to `limit` compound IDs not already assigned elsewhere."""
+    picked: list[str] = []
+    for cid in candidates:
+        if len(picked) >= limit:
+            break
+        if cid in assigned or cid not in compounds:
+            continue
+        if compounds[cid].get("exclude"):
+            continue
+        picked.append(cid)
+        assigned.add(cid)
+    return picked
+
+
+def _ordered_candidates(
+    candidates: list[str],
+    scaffold_by_id: dict[str, str],
+    *,
+    prefer_non_substrate: bool = False,
+) -> list[str]:
+    """Dedupe candidates; optionally rank non-substrates ahead of substrates."""
+    seen: set[str] = set()
+    non_substrate: list[str] = []
+    substrate: list[str] = []
+    ordered: list[str] = []
+    for cid in candidates:
+        if cid in seen:
+            continue
+        seen.add(cid)
+        if prefer_non_substrate:
+            if scaffold_by_id.get(cid) == "antibiotic_substrate":
+                substrate.append(cid)
+            else:
+                non_substrate.append(cid)
+        else:
+            ordered.append(cid)
+    if prefer_non_substrate:
+        return non_substrate + substrate
+    return ordered
+
+
 def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -79,46 +142,67 @@ def merge_tier_assignments() -> dict[str, Any]:
     """Merge forward/reverse/bridge state into tier buckets for plate design."""
     state = _load_selection_state()
     compounds = {c["compound_id"]: c for c in load_compounds()}
+    assigned: set[str] = set()
 
-    tier1 = [cid for cid in TIER1_SCAFFOLD_REPS if cid in compounds]
-    tier2 = [x["compound_id"] for x in state.get("bridge", {}).get("tier2_analogs", {}).get("candidates", [])]
-    if len(tier2) < 4:
-        for cid in TIER1_ANALOG_FALLBACK:
-            if cid in compounds and cid not in tier1 and cid not in tier2:
-                tier2.append(cid)
-            if len(tier2) >= 4:
-                break
-    tier3_raw = state.get("reverse", {}).get("dock_rank", {}).get("tier3_candidates", [])
-    tier3 = [x["compound_id"] if isinstance(x, dict) else x for x in tier3_raw]
-
-    if not tier3:
-        tier3 = DEFAULT_DIVERSE_PICKS
-
-    # Substrate controls: cluster reps from antibiotic_substrate class, else v1 defaults.
     reverse_tags = state.get("reverse", {}).get("scaffold_classification", {}).get("compounds", [])
+    scaffold_by_id = _scaffold_by_id(compounds, reverse_tags)
+
+    tier1 = _pick_unique_tier(
+        TIER1_SCAFFOLD_REPS,
+        compounds=compounds,
+        assigned=assigned,
+        limit=4,
+    )
+
+    tier2_candidates = [
+        x["compound_id"] for x in state.get("bridge", {}).get("tier2_analogs", {}).get("candidates", [])
+    ]
+    tier2_candidates.extend(TIER1_ANALOG_FALLBACK)
+    tier2 = _pick_unique_tier(tier2_candidates, compounds=compounds, assigned=assigned, limit=4)
+
+    tier3_raw = state.get("reverse", {}).get("dock_rank", {}).get("tier3_candidates", [])
+    tier3_candidates = [x["compound_id"] if isinstance(x, dict) else x for x in tier3_raw]
+    if not tier3_candidates:
+        tier3_candidates = list(DEFAULT_DIVERSE_PICKS)
+    else:
+        tier3_candidates.extend(DEFAULT_DIVERSE_PICKS)
+
     substrates = [t["compound_id"] for t in reverse_tags if t.get("scaffold_class") == "antibiotic_substrate"]
     cluster_reps = state.get("bridge", {}).get("clustering", {}).get("representatives", [])
-    tier4 = []
+    tier4_candidates: list[str] = []
     if cluster_reps:
-        for rep in cluster_reps:
-            cid = rep["compound_id"]
-            if cid in substrates and cid not in tier1 and cid not in tier2:
-                tier4.append(cid)
-            if len(tier4) >= 8:
-                break
-    if len(tier4) < 8:
-        for cid in DEFAULT_SUBSTRATE_CONTROLS:
-            if cid not in tier4:
-                tier4.append(cid)
-            if len(tier4) >= 8:
-                break
+        tier4_candidates.extend(
+            str(rep["compound_id"])
+            for rep in cluster_reps
+            if rep.get("compound_id") in substrates
+        )
+    tier4_candidates.extend(DEFAULT_SUBSTRATE_CONTROLS)
+    tier4_candidates.extend(substrates)
+    tier4 = _pick_unique_tier(tier4_candidates, compounds=compounds, assigned=assigned, limit=8)
+
+    tier4_reserved = set(tier4)
+    tier3_pool = _ordered_candidates(
+        [cid for cid in tier3_candidates if cid not in tier4_reserved],
+        scaffold_by_id,
+        prefer_non_substrate=True,
+    )
+    tier3 = _pick_unique_tier(tier3_pool, compounds=compounds, assigned=assigned, limit=8)
+    if len(tier3) < 8:
+        tier3.extend(
+            _pick_unique_tier(
+                _ordered_candidates(tier3_candidates, scaffold_by_id, prefer_non_substrate=True),
+                compounds=compounds,
+                assigned=assigned,
+                limit=8 - len(tier3),
+            )
+        )
 
     merge_payload = {
         "ran_at": _utc_now(),
-        "tier1_inhibitors": tier1[:4],
-        "tier2_analogs": tier2[:4],
-        "tier3_docking_or_diverse": tier3[:8],
-        "tier4_substrate_controls": tier4[:8],
+        "tier1_inhibitors": tier1,
+        "tier2_analogs": tier2,
+        "tier3_docking_or_diverse": tier3,
+        "tier4_substrate_controls": tier4,
     }
     state["merge"] = merge_payload
     path = _save_selection_state(state)

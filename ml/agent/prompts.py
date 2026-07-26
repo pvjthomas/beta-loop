@@ -45,8 +45,9 @@ Steps:
 1. classify_scaffolds_rdkit(write_csv=False) — set write_csv=True only when human approved.
 2. run_gnina_batch() — stub until GNINA is run locally; then load_dock_scores().
 3. rank_by_dock_score(top_n=8) for Tier 3 candidates.
-4. reverse_literature_check() — Paperclip search + map per compound (default tiers 1–2):
-   - sources: pmc, biorxiv, proteins (ChEMBL-style activity via proteins); limit 30 hits/source.
+4. reverse_literature_check() — open repository search per compound (default tiers 1–2):
+   - sources: europe_pmc, pubmed, chembl, semantic_scholar, openalex (default); optional Paperclip pmc/biorxiv/proteins for map.
+   - search_chembl_activities(compound_name) for structured Ki/IC50; limit 30 hits/source.
    - all_library=True for full non-excluded library sweep (no compound cap).
    - use_cache=True skips identical query+source reruns (see literature_search_cache.json).
    - Tier-aware queries: inhibitors ask Ki/IC50; substrates ask hydrolysis/substrate role.

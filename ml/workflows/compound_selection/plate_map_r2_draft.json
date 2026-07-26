@@ -13,7 +13,7 @@
     "T19709"
   ],
   "rationale_doc": "pvjthomas/selection_rationale.md",
-  "layout_notes": "96-well flat bottom: row A = 12 plate controls; rows B\u2013G = 23 test compounds \u00d7 3 triplicate (72 sample wells). Row H empty/reserved. ADK-generated draft \u2014 requires pvjthomas sign-off before replacing data/plate_map_r2.json.",
+  "layout_notes": "96-well flat bottom: row A = 12 plate controls; rows B\u2013G = 24 test compounds \u00d7 3 triplicate (72 sample wells). Row H empty/reserved. ADK-generated draft \u2014 requires pvjthomas sign-off before replacing data/plate_map_r2.json.",
   "wells": {
     "A1": {
       "compound_id": null,
@@ -568,7 +568,7 @@
       "replicate": 3
     },
     "G1": {
-      "compound_id": "T0366",
+      "compound_id": "T1001",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -576,7 +576,7 @@
       "replicate": 1
     },
     "G2": {
-      "compound_id": "T0366",
+      "compound_id": "T1001",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -584,7 +584,7 @@
       "replicate": 2
     },
     "G3": {
-      "compound_id": "T0366",
+      "compound_id": "T1001",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -592,7 +592,7 @@
       "replicate": 3
     },
     "G4": {
-      "compound_id": "T1001",
+      "compound_id": "T1005",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -600,7 +600,7 @@
       "replicate": 1
     },
     "G5": {
-      "compound_id": "T1001",
+      "compound_id": "T1005",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -608,7 +608,7 @@
       "replicate": 2
     },
     "G6": {
-      "compound_id": "T1001",
+      "compound_id": "T1005",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -616,7 +616,7 @@
       "replicate": 3
     },
     "G7": {
-      "compound_id": "T1005",
+      "compound_id": "T1008",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -624,7 +624,7 @@
       "replicate": 1
     },
     "G8": {
-      "compound_id": "T1005",
+      "compound_id": "T1008",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -632,7 +632,7 @@
       "replicate": 2
     },
     "G9": {
-      "compound_id": "T1005",
+      "compound_id": "T1008",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -640,7 +640,7 @@
       "replicate": 3
     },
     "G10": {
-      "compound_id": "T1008",
+      "compound_id": "T0224",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -648,7 +648,7 @@
       "replicate": 1
     },
     "G11": {
-      "compound_id": "T1008",
+      "compound_id": "T0224",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",
@@ -656,7 +656,7 @@
       "replicate": 2
     },
     "G12": {
-      "compound_id": "T1008",
+      "compound_id": "T0224",
       "concentration_uM": 50,
       "role": "sample",
       "bucket": "diverse_pick",

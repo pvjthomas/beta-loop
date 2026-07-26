@@ -75,6 +75,32 @@ paperclip map --from s_<result_id> "What IC50 values and assay conditions were u
 
 Save outputs to `data/compound_literature/` for the agent to reference when designing Round 1 and Round 2 plates.
 
+### Open literature repositories (no map quota)
+
+The ADK agent also searches **Europe PMC**, **PubMed (NCBI E-utilities)**, **ChEMBL**, **Semantic Scholar**, and **OpenAlex** via `ml/agent/tools/literature_repositories.py` (stdlib `urllib`, no extra pip packages).
+
+Install K-Dense reference skills (optional, for Cursor):
+
+```bash
+bash scripts/install-scientific-skills.sh
+```
+
+Skills land in `.cursor/skills/scientific-agent-skills/` (paper-lookup, database-lookup, literature-review).
+
+Example agent calls:
+
+```python
+from agent.tools.literature import search_literature, search_chembl_activities, list_literature_sources
+
+list_literature_sources()
+search_literature("TEM-1 tazobactam Ki nitrocefin", source="europe_pmc", limit=10)
+search_chembl_activities("tazobactam", target_query="TEM-1")
+```
+
+Optional env vars (rate limits): `NCBI_API_KEY`, `S2_API_KEY`, `OPENALEX_API_KEY`, `OPENALEX_MAILTO`.
+
+Reverse literature check (`reverse_literature_check`) defaults to the five open repositories instead of Paperclip-only search.
+
 ### Integration with ADK agent
 
 Replace generic web search with a dedicated tool:
@@ -152,12 +178,19 @@ DiffDock and Boltz-2 are optional stretch goals per hackathon brief.
 | Variable | Required by | Notes |
 |----------|-------------|-------|
 | `PAPERCLIP_API_KEY` | Paperclip SDK | Or use `paperclip login` credentials |
+| `NCBI_API_KEY` | PubMed E-utilities | Optional; 10 req/s vs 3 without key |
+| `S2_API_KEY` | Semantic Scholar | Optional |
+| `OPENALEX_API_KEY` | OpenAlex | Optional polite pool |
+| `OPENALEX_MAILTO` | OpenAlex | Contact email for polite pool |
 | `GOOGLE_API_KEY` | Google ADK | Gemini / ADK backend |
 
 Add a local `.env` (do not commit):
 
 ```bash
 PAPERCLIP_API_KEY=pk_...
+NCBI_API_KEY=...
+S2_API_KEY=...
+OPENALEX_API_KEY=...
 GOOGLE_API_KEY=...
 ```
 

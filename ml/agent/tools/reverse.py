@@ -29,6 +29,7 @@ from agent.tools.forward import (
     _write_json_capped,
 )
 from agent.tools.literature import map_literature_results, search_literature
+from agent.tools.literature_repositories import DEFAULT_REPOSITORY_SOURCES, REPOSITORY_SOURCES
 
 # Phase A bootstrap IDs — always inhibitor / exclude regardless of SMARTS.
 TIER1_INHIBITOR_IDS = {
@@ -51,7 +52,7 @@ MAX_REVERSE_LITERATURE_COMPOUNDS = 10
 MAX_REVERSE_QUERY_LIMIT = 30
 MAX_REVERSE_MAP_PER_RUN = 10
 DEFAULT_REVERSE_TIERS = (1, 2)
-DEFAULT_REVERSE_SOURCES = ("pmc", "biorxiv", "proteins")
+DEFAULT_REVERSE_SOURCES = DEFAULT_REPOSITORY_SOURCES
 REVERSE_MAP_QUESTION_INHIBITOR = (
     "For {name} against TEM-1 beta-lactamase in a nitrocefin colorimetric assay: "
     "report Ki or IC50 in µM, the inhibitor concentration(s) used in the assay "
@@ -808,9 +809,11 @@ def reverse_literature_check(
     max_compounds_per_run: int | None = None,
     max_map_per_run: int | None = None,
 ) -> dict[str, Any]:
-    """Paperclip search + map per library candidate (Phase B reverse R3).
+    """Literature search + activity extraction per library candidate (Phase B reverse R3).
 
-    Searches each compound across multiple Paperclip sources (default: pmc, biorxiv, proteins).
+    Searches each compound across open repositories by default (europe_pmc, pubmed, chembl,
+    semantic_scholar, openalex). Repository hits are parsed directly; Paperclip sources still
+    use map for Ki/IC50 extraction when included in sources.
     Reuses cached search/map results when use_cache=True and search_version matches prior runs.
 
     Writes structured evidence to data/compound_literature/refs/{id}.json when write_refs=True.
@@ -879,6 +882,20 @@ def reverse_literature_check(
 
             if not extract_activity or search.get("status") != "ok" or not search.get("result_id"):
                 continue
+
+            result_id = str(search["result_id"])
+            if source in REPOSITORY_SOURCES or result_id.startswith("repo_"):
+                entry = _parse_activity_entry(
+                    search.get("output") or "",
+                    compound_name=name,
+                    search_id=result_id,
+                    map_id=None,
+                )
+                entry["source"] = "repository"
+                entry["paperclip_source"] = source
+                parsed_entries.append(entry)
+                continue
+
             if map_cap is not None and map_count >= map_cap:
                 row.setdefault("maps_skipped", []).append(f"{source}: map cap reached")
                 continue
@@ -914,7 +931,7 @@ def reverse_literature_check(
                         "target": "TEM-1",
                         "assay": "nitrocefin",
                         "paperclip_search_id": ok_searches[0].get("result_id"),
-                        "paperclip_source": ok_searches[0].get("paperclip_source", "pmc"),
+                        "paperclip_source": ok_searches[0].get("paperclip_source", "europe_pmc"),
                         "note": f"Search-only reverse check for {name}; no map output or no activity extracted.",
                     }
                 )

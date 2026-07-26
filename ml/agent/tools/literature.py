@@ -1,4 +1,4 @@
-"""Paperclip literature tools for the β-Loop ADK agent."""
+"""Paperclip + open repository literature tools for the β-Loop ADK agent."""
 
 from __future__ import annotations
 
@@ -6,6 +6,14 @@ import json
 from typing import Any
 
 from agent.paths import LITERATURE_DIR, LITERATURE_SUMMARY_JSON
+from agent.tools.literature_repositories import (
+    ALL_LITERATURE_SOURCES,
+    DEFAULT_REPOSITORY_SOURCES,
+    REPOSITORY_SOURCES,
+    list_literature_sources,
+    search_chembl_activities,
+    search_repository,
+)
 
 
 def _paperclip_client():
@@ -51,20 +59,36 @@ def load_literature_summary() -> dict[str, Any]:
 
 def search_literature(
     query: str,
-    source: str = "pmc",
+    source: str = "europe_pmc",
     limit: int = 10,
 ) -> dict[str, Any]:
-    """Search biomedical literature via Paperclip (GXL).
+    """Search biomedical literature via open repositories or Paperclip.
 
-    Prefer load_literature_summary() for Round 1. Use live search mainly after
-    Round 1 for analogs, IC50 priors, or surprise hits.
+    Open repositories (no map quota): europe_pmc, pubmed, chembl, semantic_scholar, openalex.
+    Paperclip (full-text map): pmc, biorxiv, proteins.
+
+    Prefer europe_pmc + chembl for Ki/IC50; use Paperclip map only when needed.
 
     Args:
         query: Natural-language search query.
-        source: Paperclip source flag, e.g. pmc, biorxiv, trials/us, proteins.
+        source: Repository id — see list_literature_sources().
         limit: Maximum number of results (default 10, cap at 30).
     """
     limit = max(1, min(limit, 30))
+    if source in REPOSITORY_SOURCES:
+        return search_repository(source, query, limit)
+
+    if source not in ALL_LITERATURE_SOURCES:
+        return {
+            "status": "error",
+            "query": query,
+            "source": source,
+            "error": (
+                f"Unknown source '{source}'. "
+                f"Use list_literature_sources() — known: {sorted(ALL_LITERATURE_SOURCES)}"
+            ),
+        }
+
     try:
         client = _paperclip_client()
         result = client.search(query, source=source, limit=limit)
@@ -73,6 +97,7 @@ def search_literature(
             "query": query,
             "source": source,
             "limit": limit,
+            "backend": "paperclip",
             "result_id": result.result_id,
             "output": result.output,
         }
@@ -82,6 +107,7 @@ def search_literature(
             "status": "error",
             "query": query,
             "source": source,
+            "backend": "paperclip",
             "error": str(exc),
             "fallback_summary": summary,
         }
@@ -89,11 +115,11 @@ def search_literature(
 
 def save_literature_search(
     query: str,
-    source: str = "pmc",
+    source: str = "europe_pmc",
     limit: int = 10,
     filename: str | None = None,
 ) -> dict[str, Any]:
-    """Run a Paperclip search and save raw output under data/compound_literature/."""
+    """Run a literature search and save raw output under data/compound_literature/."""
     result = search_literature(query=query, source=source, limit=limit)
     if result.get("status") != "ok":
         return result
@@ -107,7 +133,21 @@ def save_literature_search(
 
 
 def map_literature_results(question: str, from_results: str) -> dict[str, Any]:
-    """Run Paperclip map against a prior search result set (Ki/IC50 extraction)."""
+    """Run Paperclip map against a prior Paperclip search result set (Ki/IC50 extraction).
+
+    Note: from_results must be a Paperclip result_id (s_*). Repository result_ids
+    (repo_*) are not mappable — parse search output directly or use search_chembl_activities().
+    """
+    if from_results.startswith("repo_"):
+        return {
+            "status": "error",
+            "question": question,
+            "from_results": from_results,
+            "error": (
+                "Repository searches are not Paperclip-mappable. "
+                "Use search_chembl_activities() or parse the repository output text."
+            ),
+        }
     try:
         from gxl_paperclip import MapResultEvent
 
@@ -127,6 +167,7 @@ def map_literature_results(question: str, from_results: str) -> dict[str, Any]:
             "status": "ok",
             "question": question,
             "from_results": from_results,
+            "backend": "paperclip",
             "result_id": result_event.result_id,
             "output": result_event.output,
             "elapsed_ms": result_event.elapsed_ms,
@@ -138,3 +179,15 @@ def map_literature_results(question: str, from_results: str) -> dict[str, Any]:
             "from_results": from_results,
             "error": str(exc),
         }
+
+
+__all__ = [
+    "ALL_LITERATURE_SOURCES",
+    "DEFAULT_REPOSITORY_SOURCES",
+    "load_literature_summary",
+    "list_literature_sources",
+    "map_literature_results",
+    "save_literature_search",
+    "search_chembl_activities",
+    "search_literature",
+]

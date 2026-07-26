@@ -29,8 +29,10 @@ from agent.tools.forward import (
 )
 from agent.tools.kinetics_tool import analyze_kinetics, load_round_summary
 from agent.tools.literature import (
+    list_literature_sources,
     load_literature_summary,
     save_literature_search,
+    search_chembl_activities,
     search_literature,
 )
 from agent.tools.plates import design_next_plate, load_plate_map
@@ -57,7 +59,9 @@ MODEL = "gemini-2.5-flash"
 
 LITERATURE_TOOLS = [
     load_literature_summary,
+    list_literature_sources,
     search_literature,
+    search_chembl_activities,
     save_literature_search,
 ]
 FORWARD_TOOLS = [
