@@ -45,6 +45,13 @@ When a plate design changes, add a new `v{N+1}` directory; **do not edit** prior
 | **v2** | `r1-validation-v2` | **Active on robot** — clavulanic + DMSO @ 50 µM (8 wells) |
 | v3 | `r1-discovery-v3` | Pending sign-off — 24 compound slots × triplicate on 96-well plate (84 wells) |
 
+## Current state (Round 2)
+
+| Version | Label | Status |
+|---------|-------|--------|
+| v1 | `r2-discovery-v1` | Superseded — 24 unique compounds × triplicate + `compound_list.json` / `.csv` |
+| **v2** | `r2-discovery-v2` | **Pending sign-off** — 10 compounds (4 tier-1 + 4 substrate + 2 diverse) × triplicate |
+
 ## Plate map visualization
 
 Render a PNG grid from any plate map JSON (uses [wellmap](https://wellmap.readthedocs.io/)):
