@@ -3,14 +3,20 @@
 Scoring spec (canonical: ``pvjthomas/runs/2/v5/run2_decision_tree.md``,
 ``PLAN.md`` § Assay logic):
 
-1. **Per-well metric** — A490 slope in the kinetic window (default 180–480 s),
-   aligned per well to nitrocefin ``t0`` when timing metadata is available.
-2. **Control anchors** — ``median`` of 3/3 vehicle wells and ``median`` of
+**Macro flow**
+
+1. **Slope QC (Q2)** — vehicle HOT vs no-TEM-1 FLAT in the aligned 180–480 s window.
+2. **Scoring mode** — if Q2 passes, compound calls use **slopes**; if Q2 fails,
+   fall back to **endpoint** A490 at a fixed reaction time per well (aligned to
+   nitrocefin ``t0`` when timing metadata is available).
+3. **Control anchors** — ``median`` of 3/3 vehicle wells and ``median`` of
    3/3 no-TEM-1 wells on the same plate (not mean).
-3. **Per-well inhibition score** — ``compute_pct_inhibition(well, vehicle, no_tem1)``;
-   vehicle → 0, no-TEM-1 → 100.
-4. **Compound call** — score each of 3/3 sample wells, then ``median`` of those
+4. **Per-well inhibition score** — ``compute_pct_inhibition`` (slope mode) or
+   ``compute_pct_inhibition_endpoint`` (endpoint mode); vehicle → 0, no-TEM-1 → 100.
+5. **Compound call** — score each of 3/3 sample wells, then ``median`` of those
    three scores → one ``pct_inhibition`` per ``compound_id``.
+
+Slopes are always computed for Q2, ``timing_suspect``, and kinetic diagnostics.
 """
 
 from __future__ import annotations
@@ -27,10 +33,14 @@ HIT_THRESHOLD_PCT = 50.0
 DOSE_RESPONSE_CONCENTRATIONS_UM = [3, 6, 12, 25, 50, 75, 100]
 
 EPS_ABS = 0.001  # A490/s — tune from first run CSV
+EPS_ABS_A490 = 0.02  # minimum vehicle − no-TEM-1 endpoint separation for Q2E
+ENDPOINT_REACTION_TIME_S = 600.0  # A490 at t0 + 600 s (last kinetic read ~900 s reader time)
+ENDPOINT_MAX_DELTA_S = 90.0  # reject endpoint if no read within this many seconds of target
 STAGGER_THRESHOLD_MIN = 15.0
 PRE_READ_OVERAGE_MIN = 30.0
 EARLY_T0_MIN = 10.0  # minutes before vehicle t0 to flag early-dosed wells
 
+ScoringMode = Literal["slope", "endpoint"]
 SlopeClass = Literal["flat", "hot", "ambiguous"]
 
 TIER1_INHIBITOR_IDS = {"T1262", "T6685", "T14081"}
@@ -79,6 +89,23 @@ def compute_pct_inhibition(
     return 100.0 * (1.0 - (slope_sample - slope_no_tem1) / denom)
 
 
+def compute_pct_inhibition_endpoint(
+    a490_sample: float,
+    a490_vehicle: float,
+    a490_no_tem1: float,
+) -> float:
+    """Endpoint inhibition score (0 = vehicle-like, 100 = no-TEM-1-like).
+
+    Uses aligned A490 at a fixed reaction time (default t0 + 600 s). Equivalent
+    formulation to the slope score when turnover is complete: less yellow product
+    means higher inhibition.
+    """
+    denom = a490_vehicle - a490_no_tem1
+    if denom == 0:
+        return 0.0
+    return 100.0 * (a490_vehicle - a490_sample) / denom
+
+
 def classify_slope(slope: float, slope_no_tem1_median: float) -> SlopeClass:
     """Classify a well slope as FLAT, HOT, or AMBIGUOUS (decision tree § Signal classification)."""
     flat_threshold = max(EPS_ABS, 3.0 * slope_no_tem1_median)
@@ -120,6 +147,44 @@ def _compute_slope(
     if dt == 0:
         return None
     return float(window[signal_col].diff().mean() / dt)
+
+
+def _endpoint_target_reader_time(
+    t0_well: datetime | None,
+    reader_t0: datetime | None,
+    reaction_time_s: float,
+    fallback_last_time_s: float,
+) -> float:
+    """Reader-axis time (s) at which to read endpoint A490 for one well."""
+    if t0_well is not None and reader_t0 is not None:
+        offset_s = (t0_well - reader_t0).total_seconds()
+        return offset_s + reaction_time_s
+    return fallback_last_time_s
+
+
+def _endpoint_at_time(
+    group: pd.DataFrame,
+    time_col: str,
+    signal_col: str,
+    target_time_s: float,
+    max_delta_s: float = ENDPOINT_MAX_DELTA_S,
+) -> float | None:
+    """A490 at the reader time closest to ``target_time_s``.
+
+    Clamps ``target_time_s`` to the available reader range so early-dosed wells
+    (nitrocefin t0 before lid close) use the first kinetic read instead of failing.
+    """
+    sorted_g = group.sort_values(time_col)
+    if sorted_g.empty:
+        return None
+    first_t = float(sorted_g[time_col].min())
+    last_t = float(sorted_g[time_col].max())
+    effective_target = max(first_t, min(target_time_s, last_t))
+    deltas = (sorted_g[time_col] - effective_target).abs()
+    idx = deltas.idxmin()
+    if float(deltas.loc[idx]) > max_delta_s:
+        return None
+    return float(sorted_g.loc[idx, signal_col])
 
 
 def _load_nitrocefin_timing(path: str | Path | None) -> dict[str, datetime]:
@@ -202,6 +267,7 @@ def analyze_kinetics_file(
     round_number: int = 1,
     slope_window_start_s: float | None = 180.0,
     slope_window_end_s: float | None = 480.0,
+    endpoint_reaction_time_s: float = ENDPOINT_REACTION_TIME_S,
     nitrocefin_timing_json: str | Path | None = None,
     reader_lid_close_utc: str | None = None,
 ) -> dict:
@@ -232,13 +298,18 @@ def analyze_kinetics_file(
 
     global_start = slope_window_start_s if slope_window_start_s is not None else 180.0
     global_end = slope_window_end_s if slope_window_end_s is not None else 480.0
+    last_reader_time_s = float(df[time_col].max())
 
     slopes_global: dict[str, float] = {}
     slopes_aligned: dict[str, float] = {}
     aligned_windows: dict[str, tuple[float, float]] = {}
+    endpoints: dict[str, float] = {}
+    endpoint_targets: dict[str, float] = {}
+    well_groups: dict[str, pd.DataFrame] = {}
 
     for well, group in df.groupby(well_col):
         well_id = str(well)
+        well_groups[well_id] = group
         global_slope = _compute_slope(group, time_col, signal_col, global_start, global_end)
         if global_slope is not None:
             slopes_global[well_id] = global_slope
@@ -251,6 +322,17 @@ def analyze_kinetics_file(
         aligned_slope = _compute_slope(group, time_col, signal_col, win_start, win_end)
         if aligned_slope is not None:
             slopes_aligned[well_id] = aligned_slope
+
+        target_t = _endpoint_target_reader_time(
+            t0_well,
+            reader_t0,
+            endpoint_reaction_time_s,
+            last_reader_time_s,
+        )
+        endpoint_targets[well_id] = target_t
+        endpoint_val = _endpoint_at_time(group, time_col, signal_col, target_t)
+        if endpoint_val is not None:
+            endpoints[well_id] = endpoint_val
 
     vehicle_slopes = [
         slopes_aligned.get(w, slopes_global[w])
@@ -276,6 +358,8 @@ def analyze_kinetics_file(
             "slope_aligned": round(aligned_slope, 6) if aligned_slope is not None else None,
             "slope_class_global": classify_slope(slope, slope_no_tem1),
             "slope_class_aligned": aligned_class,
+            "a490_endpoint": round(endpoints[well], 4) if well in endpoints else None,
+            "endpoint_target_s": round(endpoint_targets.get(well, 0.0), 1),
             "role": roles.get(well, {}).get("role", "sample"),
             "compound_id": compound_by_well.get(well),
             "aligned_window": aligned_windows.get(well),
@@ -293,11 +377,31 @@ def analyze_kinetics_file(
         and slope_vehicle >= 3.0 * slope_no_tem1
     )
 
+    vehicle_endpoints = [endpoints[w] for w in vehicle_wells if w in endpoints]
+    no_tem1_endpoints = [endpoints[w] for w in no_tem1_wells if w in endpoints]
+    a490_vehicle = _median(vehicle_endpoints) if vehicle_endpoints else 0.0
+    a490_no_tem1 = _median(no_tem1_endpoints) if no_tem1_endpoints else 0.0
+    endpoint_dynamic_range = a490_vehicle - a490_no_tem1
+    q2_endpoint_pass = (
+        len(vehicle_endpoints) >= 2
+        and len(no_tem1_endpoints) >= 2
+        and endpoint_dynamic_range >= EPS_ABS_A490
+        and a490_vehicle > a490_no_tem1
+    )
+
+    scoring_mode: ScoringMode = "slope" if q2_pass else "endpoint"
+
     pos_ctrl_scores = []
     for w in pos_ctrl_wells:
-        s = slopes_aligned.get(w, slopes_global.get(w))
-        if s is not None:
-            pos_ctrl_scores.append(compute_pct_inhibition(s, slope_vehicle, slope_no_tem1))
+        if scoring_mode == "endpoint":
+            if w in endpoints:
+                pos_ctrl_scores.append(
+                    compute_pct_inhibition_endpoint(endpoints[w], a490_vehicle, a490_no_tem1)
+                )
+        else:
+            s = slopes_aligned.get(w, slopes_global.get(w))
+            if s is not None:
+                pos_ctrl_scores.append(compute_pct_inhibition(s, slope_vehicle, slope_no_tem1))
     pos_ctrl_median = _median(pos_ctrl_scores) if pos_ctrl_scores else 0.0
     q3_pass = pos_ctrl_median >= HIT_THRESHOLD_PCT
 
@@ -354,14 +458,22 @@ def analyze_kinetics_file(
     for well, detail in well_details.items():
         if detail["role"] != "sample":
             continue
-        if detail["slope_aligned"] is None:
-            failed_wells.append(well)
-            continue
-        slope = slopes_aligned.get(well, slopes_global.get(well))
-        if slope is None:
-            failed_wells.append(well)
-            continue
-        pct = compute_pct_inhibition(slope, slope_vehicle, slope_no_tem1)
+        if scoring_mode == "endpoint":
+            if well not in endpoints:
+                failed_wells.append(well)
+                continue
+            pct = compute_pct_inhibition_endpoint(
+                endpoints[well], a490_vehicle, a490_no_tem1
+            )
+        else:
+            if detail["slope_aligned"] is None:
+                failed_wells.append(well)
+                continue
+            slope = slopes_aligned.get(well, slopes_global.get(well))
+            if slope is None:
+                failed_wells.append(well)
+                continue
+            pct = compute_pct_inhibition(slope, slope_vehicle, slope_no_tem1)
         if pct < 0 or pct > 150:
             failed_wells.append(well)
 
@@ -372,22 +484,30 @@ def analyze_kinetics_file(
         cid = detail.get("compound_id")
         if not cid:
             continue
-        slope = slopes_aligned.get(well, slopes_global.get(well))
-        if slope is None:
-            continue
-        pct = compute_pct_inhibition(slope, slope_vehicle, slope_no_tem1)
+        if scoring_mode == "endpoint":
+            if well not in endpoints:
+                continue
+            pct = compute_pct_inhibition_endpoint(
+                endpoints[well], a490_vehicle, a490_no_tem1
+            )
+        else:
+            slope = slopes_aligned.get(well, slopes_global.get(well))
+            if slope is None:
+                continue
+            pct = compute_pct_inhibition(slope, slope_vehicle, slope_no_tem1)
         if pct < 0 or pct > 150:
             if well not in failed_wells:
                 failed_wells.append(well)
             continue
-        compound_wells.setdefault(cid, []).append(
-            {
-                "well": well,
-                "pct_inhibition": round(pct, 1),
-                "timing_suspect": detail.get("timing_suspect", False),
-                "concentration_uM": roles.get(well, {}).get("concentration_uM", 50),
-            }
-        )
+        well_entry: dict = {
+            "well": well,
+            "pct_inhibition": round(pct, 1),
+            "timing_suspect": detail.get("timing_suspect", False),
+            "concentration_uM": roles.get(well, {}).get("concentration_uM", 50),
+        }
+        if scoring_mode == "endpoint":
+            well_entry["a490_endpoint"] = round(endpoints[well], 4)
+        compound_wells.setdefault(cid, []).append(well_entry)
 
     compounds: dict[str, dict] = {}
     hits = []
@@ -427,12 +547,18 @@ def analyze_kinetics_file(
         "control_stats": {
             "median_vehicle_slope": round(slope_vehicle, 6),
             "median_no_tem1_slope": round(slope_no_tem1, 6),
+            "median_vehicle_a490_endpoint": round(a490_vehicle, 4),
+            "median_no_tem1_a490_endpoint": round(a490_no_tem1, 4),
+            "endpoint_dynamic_range": round(endpoint_dynamic_range, 4),
         },
+        "scoring_mode": scoring_mode,
+        "endpoint_reaction_time_s": endpoint_reaction_time_s,
         "qc_gates": {
             "q1_pass": q1_pass,
             "q1t_timing_unknown": timing_unknown,
             "q1t_timing_stagger": timing_stagger_flag,
             "q2_pass": q2_pass,
+            "q2_endpoint_pass": q2_endpoint_pass,
             "q3_pass": q3_pass,
             "pos_ctrl_median_pct": round(pos_ctrl_median, 1),
         },

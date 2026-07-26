@@ -1,32 +1,5 @@
 {
-  "run": 2,
   "round": 2,
-  "plan_version": 5,
-  "plan_label": "r2-discovery-v5",
-  "status": "complete",
-  "plate_map_active": "data/plate_map_r2.json",
-  "plate_map_snapshot": "data/screens/2/v5/plate_map.json",
-  "source_csv_git": "data/screens/2/post-run/kinetics_r2.csv",
-  "source_csv_local": null,
-  "nitrocefin_timing_json": "data/screens/2/post-run/nitrocefin_timing.json",
-  "reader_lid_close_utc": "2026-07-26T08:57:14Z",
-  "normalization": {
-    "vehicle_wells": [
-      "B3",
-      "B7",
-      "C11"
-    ],
-    "no_tem1_wells": [
-      "D3",
-      "D7",
-      "E11"
-    ],
-    "pos_ctrl_clavaculin_wells": [
-      "F3",
-      "F7",
-      "G11"
-    ]
-  },
   "hits": [
     {
       "well": "C5",
@@ -1563,6 +1536,8 @@
     "median_no_tem1_a490_endpoint": 0.057,
     "endpoint_dynamic_range": 0.066
   },
+  "scoring_mode": "endpoint",
+  "endpoint_reaction_time_s": 600.0,
   "qc_gates": {
     "q1_pass": true,
     "q1t_timing_unknown": false,
@@ -1578,15 +1553,5 @@
   "slope_window_start_s": 180.0,
   "slope_window_end_s": 480.0,
   "next_plate_design": "dose_response",
-  "scoring_mode": "endpoint",
-  "endpoint_reaction_time_s": 600.0,
-  "analysis_version": "v2",
-  "annotated_csv": "/Users/fio/zeon_hack/data/screens/2/post-run/v2/analysis/r2_kinetics_annotated.csv",
-  "summary_json": "/Users/fio/zeon_hack/data/screens/2/post-run/v2/analysis/r2_round_summary_eda.json",
-  "plate_map": "data/plate_map_r2.json",
-  "pattern_summary_json": "/Users/fio/zeon_hack/data/screens/2/post-run/v2/analysis/r2_pattern_summary.json",
-  "pattern_summary_md": "/Users/fio/zeon_hack/data/screens/2/post-run/v2/analysis/r2_pattern_summary.md",
-  "kinetics_llm_context_json": "/Users/fio/zeon_hack/data/screens/2/post-run/v2/analysis/r2_kinetics_llm_context.json",
-  "kinetics_llm_context_md": "/Users/fio/zeon_hack/data/screens/2/post-run/v2/analysis/r2_kinetics_llm_context.md",
-  "analysis_dir": "data/screens/2/post-run/v2/analysis"
+  "analysis_version": "v2"
 }

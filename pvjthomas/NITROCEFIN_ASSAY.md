@@ -115,9 +115,19 @@ Nitrocefin addition **starts the clock**. Staggered adds = staggered kinetics �
 
 Normalize each well to controls on the **same plate**:
 
+**Slope mode** (Q2 pass):
+
 ```
 pct_inhibition = 100 × (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - slope_no_tem1))
 ```
+
+**Endpoint mode** (Q2 fail — fallback):
+
+```
+pct_inhibition = 100 × (A490_vehicle - A490_sample) / (A490_vehicle - A490_no_tem1)
+```
+
+Endpoint A490 is read at **t0 + 600 s** per well (aligned to nitrocefin add time). Slopes are still computed for Q2 QC and `timing_suspect` flags.
 
 | Result | Interpretation |
 |--------|----------------|

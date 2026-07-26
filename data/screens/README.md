@@ -24,10 +24,11 @@ screens/
       plate_map.json
       plate_map.png
       manifest.json
-    post-run/        # after the robot run (logs, timing QC, reader exports, analysis/)
+    post-run/        # after the robot run (logs, timing QC, reader exports)
       kinetics_r2.csv
-      r2_gen5_export.pdf
-      analysis/      # annotated CSV, parsed JSON, EDA summaries
+      v1/            # frozen slope-only analysis
+      v2/            # active endpoint-fallback analysis
+        analysis/
 ```
 
 Selection rationale mirrors the same `{round}/v{version}/` path under `pvjthomas/runs/`.
@@ -76,7 +77,7 @@ Outputs: `compound_list.json`, `compound_list.csv`, `plate_map.json`, `plate_map
 
 | Path | Label | Status |
 |------|-------|--------|
-| [`2/post-run/`](2/post-run/) | `r2-discovery-v5-exec` | Run log, timing analysis, plate reader export (`kinetics_r2.csv`), and EDA derivatives |
+| [`2/post-run/`](2/post-run/) | `r2-discovery-v5-exec` | Run log, timing, reader export; **v2** endpoint analysis (v1 = slope-only snapshot) |
 
 ## Plate map visualization
 

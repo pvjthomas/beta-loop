@@ -502,7 +502,7 @@ def format_audit_markdown(report: AuditReport) -> str:
             "# Agent/analysis promotion (after sign-off)",
             "cp data/screens/2/v5/plate_map.json data/plate_map_r2.json",
             "cp data/screens/2/post-run/kinetics_r2.csv data/kinetics_r2.csv",
-            "cp data/screens/2/post-run/analysis/r2_round_summary_eda.json data/assay/run_2_summary.json",
+            "cp data/screens/2/post-run/v2/analysis/r2_round_summary_eda.json data/assay/run_2_summary.json",
             "```",
             "",
             "Regenerate: `python ml/scripts/audit_run2_data.py`",

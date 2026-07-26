@@ -10,6 +10,7 @@
   "completed_at": "2026-07-26T01:55:53-0700",
   "status": "complete",
   "plate_design": "data/screens/2/v5/manifest.json",
+  "active_analysis_version": "v2",
   "files": {
     "run_log": "data/screens/2/post-run/run_log_exec_tem1_activity_screen_hack_world_22_20260725_230432.txt",
     "timing_analysis": "data/screens/2/post-run/r2_timing_log_analysis.md",
@@ -19,16 +20,9 @@
     "reader_lid_close_utc": "data/screens/2/post-run/reader_lid_close_utc.txt",
     "plate_map_active": "data/plate_map_r2.json",
     "assay_summary": "data/assay/run_2_summary.json",
-    "decision_report": "data/screens/2/post-run/run2_decision_report.md",
-    "analysis": {
-      "annotated_csv": "data/screens/2/post-run/analysis/r2_kinetics_annotated.csv",
-      "parsed_json": "data/screens/2/post-run/analysis/r2_parsed.json",
-      "round_summary_eda": "data/screens/2/post-run/analysis/r2_round_summary_eda.json",
-      "pattern_summary_json": "data/screens/2/post-run/analysis/r2_pattern_summary.json",
-      "pattern_summary_md": "data/screens/2/post-run/analysis/r2_pattern_summary.md",
-      "llm_context_json": "data/screens/2/post-run/analysis/r2_kinetics_llm_context.json",
-      "llm_context_md": "data/screens/2/post-run/analysis/r2_kinetics_llm_context.md"
-    },
+    "analysis_v1": "data/screens/2/post-run/v1/manifest.json",
+    "analysis_v2": "data/screens/2/post-run/v2/manifest.json",
+    "decision_report": "data/screens/2/post-run/v2/run2_decision_report.md",
     "promoted_kinetics_csv": "data/kinetics_r2.csv"
   }
 }

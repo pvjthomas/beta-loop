@@ -22,7 +22,7 @@
 
 ## Compound table (concentrations, class, R2 history)
 
-All eight compounds were on **Run 2 v5** at the concentrations below (T1262 @ 1 µM in both rounds). R2 post-run analysis: [`r2_round_summary_eda.json`](../../../../data/screens/2/post-run/analysis/r2_round_summary_eda.json). Long endpoint = median **A490 at last kinetic read (~900 s)** over R2 replicate wells **not** flagged failed by enzyme QC.
+All eight compounds were on **Run 2 v5** at the concentrations below (T1262 @ 1 µM in both rounds). R2 post-run analysis: [`r2_round_summary_eda.json`](../../../../data/screens/2/post-run/v2/analysis/r2_round_summary_eda.json) (**v2**, endpoint fallback scoring).
 
 | Slot | ID | Name | Bucket | Class | Screen µM | Work µM | R2 wells | R2 QC fail | R2 label | R2 % inhib (med) | R2 A490 end (med) |
 |------|-----|------|--------|-------|-----------|---------|----------|------------|----------|------------------|-------------------|

@@ -54,12 +54,25 @@ def infer_next_action(summary: dict[str, Any]) -> tuple[str, str]:
         )
 
     if not qc.get("q2_pass"):
-        return (
-            "Assay enzyme QC failed — run hand Q2 check",
-            f"Vehicle/no-TEM-1 separation failed. Follow [{HAND_Q2}]({HAND_Q2}) before trusting compound labels.",
-        )
-
-    if not qc.get("q3_pass"):
+        if summary.get("scoring_mode") == "endpoint" and qc.get("q2_endpoint_pass"):
+            if not qc.get("q3_pass"):
+                pos = qc.get("pos_ctrl_median_pct", "?")
+                return (
+                    "Endpoint fallback — inhibition detection failed",
+                    f"Slope Q2 failed; endpoint scoring used but clavulanic median {pos}% (<50). Follow [{HAND_Q3}]({HAND_Q3}).",
+                )
+            # Q2 slope failed but endpoint path OK — continue to compound pattern logic below
+        elif not qc.get("q2_endpoint_pass"):
+            return (
+                "Assay enzyme QC failed — run hand Q2 check",
+                f"Neither slope Q2 nor endpoint Q2E passed. Follow [{HAND_Q2}]({HAND_Q2}) before trusting compound labels.",
+            )
+        else:
+            return (
+                "Assay enzyme QC failed — run hand Q2 check",
+                f"Vehicle/no-TEM-1 slope separation failed and endpoint fallback unavailable. Follow [{HAND_Q2}]({HAND_Q2}).",
+            )
+    elif not qc.get("q3_pass"):
         pos = qc.get("pos_ctrl_median_pct", "?")
         return (
             "Inhibition detection failed — run hand Q3 check",
@@ -150,6 +163,7 @@ def format_decision_tree_report(
     qc = summary.get("qc_gates") or {}
     compounds = summary.get("compounds") or {}
     control = summary.get("control_stats") or {}
+    scoring_mode = summary.get("scoring_mode", "slope")
     names = compound_names or {}
 
     headline, action_detail = infer_next_action(summary)
@@ -183,6 +197,10 @@ def format_decision_tree_report(
         "",
         "## QC gates",
         "",
+        f"**Scoring mode:** `{scoring_mode}` (slope Q2 "
+        f"{'PASS' if qc.get('q2_pass') else 'FAIL'} → "
+        f"{'slope' if scoring_mode == 'slope' else 'endpoint'} scoring)",
+        "",
         "| Gate | Question | Result | Notes |",
         "|------|----------|--------|-------|",
         f"| **Q1** | ≥29/36 wells valid? | **{_gate_icon(qc.get('q1_pass'))}** | {valid_wells}/36 wells scored |",
@@ -198,17 +216,27 @@ def format_decision_tree_report(
         f"| **Q1T** | Per-well t0 aligned? | **{'WARN' if qc.get('q1t_timing_stagger') or qc.get('q1t_timing_unknown') else 'PASS'}** | {q1t_note} |"
     )
     lines.append(
-        f"| **Q2** | Vehicle HOT, no-TEM-1 FLAT? | **{_gate_icon(qc.get('q2_pass'))}** | "
+        f"| **Q2** | Vehicle HOT, no-TEM-1 FLAT (slopes)? | **{_gate_icon(qc.get('q2_pass'))}** | "
         f"V slope {control.get('median_vehicle_slope', '?')} · NT slope {control.get('median_no_tem1_slope', '?')} |"
+    )
+    q2e_icon = _gate_icon(qc.get("q2_endpoint_pass"))
+    if scoring_mode == "endpoint":
+        q2e_icon = "PASS" if qc.get("q2_endpoint_pass") else "FAIL"
+    lines.append(
+        f"| **Q2E** | Endpoint dynamic range (A490)? | **{q2e_icon}** | "
+        f"V A490 {control.get('median_vehicle_a490_endpoint', '?')} · NT A490 "
+        f"{control.get('median_no_tem1_a490_endpoint', '?')} · Δ "
+        f"{control.get('endpoint_dynamic_range', '?')} |"
     )
     lines.append(
         f"| **Q3** | Clavulanic median ≥50? | **{_gate_icon(qc.get('q3_pass'))}** | "
-        f"Pos ctrl median {qc.get('pos_ctrl_median_pct', '?')}% |"
+        f"Pos ctrl median {qc.get('pos_ctrl_median_pct', '?')}% ({scoring_mode}) |"
     )
     lines.extend(["", "---", "", "## Compound calls", ""])
     lines.extend(
         [
-            "Median of **3/3** well inhibition scores per compound (see spec for label definitions).",
+            "Median of **3/3** well inhibition scores per compound (see spec for label definitions). "
+            f"Scored via **{scoring_mode}** mode.",
             "",
             "| ID | Name | Screen µM | Median % inhib | Label | Timing suspect reps |",
             "|----|------|-----------|----------------|-------|---------------------|",
@@ -247,8 +275,13 @@ def format_decision_tree_report(
     lines.append(f"- **No-TEM-1 wells:** {', '.join(norm.get('no_tem1_wells', []))}")
     lines.append(f"- **Clavulanic wells:** {', '.join(norm.get('pos_ctrl_clavaculin_wells', []))}")
     lines.append(
-        f"- **Median slopes (A490/min, aligned window):** vehicle={control.get('median_vehicle_slope', '?')}, "
+        f"- **Median slopes (A490/s, aligned window):** vehicle={control.get('median_vehicle_slope', '?')}, "
         f"no-TEM-1={control.get('median_no_tem1_slope', '?')}"
+    )
+    lines.append(
+        f"- **Median endpoint A490 (t0+600s):** vehicle={control.get('median_vehicle_a490_endpoint', '?')}, "
+        f"no-TEM-1={control.get('median_no_tem1_a490_endpoint', '?')}, "
+        f"Δ={control.get('endpoint_dynamic_range', '?')}"
     )
 
     lines.extend(["", "---", "", "## Timing", ""])

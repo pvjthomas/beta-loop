@@ -147,8 +147,8 @@ def test_build_kinetics_llm_context_merges_deterministic_inputs() -> None:
         parsed_metadata=parsed_meta,
         artifact_paths={
             "kinetics_csv": str(kinetics_csv),
-            "round_summary_json": "data/screens/2/post-run/analysis/r2_round_summary_eda.json",
-            "pattern_summary_json": "data/screens/2/post-run/analysis/r2_pattern_summary.json",
+            "round_summary_json": "data/screens/2/post-run/v2/analysis/r2_round_summary_eda.json",
+            "pattern_summary_json": "data/screens/2/post-run/v2/analysis/r2_pattern_summary.json",
         },
         plate_map_json=PLATE_MAP,
     )

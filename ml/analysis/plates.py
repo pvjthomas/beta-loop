@@ -115,6 +115,7 @@ def analyze_kinetics_run(
     version: int | None = 5,
     round_number: int | None = None,
     output_dir: str | Path | None = None,
+    analysis_version: str | None = None,
     slope_window_start_s: float | None = 180.0,
     slope_window_end_s: float | None = 480.0,
     parsed_json: str | Path | None = None,
@@ -130,7 +131,8 @@ def analyze_kinetics_run(
         write_pattern_summary,
     )
     from analysis.run2_paths import (
-        R2_ANALYSIS_DIR,
+        R2_ANALYSIS_VERSION,
+        R2_DECISION_REPORT,
         R2_KINETICS_ANNOTATED_CSV,
         R2_LLM_CONTEXT_JSON,
         R2_LLM_CONTEXT_MD,
@@ -138,6 +140,7 @@ def analyze_kinetics_run(
         R2_PATTERN_SUMMARY_JSON,
         R2_PATTERN_SUMMARY_MD,
         R2_ROUND_SUMMARY_EDA_JSON,
+        r2_analysis_dir,
     )
 
     plate_map = resolve_plate_map(plate_map_json, run=run, version=version)
@@ -151,20 +154,21 @@ def analyze_kinetics_run(
     if output_dir is not None:
         out_dir = Path(output_dir)
     elif run == 2:
-        out_dir = R2_ANALYSIS_DIR
+        ver = analysis_version or R2_ANALYSIS_VERSION
+        out_dir = r2_analysis_dir(ver)
     else:
         out_dir = kinetics_path.parent
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = kinetics_path.stem
 
     if run == 2:
-        annotated_path = R2_KINETICS_ANNOTATED_CSV
-        summary_path = R2_ROUND_SUMMARY_EDA_JSON
-        pattern_json_path = R2_PATTERN_SUMMARY_JSON
-        pattern_md_path = R2_PATTERN_SUMMARY_MD if write_pattern_markdown else None
-        llm_context_path = R2_LLM_CONTEXT_JSON
-        llm_prompt_path = R2_LLM_CONTEXT_MD
-        parsed_path = Path(parsed_json) if parsed_json else R2_PARSED_JSON
+        annotated_path = out_dir / "r2_kinetics_annotated.csv"
+        summary_path = out_dir / "r2_round_summary_eda.json"
+        pattern_json_path = out_dir / "r2_pattern_summary.json"
+        pattern_md_path = (out_dir / "r2_pattern_summary.md") if write_pattern_markdown else None
+        llm_context_path = out_dir / "r2_kinetics_llm_context.json"
+        llm_prompt_path = out_dir / "r2_kinetics_llm_context.md"
+        parsed_path = Path(parsed_json) if parsed_json else (out_dir / "r2_parsed.json")
     else:
         annotated_path = out_dir / f"{stem}_annotated.csv"
         summary_path = out_dir / f"round_summary_{stem}.json"
@@ -195,6 +199,8 @@ def analyze_kinetics_run(
         slope_window_end_s=slope_window_end_s,
         **analyze_kwargs,
     )
+    if run == 2:
+        summary["analysis_version"] = analysis_version or R2_ANALYSIS_VERSION
     summary_path.write_text(json.dumps(summary, indent=2) + "\n")
 
     gen5_results = None

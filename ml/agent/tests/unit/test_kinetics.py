@@ -15,6 +15,7 @@ from analysis.kinetics import (
     analyze_kinetics_file,
     classify_slope,
     compute_pct_inhibition,
+    compute_pct_inhibition_endpoint,
 )
 
 
@@ -26,6 +27,22 @@ def _write_kinetics_csv(path: Path, wells: dict[str, float], times: list[float] 
     for well, slope in wells.items():
         for t in times:
             rows.append({"well": well, "time_s": t, "a490": slope * t})
+    pd.DataFrame(rows).to_csv(path, index=False)
+
+
+def _write_kinetics_csv_plateau(
+    path: Path,
+    plateaus: dict[str, float],
+    times: list[float] | None = None,
+) -> None:
+    """Write CSV with flat endpoint A490 (ramps to plateau by t=60 s)."""
+    if times is None:
+        times = [float(t) for t in range(0, 901, 30)]
+    rows = []
+    for well, plateau in plateaus.items():
+        for t in times:
+            a490 = plateau if t >= 60 else plateau * t / 60.0
+            rows.append({"well": well, "time_s": t, "a490": a490})
     pd.DataFrame(rows).to_csv(path, index=False)
 
 
@@ -91,6 +108,12 @@ def test_compute_pct_inhibition() -> None:
     assert compute_pct_inhibition(0.005, 0.01, 0.0) == pytest.approx(50.0)
 
 
+def test_compute_pct_inhibition_endpoint() -> None:
+    assert compute_pct_inhibition_endpoint(0.12, 0.12, 0.06) == pytest.approx(0.0)
+    assert compute_pct_inhibition_endpoint(0.06, 0.12, 0.06) == pytest.approx(100.0)
+    assert compute_pct_inhibition_endpoint(0.09, 0.12, 0.06) == pytest.approx(50.0)
+
+
 def test_q2_pass_vehicle_hot_nt_flat(tmp_path: Path) -> None:
     csv_path = tmp_path / "kinetics.csv"
     map_path = tmp_path / "plate_map.json"
@@ -116,10 +139,46 @@ def test_q2_pass_vehicle_hot_nt_flat(tmp_path: Path) -> None:
 
     result = analyze_kinetics_file(csv_path, plate_map_json=map_path, round_number=2)
     assert result["qc_gates"]["q2_pass"] is True
+    assert result["scoring_mode"] == "slope"
     assert result["qc_gates"]["q3_pass"] is True
     assert result["qc_gates"]["pos_ctrl_median_pct"] >= HIT_THRESHOLD_PCT
     assert "T1262" in result["compounds"]
     assert result["compounds"]["T1262"]["label"] == "confirmed_hit"
+
+
+def test_q2_fail_falls_back_to_endpoint_scoring(tmp_path: Path) -> None:
+    """When slope Q2 fails (all flat), score compounds via aligned endpoint A490."""
+    csv_path = tmp_path / "kinetics.csv"
+    map_path = tmp_path / "plate_map.json"
+    _write_plate_map(map_path)
+    plateaus = {
+        "B3": 0.12,
+        "B7": 0.12,
+        "C11": 0.12,
+        "D3": 0.06,
+        "D7": 0.06,
+        "E11": 0.06,
+        "F3": 0.07,
+        "F7": 0.07,
+        "G11": 0.07,
+        "B2": 0.08,
+        "D2": 0.08,
+        "F2": 0.08,
+        "B5": 0.11,
+        "D5": 0.11,
+        "F5": 0.11,
+    }
+    _write_kinetics_csv_plateau(csv_path, plateaus)
+
+    result = analyze_kinetics_file(csv_path, plate_map_json=map_path, round_number=2)
+    assert result["qc_gates"]["q2_pass"] is False
+    assert result["qc_gates"]["q2_endpoint_pass"] is True
+    assert result["scoring_mode"] == "endpoint"
+    assert result["qc_gates"]["q3_pass"] is True
+    assert result["qc_gates"]["pos_ctrl_median_pct"] >= HIT_THRESHOLD_PCT
+    assert result["compounds"]["T1262"]["label"] == "confirmed_hit"
+    assert result["compounds"]["T1005"]["label"] == "confirmed_substrate"
+    assert "T1005" not in {h["compound_id"] for h in result["hits"]}
 
 
 def test_q2_fail_both_flat(tmp_path: Path) -> None:

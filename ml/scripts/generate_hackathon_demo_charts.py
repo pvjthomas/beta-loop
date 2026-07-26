@@ -15,7 +15,7 @@ import matplotlib.patches as mpatches
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO_ROOT / "data" / "screens" / "demo"
 PVJ_OUTPUT = REPO_ROOT / "pvjthomas" / "output"
-R2_EDA = REPO_ROOT / "data" / "screens" / "2" / "post-run" / "analysis" / "r2_round_summary_eda.json"
+R2_EDA = REPO_ROOT / "data" / "screens" / "2" / "post-run" / "v2" / "analysis" / "r2_round_summary_eda.json"
 NITROCEFIN_TIMING = REPO_ROOT / "data" / "screens" / "2" / "post-run" / "nitrocefin_timing.json"
 READER_LID_CLOSE = REPO_ROOT / "data" / "screens" / "2" / "post-run" / "reader_lid_close_utc.txt"
 R2_COMPOUND_LIST = REPO_ROOT / "data" / "screens" / "2" / "v5" / "compound_list.json"

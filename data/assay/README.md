@@ -28,9 +28,13 @@ See [`STORAGE.md`](../STORAGE.md) for the full git vs local policy.
     "q1t_timing_unknown": false,
     "q1t_timing_stagger": true,
     "q2_pass": true,
+    "q2_endpoint_pass": true,
     "q3_pass": true,
     "pos_ctrl_median_pct": 92.5
   },
+  "scoring_mode": "endpoint",
+  "analysis_version": "v2",
+  "analysis_dir": "data/screens/2/post-run/v2/analysis",
   "timing_stagger_min": 22.5,
   "wells_timing_suspect": ["B2", "D2"],
   "pre_read_overage_wells": [],

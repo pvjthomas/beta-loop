@@ -39,13 +39,25 @@ It answers: *how much did nitrocefin turnover in this well get suppressed, compa
 | **No-TEM-1** (3/3 wells) | **100** | Flat — no enzyme activity |
 | **Sample well** | **0–100+** | Between those extremes |
 
-Formula (per well):
+**Scoring mode** (chosen automatically after Q2):
+
+| Mode | When | Per-well metric |
+|------|------|-----------------|
+| **`slope`** | Q2 pass — vehicle HOT, no-TEM-1 FLAT | A490 **slope** in aligned 180–480 s window |
+| **`endpoint`** | Q2 fail — slopes ambiguous / all flat | A490 at **t0 + 600 s** (aligned reaction time) |
+
+Formula (per well — same structure for both metrics):
 
 ```
-inhibition_score = 100 × (1 − (metric_sample − metric_no_tem1) / (metric_vehicle − metric_no_tem1))
+inhibition_score = 100 × (metric_vehicle − metric_sample) / (metric_vehicle − metric_no_tem1)
 ```
+
+Slope mode expands to `100 × (1 − (slope_sample − slope_no_tem1) / (slope_vehicle − slope_no_tem1))`.
+Endpoint mode uses final yellow product level instead of rate.
 
 (`pct_inhibition` in code — same thing.)
+
+**Why endpoint fallback:** Strong inhibitors and no-TEM-1 both have **~zero slope** — the information is in **how much yellow accumulated**, not the derivative. When slope Q2 fails (vehicle not HOT vs no-TEM-1), endpoint A490 still separates active enzyme (high vehicle absorbance) from inhibition (low sample absorbance).
 
 **How controls enter:** take the **median metric from 3/3 vehicle wells** and **median from 3/3 no-TEM-1 wells**, then plug into the formula for each sample well.
 
@@ -53,9 +65,11 @@ inhibition_score = 100 × (1 − (metric_sample − metric_no_tem1) / (metric_ve
 
 ---
 
-## Signal classification — FLAT vs HOT
+## Signal classification — FLAT vs HOT (slope QC only)
 
 Per-well metric: **A490 slope** in the **180–480 s kinetic window**, aligned to that well's nitrocefin `t0` when timing metadata is available (see Q1T).
+
+Used for **Q2 enzyme gate** and **`timing_suspect`** disambiguation — not for compound calls when `scoring_mode = endpoint`.
 
 | Label | Rule (per well) |
 |-------|-----------------|
@@ -67,11 +81,14 @@ Per-well metric: **A490 slope** in the **180–480 s kinetic window**, aligned t
 
 ---
 
-## Scoring (kinetic readout)
+## Scoring (compound calls)
 
-| Wavelength | Metric (per well) |
-|------------|-------------------|
-| **490 nm** | Slope of A490 vs time in **180–480 s** window aligned to well `t0` (see `kinetic_schedule.json`) |
+| Mode | Wavelength | Metric (per well) |
+|------|------------|-------------------|
+| **slope** (Q2 pass) | **490 nm** | Slope of A490 vs time in **180–480 s** window aligned to well `t0` |
+| **endpoint** (Q2 fail) | **490 nm** | A490 at **t0 + 600 s** (closest reader timepoint; fallback = last read if no timing) |
+
+Slopes are **always computed** for QC. Compound `% inhibition` uses endpoint when slope Q2 fails.
 
 ### Compound calls (median of 3/3 sample wells)
 
@@ -115,12 +132,19 @@ flowchart TD
     Q2{"Q2 — Is enzyme working?<br/>Vehicle HOT · no-TEM-1 FLAT?"}
     Q2 -->|both FLAT| FAIL_DEAD["DEAD → hand_q2_enzyme_check"]
     Q2 -->|both HOT| FAIL_CONTAM["CONTAM → hand_q2_enzyme_check"]
-    Q2 -->|no separation| FAIL1["HARD FAIL → hand_q2_enzyme_check"]
-    Q2 -->|V hot NT flat| Q3
+    Q2 -->|no separation| ENDPT[Endpoint analysis<br/>A490 @ t0+600s]
+    Q2 -->|V hot NT flat| Q3S
 
-    Q3{"Q3 — Can we detect inhibition?<br/>Clavulanic median score ≥50?"}
-    Q3 -->|No| FAIL2["ASSAY FAIL → hand_q3_inhibition_check"]
-    Q3 -->|Yes| STEP2B
+    ENDPT --> Q2E{"Q2E — Endpoint dynamic range?<br/>vehicle A490 − no-TEM-1 ≥ ε"}
+    Q2E -->|No| FAIL1["HARD FAIL → hand_q2_enzyme_check"]
+    Q2E -->|Yes| Q3E{"Q3 — Clavulanic endpoint ≥50%?"}
+
+    Q3S{"Q3 — Clavulanic slope score ≥50?"}
+    Q3S -->|No| FAIL2["ASSAY FAIL → hand_q3_inhibition_check"]
+    Q3S -->|Yes| STEP2B
+
+    Q3E -->|No| FAIL2
+    Q3E -->|Yes| STEP2B
 
     STEP2B[Step 2b — Flat sample disambiguation] --> CLASSIFY
 
@@ -173,8 +197,9 @@ flowchart TD
 |------|----------|------|
 | **Q1** | Do we have data? | **≥29/36** wells have valid metric |
 | **Q1T** | Timing aligned? | `nitrocefin_timing.json` present; per-well windows computed; stagger flagged if >15 min |
-| **Q2** | Is enzyme working? | **≥2/3** vehicle **HOT**, **≥2/3** no-TEM-1 **FLAT**, vehicle median ≥ **3×** no-TEM-1 | Fail → [hand_q2_enzyme_check.md](hand_q2_enzyme_check.md) |
-| **Q3** | Can we detect inhibition? | **3/3** clavulanic median score ≥50 | Fail → [hand_q3_inhibition_check.md](hand_q3_inhibition_check.md) |
+| **Q2** | Is enzyme working (slopes)? | **≥2/3** vehicle **HOT**, **≥2/3** no-TEM-1 **FLAT**, vehicle median ≥ **3×** no-TEM-1 | Fail → endpoint fallback (not immediate stop) |
+| **Q2E** | Endpoint dynamic range? | **≥2/3** vehicle and no-TEM-1 endpoints; `median(A490_vehicle) − median(A490_no_tem1) ≥ 0.02` | Fail → [hand_q2_enzyme_check.md](hand_q2_enzyme_check.md) |
+| **Q3** | Can we detect inhibition? | Clavulanic median score ≥50 (slope or endpoint per `scoring_mode`) | Fail → [hand_q3_inhibition_check.md](hand_q3_inhibition_check.md) |
 
 ---
 
@@ -236,44 +261,57 @@ Vehicle wells (dosed last) define the reference reaction age. Early-dosed substr
 
 ---
 
-## Step 2 — Control gate (Q2 / Q3)
+## Step 2 — Control gate (Q2 slope → endpoint fallback / Q3)
 
-**If Q2 or Q3 fails, run the matching hand protocol before touching discovery data:**
+**Macro flow:** always compute slopes for Q2. If Q2 passes → `scoring_mode = slope`. If Q2 fails → compute aligned endpoint A490 and set `scoring_mode = endpoint` (requires Q2E pass).
+
+**If Q2E or Q3 fails after endpoint fallback, run the matching hand protocol before trusting discovery data:**
 
 | Fail | Hand protocol | Wells |
 |------|---------------|-------|
-| **Q2** — enzyme dead | [hand_q2_enzyme_check.md](hand_q2_enzyme_check.md) | 10/96 |
+| **Q2 + Q2E** — no slope or endpoint separation | [hand_q2_enzyme_check.md](hand_q2_enzyme_check.md) | 10/96 |
 | **Q3** — inhibition not detected | [hand_q3_inhibition_check.md](hand_q3_inhibition_check.md) | 12/96 |
 
-### Q2 pass criteria
+### Q2 pass criteria (slope QC)
 
 **≥2/3** vehicle wells **HOT** AND **≥2/3** no-TEM-1 wells **FLAT** AND vehicle median slope ≥ **3×** no-TEM-1 median.
 
+### Q2E pass criteria (endpoint QC — when Q2 fails)
+
+**≥2/3** vehicle and no-TEM-1 wells have valid aligned endpoint reads AND:
+
+```
+median(A490_vehicle @ t0+600s) − median(A490_no_tem1 @ t0+600s) ≥ 0.02
+```
+
 ### Q2 fail patterns
 
-| Vehicle | No-TEM-1 | Likely cause | Route |
+| Vehicle slope | No-TEM-1 slope | Likely cause | Route |
 |---------|----------|--------------|-------|
-| FLAT | FLAT | Dead enzyme / nitrocefin / reader | → hand_q2 → Step 4 **DEAD** |
+| FLAT | FLAT | Dead enzyme / nitrocefin / reader — or flat-plateau assay | → **endpoint fallback** (Q2E) |
 | HOT | HOT | Enzyme in NT wells or background drift | → hand_q2 |
 | FLAT | HOT | Pipetting error / wrong wells | → hand_q2 |
-| AMBIGUOUS | AMBIGUOUS | Weak signal — check nitrocefin stock, 490 nm | → hand_q2 |
+| AMBIGUOUS | AMBIGUOUS | Weak signal — check nitrocefin stock, 490 nm | → endpoint fallback (Q2E) |
 
 ```mermaid
 flowchart TD
-    Q2{"Q2 — Is enzyme working?<br/>Vehicle HOT and no-TEM-1 FLAT?"}
-    Q2 -->|both FLAT| FAIL_DEAD["DEAD assay → hand_q2"]
-    Q2 -->|both HOT| FAIL_CONTAM["Contamination → hand_q2"]
-    Q2 -->|No separation| FAIL1["HARD FAIL → hand_q2"]
-    Q2 -->|V hot NT flat| Q3{"Q3 — Can we detect inhibition?<br/>Pos ctrl T19860 median score ≥50?"}
-    Q3 -->|No| FAIL2["ASSAY FAIL → hand_q3"]
-    Q3 -->|Yes| PASS[Plate QC pass → Step 2b]
+    Q2{"Q2 — Slope separation?<br/>Vehicle HOT · no-TEM-1 FLAT?"}
+    Q2 -->|Pass| Q3S{"Q3 — Clavulanic slope ≥50%?<br/>scoring_mode = slope"}
+    Q2 -->|Fail| ENDPT["Endpoint analysis<br/>A490 @ t0+600s aligned"]
+    ENDPT --> Q2E{"Q2E — vehicle − no-TEM-1 ≥ 0.02?"}
+    Q2E -->|No| FAIL1["HARD FAIL → hand_q2"]
+    Q2E -->|Yes| Q3E{"Q3 — Clavulanic endpoint ≥50%?<br/>scoring_mode = endpoint"}
+    Q3S -->|No| FAIL2["ASSAY FAIL → hand_q3"]
+    Q3S -->|Yes| PASS[Plate QC pass → Step 2b]
+    Q3E -->|No| FAIL2
+    Q3E -->|Yes| PASS
 ```
 
-| Control | Reps | Kinetic expectation |
-|---------|------|---------------------|
-| **Vehicle** (DMSO + TEM-1) | 3/3 | **HOT** — steep slope |
-| **No-TEM-1** (DMSO, no enzyme) | 3/3 | **FLAT** (~0 slope) |
-| **Positive T19860** (clavulanic) | 3/3 | **FLAT** vs vehicle |
+| Control | Reps | Slope expectation | Endpoint expectation |
+|---------|------|-------------------|----------------------|
+| **Vehicle** (DMSO + TEM-1) | 3/3 | **HOT** — steep slope | **High** A490 @ t0+600s |
+| **No-TEM-1** (DMSO, no enzyme) | 3/3 | **FLAT** (~0 slope) | **Low** A490 |
+| **Positive T19860** (clavulanic) | 3/3 | **FLAT** (~0 vs vehicle) | **Low** A490 (like no-TEM-1) |
 
 ---
 
@@ -285,7 +323,7 @@ After Q3 passes, before applying compound priors, resolve **sample wells that ar
 flowchart TD
     S[Sample well FLAT, vehicle HOT] --> T{t0 earlier than vehicle by &gt; 10 min?}
     T -->|yes| P{Pos ctrl also FLAT?}
-    T -->|no| SCORE[Score normally via pct_inhibition]
+    T -->|no| SCORE[Score via pct_inhibition<br/>slope or endpoint per scoring_mode]
     P -->|yes| SCORE
     P -->|no| TS[timing_suspect — substrate plateau artifact]
     TS --> RET[Do not call HIT — label retest_sync_dose]
@@ -409,8 +447,11 @@ Substrate controls     3/3    HOT
 | Plate map | `data/screens/2/v5/plate_map.json` |
 | Timing metadata | `nitrocefin_timing.json` in run folder |
 | Output summary | `data/assay/run_2_summary.json` (labels + QC gates per compound) |
-| **Readable report** | `data/screens/2/post-run/run2_decision_report.md` (generated from summary JSON) |
+| **Readable report** | `data/screens/2/post-run/v2/run2_decision_report.md` (generated from summary JSON) |
+| **Analysis v1 (slope-only, frozen)** | `data/screens/2/post-run/v1/` |
+| **Analysis v2 (endpoint fallback, active)** | `data/screens/2/post-run/v2/` |
 | Hit threshold | Median inhibition score ≥50 across 3/3 sample wells (`HIT_THRESHOLD_PCT = 50.0`) |
+| Scoring mode | `slope` when Q2 pass; `endpoint` when Q2 fail + Q2E pass (`scoring_mode` in summary JSON) |
 
 ---
 

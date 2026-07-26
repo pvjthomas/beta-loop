@@ -37,8 +37,8 @@ from pvjthomas.plates import (  # noqa: E402
 
 V5 = REPO / "data/screens/2/v5"
 OUTPUT = REPO / "pvjthomas/output"
-R2_EDA = REPO / "data/screens/2/post-run/analysis/r2_round_summary_eda.json"
-R2_KINETICS = REPO / "data/screens/2/post-run/analysis/r2_kinetics_annotated.csv"
+R2_EDA = REPO / "data/screens/2/post-run/v2/analysis/r2_round_summary_eda.json"
+R2_KINETICS = REPO / "data/screens/2/post-run/v2/analysis/r2_kinetics_annotated.csv"
 
 # Run 3 v2 — explicit selection (order → column-strip layout).
 # Cut expected tier-1 hits + expected substrate; keep surprises/novels; add unknowns.
@@ -282,9 +282,9 @@ def _format_r2_v1_table(
     standalone: bool = False,
 ) -> list[str]:
     eda_link = (
-        "[`r2_round_summary_eda.json`](../../2/post-run/analysis/r2_round_summary_eda.json)"
+        "[`r2_round_summary_eda.json`](../../2/post-run/v2/analysis/r2_round_summary_eda.json)"
         if standalone
-        else "[`r2_round_summary_eda.json`](../../../../data/screens/2/post-run/analysis/r2_round_summary_eda.json)"
+        else "[`r2_round_summary_eda.json`](../../../../data/screens/2/post-run/v2/analysis/r2_round_summary_eda.json)"
     )
     lines = [
         "## Compound table (concentrations, class, R2 history)" if not standalone else "",

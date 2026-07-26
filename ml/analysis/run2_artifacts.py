@@ -14,19 +14,29 @@ from zoneinfo import ZoneInfo
 from analysis.decision_tree_report import write_decision_tree_report
 from analysis.kinetics import analyze_kinetics_file
 from analysis.run_log_timing import analyze_run_log
+from analysis.run2_paths import (
+    R2_ANALYSIS_VERSION,
+    R2_DECISION_REPORT,
+    R2_GEN5_PDF,
+    R2_KINETICS_CSV,
+    R2_POST_RUN_DIR,
+    R2_READER_LID_CLOSE_TXT,
+    R2_TIMING_JSON,
+    R2_V2_DIR,
+    r2_analysis_dir,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-POST_RUN_DIR = REPO_ROOT / "data" / "screens" / "2" / "post-run"
 V5_PLATE_MAP = REPO_ROOT / "data" / "screens" / "2" / "v5" / "plate_map.json"
 PLATE_MAP_R2 = REPO_ROOT / "data" / "plate_map_r2.json"
 ASSAY_DIR = REPO_ROOT / "data" / "assay"
 RUN2_SUMMARY = ASSAY_DIR / "run_2_summary.json"
-DECISION_REPORT = POST_RUN_DIR / "run2_decision_report.md"
-KINETICS_CSV = POST_RUN_DIR / "kinetics_r2.csv"
-GEN5_PDF = POST_RUN_DIR / "r2_gen5_export.pdf"
-RUN_LOG = POST_RUN_DIR / "run_log_exec_tem1_activity_screen_hack_world_22_20260725_230432.txt"
-TIMING_JSON = POST_RUN_DIR / "nitrocefin_timing.json"
-READER_LID_CLOSE_TXT = POST_RUN_DIR / "reader_lid_close_utc.txt"
+GEN5_PDF = R2_GEN5_PDF
+KINETICS_CSV = R2_KINETICS_CSV
+RUN_LOG = R2_POST_RUN_DIR / "run_log_exec_tem1_activity_screen_hack_world_22_20260725_230432.txt"
+TIMING_JSON = R2_TIMING_JSON
+READER_LID_CLOSE_TXT = R2_READER_LID_CLOSE_TXT
+DECISION_REPORT = R2_DECISION_REPORT
 
 PACIFIC = ZoneInfo("America/Los_Angeles")
 
@@ -211,6 +221,7 @@ def build_run_2_summary(
         "round": 2,
         "plan_version": 5,
         "plan_label": "r2-discovery-v5",
+        "analysis_version": R2_ANALYSIS_VERSION,
         "status": "complete",
         "plate_map_active": str(plate_map_json.relative_to(REPO_ROOT)),
         "plate_map_snapshot": "data/screens/2/v5/plate_map.json",
@@ -218,6 +229,7 @@ def build_run_2_summary(
         "source_csv_local": None,
         "nitrocefin_timing_json": str(nitrocefin_timing_json.relative_to(REPO_ROOT)),
         "reader_lid_close_utc": reader_lid_close_utc,
+        "analysis_dir": str(r2_analysis_dir(R2_ANALYSIS_VERSION).relative_to(REPO_ROOT)),
         "normalization": {
             "vehicle_wells": sorted(vehicle_wells),
             "no_tem1_wells": sorted(no_tem1_wells),
@@ -234,9 +246,11 @@ def write_run2_artifacts(
     gen5_pdf: Path = GEN5_PDF,
     kinetics_csv: Path = KINETICS_CSV,
     plate_map_v5: Path = V5_PLATE_MAP,
+    analysis_version: str = R2_ANALYSIS_VERSION,
 ) -> dict[str, Path]:
-    """Generate all four Run 2 artifacts; return paths written."""
-    POST_RUN_DIR.mkdir(parents=True, exist_ok=True)
+    """Generate Run 2 post-run artifacts; return paths written."""
+    R2_POST_RUN_DIR.mkdir(parents=True, exist_ok=True)
+    r2_analysis_dir(analysis_version).mkdir(parents=True, exist_ok=True)
     ASSAY_DIR.mkdir(parents=True, exist_ok=True)
 
     timing = extract_nitrocefin_timing_from_run_log(log_path, plate_map_json=plate_map_v5)
@@ -259,7 +273,26 @@ def write_run2_artifacts(
     )
     RUN2_SUMMARY.write_text(json.dumps(summary, indent=2) + "\n")
 
-    write_decision_tree_report(RUN2_SUMMARY, DECISION_REPORT, compound_list_path=plate_map_v5.parent / "compound_list.json")
+    from analysis.plates import analyze_kinetics_run
+
+    reader_utc_txt = READER_LID_CLOSE_TXT.read_text().splitlines()[0].strip()
+    analyze_kinetics_run(
+        kinetics_csv,
+        plate_map_json=PLATE_MAP_R2,
+        run=2,
+        version=5,
+        output_dir=r2_analysis_dir(analysis_version),
+        nitrocefin_timing_json=TIMING_JSON,
+        reader_lid_close_utc=reader_utc_txt,
+        parsed_json=r2_analysis_dir("v1") / "analysis" / "r2_parsed.json",
+    )
+
+    decision_report = (
+        R2_V2_DIR / "run2_decision_report.md"
+        if analysis_version == "v2"
+        else R2_POST_RUN_DIR / analysis_version / "run2_decision_report.md"
+    )
+    write_decision_tree_report(RUN2_SUMMARY, decision_report, compound_list_path=plate_map_v5.parent / "compound_list.json")
 
     # Keep agent tool path in sync
     agent_kinetics = REPO_ROOT / "data" / "kinetics_r2.csv"
@@ -271,5 +304,6 @@ def write_run2_artifacts(
         "reader_lid_close_utc_txt": READER_LID_CLOSE_TXT,
         "plate_map_r2_json": PLATE_MAP_R2,
         "run_2_summary_json": RUN2_SUMMARY,
-        "decision_report_md": DECISION_REPORT,
+        "decision_report_md": decision_report,
+        "analysis_dir": r2_analysis_dir(analysis_version),
     }
