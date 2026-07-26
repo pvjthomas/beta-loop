@@ -38,18 +38,16 @@ def _tuya_press(cid: str) -> None:
 
 
 def wellplate_shaker_run(shaker=None, ensure_state: str = ""):
-    """Start the shaker with a single button press. No state tracking.
+    """Toggle the shaker run button once.
 
-    Simplified for this workflow: just start the shaker and never stop it. There
-    is no running-flag check — an ``ensure_state="off"`` request is ignored so the
-    shaker is left running. Everything else is a single press.
+    There is no reliable state sensor; ``ensure_state`` is treated as the
+    operator's intent for logging. In a controlled workflow, call once with
+    ``ensure_state="on"`` to start and once with ``ensure_state="off"`` to stop.
     """
-    if (ensure_state or "").strip().lower() == "off":
-        print("wellplate_shaker_run: 'off' ignored — leaving shaker running")
-        return {"success": True, "running": True, "pressed": False}
+    desired = (ensure_state or "toggle").strip().lower()
 
     if not is_sim_mode():
         _tuya_press(SWITCH_CID)
 
-    print("wellplate_shaker_run: pressed shaker run button once (started)")
-    return {"success": True, "running": True, "pressed": True}
+    print(f"wellplate_shaker_run: pressed shaker run button once (requested {desired})")
+    return {"success": True, "requested": desired, "pressed": True}

@@ -84,11 +84,14 @@ export default function Tem1ActivityScreen() {
   const [assayPlate, setAssayPlate] = useState(String(initial("assay_plate", firstName(["wellplate_96_flatbottom"], "wellplate_96_flatbottom"))));
   const [plateReader, setPlateReader] = useState(String(initial("platereader", firstName(["plate_reader"], "plate_reader"))));
   const [plateHome, setPlateHome] = useState(String(initial("plate_home", firstName(["wellplate_holder_tags", "wellplate_holder_fixture_plate", "plate_stand_holder"], "wellplate_holder_tags"))));
+  const [shaker, setShaker] = useState(String(initial("shaker", firstName(["wellplate_shaker"], "wellplate_shaker_1"))));
+  const [shakerSlot, setShakerSlot] = useState(String(initial("shaker_slot", "slot_1")));
 
   const [enzymeAnchor, setEnzymeAnchor] = useState(String(initial("enzyme_anchor", "hole_8")));
   const [noEnzymeAnchor, setNoEnzymeAnchor] = useState(String(initial("no_enzyme_anchor", "hole_7")));
   const [vehicleAnchor, setVehicleAnchor] = useState(String(initial("vehicle_anchor", "hole_5")));
   const [nitrocefinAnchor, setNitrocefinAnchor] = useState(String(initial("nitrocefin_anchor", "hole_10")));
+  const [plateMixMin, setPlateMixMin] = useState(Number(initial("plate_mix_minutes", 1)));
   const [waitMin, setWaitMin] = useState(Number(initial("preincubation_minutes", 10)));
   const [runName, setRunName] = useState(String(initial("run_name", "tem1_activity_screen")));
   const [sourceOverage, setSourceOverage] = useState(30);
@@ -139,7 +142,7 @@ export default function Tem1ActivityScreen() {
   ].map((r) => ({ ...r, nitrocefinVol: nitrocefinVolume, total: r.prepVol + r.addVol + nitrocefinVolume }));
 
   const values = {
-    pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, platereader: plateReader, plate_home: plateHome,
+    pipette, tipbox, source_block: sourceBlock, assay_plate: assayPlate, platereader: plateReader, plate_home: plateHome, shaker, shaker_slot: shakerSlot,
     enzyme_anchor: enzymeAnchor, no_enzyme_anchor: noEnzymeAnchor, vehicle_anchor: vehicleAnchor, nitrocefin_anchor: nitrocefinAnchor,
     positive_source_plate: positivePlate, positive_source_well: upper(positiveWell),
     positive_wells: csv(POSITIVE_WELLS), negative_wells: csv(NEGATIVE_WELLS), vehicle_wells: csv(VEHICLE_WELLS),
@@ -147,7 +150,7 @@ export default function Tem1ActivityScreen() {
     tem1_well_count: tem1Wells.length, negative_well_count: NEGATIVE_WELLS.length, vehicle_addition_count: vehicleAdditionWells.length,
     positive_well_count: POSITIVE_WELLS.length, replicate_count: 3, all_assay_well_count: allWells.length,
     enzyme_volume_ul: enzymeVolume, compound_volume_ul: compoundVolume, nitrocefin_volume_ul: nitrocefinVolume,
-    preincubation_minutes: waitMin, run_name: runName.trim() || "tem1_activity_screen",
+    plate_mix_minutes: plateMixMin, preincubation_minutes: waitMin, run_name: runName.trim() || "tem1_activity_screen",
     ...Object.fromEntries(compounds.flatMap((c, i) => [
       [`compound_${i + 1}_source_plate`, c.plate],
       [`compound_${i + 1}_source_well`, upper(c.well)],
@@ -158,7 +161,8 @@ export default function Tem1ActivityScreen() {
 
   function localErrors() {
     const e: string[] = [];
-    if (!pipette || !tipbox || !sourceBlock || !assayPlate || !plateReader || !plateHome) e.push("Select all required world objects.");
+    if (!pipette || !tipbox || !sourceBlock || !assayPlate || !plateReader || !plateHome || !shaker) e.push("Select all required world objects.");
+    if (!(plateMixMin >= 0)) e.push("Plate mix time must be zero or positive.");
     if (!(waitMin >= 0)) e.push("Pre-incubation time must be zero or positive.");
     if (sourceOverage < 0 || compoundOverage < 0 || nitrocefinOverage < 0) e.push("Deck-loading overage values must be zero or positive.");
     const wellRe = /^[A-H](?:[1-9]|1[0-2])$/;
@@ -203,6 +207,7 @@ export default function Tem1ActivityScreen() {
 
         <h2 style={STYLE.h2}>Run Timing</h2>
         <div style={STYLE.grid2}>
+          <div><label style={STYLE.label}>Plate mix minutes</label><input style={STYLE.field} type="number" min={0} step={0.25} value={plateMixMin} onChange={(e) => setPlateMixMin(Number(e.target.value))} /></div>
           <div><label style={STYLE.label}>Pre-incubation minutes</label><input style={STYLE.field} type="number" min={0} step={0.5} value={waitMin} onChange={(e) => setWaitMin(Number(e.target.value))} /></div>
           <div><label style={STYLE.label}>Run name</label><input style={STYLE.field} value={runName} onChange={(e) => setRunName(e.target.value)} /></div>
         </div>
@@ -215,6 +220,8 @@ export default function Tem1ActivityScreen() {
           <div><label style={STYLE.label}>Assay plate</label>{selectObj(assayPlate, setAssayPlate, objectOptions(["wellplate_96_flatbottom"]))}</div>
           <div><label style={STYLE.label}>Plate reader</label>{selectObj(plateReader, setPlateReader, objectOptions(["plate_reader"]))}</div>
           <div><label style={STYLE.label}>Plate home</label>{selectObj(plateHome, setPlateHome, objectOptions(["wellplate_holder_tags", "wellplate_holder_fixture_plate", "plate_stand_holder"]))}</div>
+          <div><label style={STYLE.label}>Plate shaker</label>{selectObj(shaker, setShaker, objectOptions(["wellplate_shaker"]))}</div>
+          <div><label style={STYLE.label}>Shaker slot</label><select style={STYLE.field} value={shakerSlot} onChange={(e) => setShakerSlot(e.target.value)}>{["slot_1", "slot_2", "slot_3", "slot_4"].map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         </div>
 
         <h2 style={STYLE.h2}>Cold-Block Reagents</h2>
