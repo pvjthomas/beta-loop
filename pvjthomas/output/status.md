@@ -2,23 +2,23 @@
 
 **Owner:** Philip (pvjthomas)  
 **Updated:** 2026-07-25  
-**Active screen:** Round 2 discovery **v4** (`r2-discovery-v4`) — pending sign-off
+**Active screen:** Round 2 discovery **v5** (`r2-discovery-v5`) — pending sign-off
 
 This folder is a working copy of reports and plate artifacts. Canonical versioned files live under [`data/screens/`](../../data/screens/) and [`pvjthomas/runs/`](../runs/).
 
 ---
 
-## Round 2 discovery — current proposal (v4)
+## Round 2 discovery — current proposal (v5)
 
 | Item | Value |
 |------|-------|
 | **Status** | Pending sign-off → promote to `data/plate_map_r2.json` for robot |
-| **Compounds** | 10 (same list as v2/v3) |
-| **Replicates** | 3 per compound |
-| **Controls** | 3 vehicle · 3 no-TEM-1 · 3 positive (T19860 @ 50 µM) |
-| **Wells used** | 39 of 96 |
-| **Layout** | Spaced interior — no edge wells (A/H, cols 1/12 empty); samples on checkerboard |
-| **Concentrations** | Literature-backed (unchanged from v3); T1262 @ **1 µM**, others mostly @ 50 µM |
+| **Compounds** | 9 discovery + clavulanic acid as **positive control only** (not duplicated as a sample) |
+| **Replicates** | 3 per compound, **same column, rows B/D/F** |
+| **Controls** | 3 vehicle · 3 no-TEM-1 · 3 positive — **3/7 on B/D/F; 11 on C/E/G** |
+| **Wells used** | 36 of 96 |
+| **Layout** | Column-strip, x-spaced — band 1: B/D/F cols 2/4/6/8/10; band 2: C/E/G cols **5/9**; band 3: C/E/G cols 3/7 |
+| **Concentrations** | Literature-backed (unchanged from v4); T1262 @ **1 µM**, others mostly @ 50 µM |
 
 ### Version history (Round 2)
 
@@ -27,9 +27,10 @@ This folder is a working copy of reports and plate artifacts. Canonical versione
 | v1 | `r2-discovery-v1` | 24 compounds × triplicate | Superseded |
 | v2 | `r2-discovery-v2` | Cut to 10 compounds; compact layout | Superseded |
 | v3 | `r2-discovery-v3` | Same layout as v2 + per-compound literature concentrations | Superseded by v4 layout |
-| **v4** | **`r2-discovery-v4`** | **Same compounds/concentrations as v3; spaced interior layout only** | **Current proposal** |
+| **v4** | `r2-discovery-v4` | Spaced interior checkerboard | Superseded by v5 layout |
+| **v5** | **`r2-discovery-v5`** | **Column-strip: triplicates on B/D/F per column** | **Current proposal** |
 
-Rationale docs: [`pvjthomas/runs/2/`](../runs/2/) (v1–v4).
+Rationale docs: [`pvjthomas/runs/2/`](../runs/2/) (v1–v5).
 
 ---
 
@@ -39,17 +40,18 @@ Rationale docs: [`pvjthomas/runs/2/`](../runs/2/) (v1–v4).
 
 | File | Description |
 |------|-------------|
-| [`plate_map_r2_v4.json`](plate_map_r2_v4.json) | **Current** plate map JSON |
-| [`plate_map_r2_v4.png`](plate_map_r2_v4.png) | Visualization — color by sample type |
-| [`plate_map_r2_v4_by_compound.png`](plate_map_r2_v4_by_compound.png) | Visualization — color by compound ID |
-| [`compound_list_r2_v4.json`](compound_list_r2_v4.json) | Compound list with literature-backed concentrations |
+| [`plate_map_r2_v5.json`](plate_map_r2_v5.json) | **Current** plate map JSON |
+| [`plate_map_r2_v5.png`](plate_map_r2_v5.png) | Visualization — color by sample type |
+| [`plate_map_r2_v5_by_compound.png`](plate_map_r2_v5_by_compound.png) | Visualization — color by compound ID |
+| [`compound_list_r2_v5.json`](compound_list_r2_v5.json) | Compound list with literature-backed concentrations |
+| `plate_map_r2_v4.*` | Previous v4 spaced-interior layout (archive) |
 | `plate_map.json` / `plate_map.png` | Earlier v2-era working copy (archive) |
 
 Canonical paths:
 
-- `data/screens/2/v4/plate_map.json`
-- `data/screens/2/v4/plate_map.png`
-- `data/screens/2/v4/plate_map_by_compound.png`
+- `data/screens/2/v5/plate_map.json`
+- `data/screens/2/v5/plate_map.png`
+- `data/screens/2/v5/plate_map_by_compound.png`
 
 ### Reports & tables
 
@@ -63,20 +65,21 @@ Canonical paths:
 
 ---
 
-## 10 compounds on the v4 plate
+## 9 discovery compounds on the v5 plate
+
+T19860 (clavulanic acid) is **positive control only** — not in this table.
 
 | Slot | ID | Name | Screen µM | Bucket |
 |------|-----|------|-----------|--------|
-| 1 | T19860 | Clavulanic Acid | 50 | tier1_inhibitor |
-| 2 | T1262 | Tazobactam | **1.0** | tier1_inhibitor |
-| 3 | T6685 | Sulbactam sodium | 50 | tier1_inhibitor |
-| 4 | T14081 | Enmetazobactam | 50 | tier1_inhibitor |
-| 5 | T1005 | Amoxicillin | 50 | substrate_control |
-| 6 | T1008 | Cephalexin | 50 | substrate_control |
-| 7 | T0224 | Meropenem | 50 | substrate_control |
-| 8 | T0985 | Oxacillin sodium salt | 50 | substrate_control |
-| 9 | T0138 | Cefpiramide acid | 50 | diverse_pick |
-| 10 | T8390 | Cefazolin | 50 | diverse_pick |
+| 1 | T1262 | Tazobactam | **1.0** | tier1_inhibitor |
+| 2 | T6685 | Sulbactam sodium | 50 | tier1_inhibitor |
+| 3 | T14081 | Enmetazobactam | 50 | tier1_inhibitor |
+| 4 | T1005 | Amoxicillin | 50 | substrate_control |
+| 5 | T1008 | Cephalexin | 50 | substrate_control |
+| 6 | T0224 | Meropenem | 50 | substrate_control |
+| 7 | T0985 | Oxacillin sodium salt | 50 | substrate_control |
+| 8 | T0138 | Cefpiramide acid | 50 | diverse_pick |
+| 9 | T8390 | Cefazolin | 50 | diverse_pick |
 
 ---
 
@@ -84,25 +87,25 @@ Canonical paths:
 
 | Task | Command |
 |------|---------|
-| Build v4 from v3 | `python ml/scripts/build_screen2_v4.py` |
-| Generate plate map from compound list | `python pvjthomas/scripts/generate_plate_map.py data/screens/2/v4/compound_list.json -o data/screens/2/v4/plate_map.json` |
-| Render PNG (sample type) | `python scripts/render_platemap.py data/screens/2/v4/plate_map.json` |
-| Render PNG (by compound) | `python scripts/render_platemap.py data/screens/2/v4/plate_map.json --by compound` |
+| Build v5 from v4 | `python ml/scripts/build_screen2_v5.py` |
+| Generate plate map from compound list | `python pvjthomas/scripts/generate_plate_map.py data/screens/2/v5/compound_list.json -o data/screens/2/v5/plate_map.json` |
+| Render PNG (sample type) | `python scripts/render_platemap.py data/screens/2/v5/plate_map.json` |
+| Render PNG (by compound) | `python scripts/render_platemap.py data/screens/2/v5/plate_map.json --by compound` |
 
 Code:
 
-- [`pvjthomas/plates.py`](../plates.py) — layout generator (`compact` vs `spaced_interior`)
+- [`pvjthomas/plates.py`](../plates.py) — layout generator (`compact`, `spaced_interior`, `column_strip`; see `.cursor/rules/plate-layout.mdc`)
 - [`ml/analysis/plate_viz.py`](../../ml/analysis/plate_viz.py) — colored PNG renderer
 - [`ml/scripts/build_screen2_v3.py`](../../ml/scripts/build_screen2_v3.py) — v3 concentrations from literature
-- [`ml/scripts/build_screen2_v4.py`](../../ml/scripts/build_screen2_v4.py) — v4 layout from v3
+- [`ml/scripts/build_screen2_v5.py`](../../ml/scripts/build_screen2_v5.py) — v5 column-strip layout from v4
 
 ---
 
 ## Next steps
 
-1. **Sign off v4** plate map (layout + concentrations).
-2. Promote: `cp data/screens/2/v4/plate_map.json data/plate_map_r2.json`
-3. Point active rationale at [`pvjthomas/runs/2/v4/selection_rationale.md`](../runs/2/v4/selection_rationale.md)
+1. **Sign off v5** plate map (layout + concentrations).
+2. Promote: `cp data/screens/2/v5/plate_map.json data/plate_map_r2.json`
+3. Point active rationale at [`pvjthomas/runs/2/v5/selection_rationale.md`](../runs/2/v5/selection_rationale.md)
 4. Run on robot / plate reader; merge results back via `ml/analysis/` pipeline
 
 ---
@@ -112,4 +115,4 @@ Code:
 | Round | Active version | Notes |
 |-------|----------------|-------|
 | R1 | v2 validation | Clavulanic vs DMSO @ 50 µM, 8 wells — [`data/screens/1/v2/`](../../data/screens/1/v2/) |
-| R2 | **v4 proposed** | See above |
+| R2 | **v5 proposed** | See above |

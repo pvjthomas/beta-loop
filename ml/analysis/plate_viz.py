@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.colors import ListedColormap
-from matplotlib.patches import Patch
+from matplotlib.patches import Patch, Rectangle
 from wellmap.util import ij_from_well
 
 PLATE_ROWS = 8
@@ -46,7 +45,7 @@ SAMPLE_TYPE_LABELS: dict[str, str] = {
 CONTROL_GROUP_LABELS: dict[str, str] = {
     "vehicle": "Vehicle (DMSO)",
     "no_tem1": "No TEM-1",
-    "pos_ctrl": "Positive control",
+    "pos_ctrl": "Positive control (POS)",
 }
 
 CONTROL_WELL_LABELS: dict[str, str] = {
@@ -55,7 +54,19 @@ CONTROL_WELL_LABELS: dict[str, str] = {
     "pos-ctrl-clavaculin": "POS",
 }
 
-# Distinct hues for compound-level coloring (supports 24+ unique groups).
+# Hatch pattern per category (matplotlib hatch strings).
+CATEGORY_HATCH: dict[str, str | None] = {
+    "vehicle": "....",
+    "no_tem1": "++",
+    "pos_ctrl": "///",
+    "tier1_inhibitor": None,
+    "substrate_control": "---",
+    "diverse_pick": "xxx",
+    "dose_response": "\\\\\\",
+    "sample": "||",
+    "control": "..",
+}
+
 COMPOUND_PALETTE: list[str] = [
     "#2563EB",
     "#DC2626",
@@ -112,8 +123,6 @@ def _sample_type(well: dict) -> str:
 
 
 def _compound_group(well: dict) -> str:
-    if compound_id := well.get("compound_id"):
-        return str(compound_id)
     role = well.get("role")
     if role == "vehicle":
         return "vehicle"
@@ -121,6 +130,8 @@ def _compound_group(well: dict) -> str:
         return "no_tem1"
     if role == "pos-ctrl-clavaculin":
         return "pos_ctrl"
+    if compound_id := well.get("compound_id"):
+        return str(compound_id)
     return role or "unknown"
 
 
@@ -131,6 +142,52 @@ def _well_label(well: dict) -> str:
     if compound_id := well.get("compound_id"):
         return str(compound_id)
     return ""
+
+
+def _resolve_compound_list_path(plate_map: dict, plate_map_path: Path | None) -> Path | None:
+    rel = plate_map.get("compound_list")
+    if not rel:
+        return None
+    rel_path = Path(rel)
+    if rel_path.is_file():
+        return rel_path
+    if plate_map_path is not None:
+        candidates = [
+            plate_map_path.parent / rel_path.name,
+            plate_map_path.parents[2] / rel_path if len(plate_map_path.parents) > 2 else None,
+            Path.cwd() / rel_path,
+        ]
+        for candidate in candidates:
+            if candidate is not None and candidate.is_file():
+                return candidate
+    cwd_candidate = Path.cwd() / rel_path
+    return cwd_candidate if cwd_candidate.is_file() else None
+
+
+def _load_compound_catalog(
+    plate_map: dict,
+    *,
+    plate_map_path: Path | None = None,
+) -> dict[str, dict[str, Any]]:
+    """compound_id -> {name, bucket, slot} from compound_list.json."""
+    catalog: dict[str, dict[str, Any]] = {}
+    list_path = _resolve_compound_list_path(plate_map, plate_map_path)
+    if list_path is None:
+        return catalog
+    try:
+        payload = json.loads(list_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return catalog
+    for entry in payload.get("compounds", []):
+        cid = entry.get("compound_id")
+        if not cid:
+            continue
+        catalog[str(cid)] = {
+            "name": entry.get("name") or "",
+            "bucket": entry.get("bucket") or "sample",
+            "slot": entry.get("slot"),
+        }
+    return catalog
 
 
 def plate_map_to_df(plate_map: dict) -> pd.DataFrame:
@@ -203,12 +260,86 @@ def _colors_for_compounds(present_groups: list[str]) -> tuple[list[str], dict[st
     return group_order, colors
 
 
-def _legend_label(group: str, *, color_by: ColorMode) -> str:
+def _group_category(
+    group: str,
+    *,
+    color_by: ColorMode,
+    catalog: dict[str, dict[str, Any]],
+) -> str:
+    if group in {"vehicle", "no_tem1", "pos_ctrl"}:
+        return group
+    if color_by == "sample_type":
+        return group
+    if group in catalog:
+        return str(catalog[group].get("bucket") or "sample")
+    return "sample"
+
+
+def _legend_label(
+    group: str,
+    *,
+    color_by: ColorMode,
+    catalog: dict[str, dict[str, Any]],
+) -> str:
     if color_by == "sample_type":
         return SAMPLE_TYPE_LABELS.get(group, group.replace("_", " ").title())
     if group in CONTROL_GROUP_LABELS:
-        return CONTROL_GROUP_LABELS[group]
+        label = CONTROL_GROUP_LABELS[group]
+        if group == "pos_ctrl" and "T19860" in catalog:
+            name = catalog["T19860"].get("name")
+            if name:
+                return f"{label} — {name}"
+        return label
+    meta = catalog.get(group, {})
+    name = meta.get("name") or ""
+    slot = meta.get("slot")
+    if slot is not None and name:
+        return f"{slot}. {group} — {name}"
+    if name:
+        return f"{group} — {name}"
     return group
+
+
+def _draw_well_label(ax: plt.Axes, *, col: int, row: int, label: str) -> None:
+    """Draw well ID text on a solid black background for legibility over hatch fills."""
+    ax.text(
+        col,
+        row,
+        label,
+        ha="center",
+        va="center",
+        fontsize=5.5,
+        color="white",
+        weight="bold",
+        bbox={
+            "boxstyle": "square,pad=0.12",
+            "facecolor": "black",
+            "edgecolor": "none",
+            "linewidth": 0,
+        },
+        zorder=10,
+    )
+
+
+def _draw_well(
+    ax: plt.Axes,
+    *,
+    row: int,
+    col: int,
+    facecolor: str,
+    hatch: str | None,
+) -> None:
+    rect = Rectangle(
+        (col - 0.5, row - 0.5),
+        1,
+        1,
+        facecolor=facecolor,
+        edgecolor="white",
+        linewidth=1.5,
+        hatch=hatch,
+        zorder=1,
+    )
+    ax.add_patch(rect)
 
 
 def _render_colored_plate(
@@ -216,8 +347,10 @@ def _render_colored_plate(
     *,
     color_by: ColorMode = "sample_type",
     title: str | None = None,
+    catalog: dict[str, dict[str, Any]] | None = None,
 ) -> plt.Figure:
     """Draw a 96-well plate colored by sample type or compound group."""
+    catalog = catalog or {}
     color_column = "sample_type" if color_by == "sample_type" else "compound_group"
     present_groups = list(dict.fromkeys(df[color_column].tolist()))
 
@@ -232,25 +365,39 @@ def _render_colored_plate(
 
     matrix = np.full((PLATE_ROWS, PLATE_COLS), np.nan)
     labels = [["" for _ in range(PLATE_COLS)] for _ in range(PLATE_ROWS)]
+    categories = [["" for _ in range(PLATE_COLS)] for _ in range(PLATE_ROWS)]
 
     for _, row in df.iterrows():
         i = int(row["row_i"])
         j = int(row["col_j"])
-        matrix[i, j] = group_to_idx[row[color_column]]
+        group = row[color_column]
+        matrix[i, j] = group_to_idx[group]
         labels[i][j] = row["label"]
+        categories[i][j] = _group_category(group, color_by=color_by, catalog=catalog)
 
-    cmap = ListedColormap([colors[group] for group in group_order])
     legend_cols = 1 if len(group_order) <= 12 else 2
-    fig_width = 13 if legend_cols == 1 else 15
-    fig, ax = plt.subplots(figsize=(fig_width, 5.5))
-    ax.imshow(
-        matrix,
-        cmap=cmap,
-        vmin=0,
-        vmax=max(len(group_order) - 1, 1),
-        origin="upper",
-        aspect="equal",
-    )
+    fig_width = 14 if legend_cols == 1 else 16
+    fig, ax = plt.subplots(figsize=(fig_width, 5.8))
+    ax.set_xlim(-0.5, PLATE_COLS - 0.5)
+    ax.set_ylim(PLATE_ROWS - 0.5, -0.5)
+    ax.set_facecolor(EMPTY_COLOR)
+
+    for i in range(PLATE_ROWS):
+        for j in range(PLATE_COLS):
+            if np.isnan(matrix[i, j]):
+                continue
+            group = group_order[int(matrix[i, j])]
+            cat = categories[i][j]
+            _draw_well(
+                ax,
+                row=i,
+                col=j,
+                facecolor=colors[group],
+                hatch=CATEGORY_HATCH.get(cat),
+            )
+            label = labels[i][j]
+            if label:
+                _draw_well_label(ax, col=j, row=i, label=label)
 
     ax.set_xticks(range(PLATE_COLS))
     ax.set_xticklabels(range(1, PLATE_COLS + 1))
@@ -259,33 +406,17 @@ def _render_colored_plate(
     ax.set_xlabel("Column")
     ax.set_ylabel("Row")
     ax.tick_params(length=0)
-    ax.set_xticks(np.arange(-0.5, PLATE_COLS, 1), minor=True)
-    ax.set_yticks(np.arange(-0.5, PLATE_ROWS, 1), minor=True)
-    ax.grid(which="minor", color="white", linewidth=1.5)
-    ax.set_facecolor(EMPTY_COLOR)
-
-    for i in range(PLATE_ROWS):
-        for j in range(PLATE_COLS):
-            label = labels[i][j]
-            if not label or np.isnan(matrix[i, j]):
-                continue
-            bg = colors[group_order[int(matrix[i, j])]]
-            ax.text(
-                j,
-                i,
-                label,
-                ha="center",
-                va="center",
-                fontsize=5.5,
-                color=_choose_foreground_color(bg),
-                weight="bold",
-            )
+    ax.set_aspect("equal")
 
     legend_handles = [
         Patch(
             facecolor=colors[group],
-            edgecolor="white",
-            label=_legend_label(group, color_by=color_by),
+            edgecolor="#374151",
+            linewidth=0.8,
+            hatch=CATEGORY_HATCH.get(
+                _group_category(group, color_by=color_by, catalog=catalog)
+            ),
+            label=_legend_label(group, color_by=color_by, catalog=catalog),
         )
         for group in group_order
     ]
@@ -295,7 +426,7 @@ def _render_colored_plate(
         loc="upper left",
         bbox_to_anchor=(1.01, 1.0),
         frameon=True,
-        fontsize=7 if color_by == "compound" else 8,
+        fontsize=6.5 if color_by == "compound" else 8,
         title_fontsize=9,
         ncol=legend_cols,
     )
@@ -313,6 +444,7 @@ def render_plate_map(
     *,
     color_by: ColorMode = "sample_type",
     cols: list[str] | None = None,
+    plate_map_path: Path | None = None,
 ) -> Path:
     """Render a plate map dict to PNG with well labels."""
     del cols  # kept for CLI compatibility
@@ -320,10 +452,12 @@ def render_plate_map(
     if df.empty:
         raise ValueError("Plate map has no wells to render")
 
+    catalog = _load_compound_catalog(plate_map, plate_map_path=plate_map_path)
     fig = _render_colored_plate(
         df,
         color_by=color_by,
         title=_build_title(plate_map, color_by=color_by),
+        catalog=catalog,
     )
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -347,4 +481,10 @@ def load_and_render(
         if output_path is not None
         else _default_output_path(json_path, color_by=color_by)
     )
-    return render_plate_map(plate_map, out, color_by=color_by, cols=cols)
+    return render_plate_map(
+        plate_map,
+        out,
+        color_by=color_by,
+        cols=cols,
+        plate_map_path=json_path,
+    )
