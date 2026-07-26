@@ -4,16 +4,28 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 ROWS = list("ABCDEFGH")
 COLS = 12
+
+LayoutMode = Literal["compact", "spaced_interior"]
+
+# Interior wells: rows B–G, columns 2–11 (exclude plate edge rows A/H and cols 1/12).
+INTERIOR_ROW_START = 1
+INTERIOR_ROW_END = 6
+INTERIOR_COL_START = 1
+INTERIOR_COL_END = 10
 
 DEFAULT_CONTROL_ROW: dict[str, Any] = {
     "vehicle": 3,
     "no_tem1": 3,
     "positive": {"compound_id": "T19860", "count": 3, "concentration_uM": 50},
 }
+
+# Complement checkerboard columns on rows B, D, F (interior, maximally spaced).
+SPACED_CONTROL_ROWS = (1, 3, 5)
+SPACED_CONTROL_COLS = (2, 6, 10)
 
 
 def well_id(row_idx: int, col_idx: int) -> str:
@@ -111,6 +123,76 @@ def add_compound_block(
             idx += 1
 
 
+def _checkerboard_sample_positions() -> list[tuple[int, int]]:
+    """Interior wells on a checkerboard — 30 cells, no orthogonal neighbors."""
+    positions: list[tuple[int, int]] = []
+    for row in range(INTERIOR_ROW_START, INTERIOR_ROW_END + 1):
+        for col in range(INTERIOR_COL_START, INTERIOR_COL_END + 1):
+            if (row + col) % 2 == 0:
+                positions.append((row, col))
+    return positions
+
+
+def _spaced_control_positions(control_row: dict[str, Any]) -> list[tuple[int, int]]:
+    """Place triplicate controls on complement cells, spaced across B / D / F."""
+    vehicle = int(control_row.get("vehicle", 0))
+    no_tem1 = int(control_row.get("no_tem1", 0))
+    positive = control_row.get("positive") or {}
+    pos_count = int(positive.get("count", 0))
+    groups = [vehicle, no_tem1, pos_count]
+    positions: list[tuple[int, int]] = []
+
+    for group_size, row in zip(groups, SPACED_CONTROL_ROWS, strict=True):
+        for col in SPACED_CONTROL_COLS[:group_size]:
+            positions.append((row, col))
+    return positions
+
+
+def add_spaced_interior_layout(
+    wells: dict[str, dict[str, Any]],
+    compounds: list[dict[str, Any]],
+    *,
+    replicates: int = 3,
+    control_row: dict[str, Any] | None = None,
+) -> None:
+    """Fill interior wells only, checkerboard samples + spaced control rows."""
+    cfg = control_row if control_row is not None else DEFAULT_CONTROL_ROW
+    positive = cfg.get("positive") or {}
+    pos_id = positive.get("compound_id", "T19860")
+    pos_conc = float(positive.get("concentration_uM", 50))
+
+    control_positions = _spaced_control_positions(cfg)
+    vehicle_n = int(cfg.get("vehicle", 0))
+    no_tem1_n = int(cfg.get("no_tem1", 0))
+    pos_n = int(positive.get("count", 0))
+
+    idx = 0
+    for _ in range(vehicle_n):
+        wells[well_id(*control_positions[idx])] = _vehicle_well()
+        idx += 1
+    for _ in range(no_tem1_n):
+        wells[well_id(*control_positions[idx])] = _no_tem1_well()
+        idx += 1
+    for _ in range(pos_n):
+        wells[well_id(*control_positions[idx])] = _positive_control_well(pos_id, pos_conc)
+        idx += 1
+
+    sample_positions = _checkerboard_sample_positions()
+    expected = len(compounds) * replicates
+    if len(sample_positions) != expected:
+        raise ValueError(
+            f"Checkerboard interior has {len(sample_positions)} sample slots, "
+            f"need {expected} ({len(compounds)} compounds × {replicates} replicates)"
+        )
+
+    slot = 0
+    for compound in compounds:
+        for rep in range(1, replicates + 1):
+            row, col = sample_positions[slot]
+            wells[well_id(row, col)] = _sample_well(compound, rep)
+            slot += 1
+
+
 def _variable_concentration_note(
     compounds: list[dict[str, Any]],
     *,
@@ -138,6 +220,7 @@ def _layout_notes(
     replicates: int,
     control_row: dict[str, Any],
     default_uM: float = 50,
+    layout: LayoutMode = "compact",
 ) -> str:
     vehicle = int(control_row.get("vehicle", 0))
     no_tem1 = int(control_row.get("no_tem1", 0))
@@ -145,6 +228,17 @@ def _layout_notes(
     pos_count = int(positive.get("count", 0))
     control_total = vehicle + no_tem1 + pos_count
     sample_total = len(compounds) * replicates
+
+    if layout == "spaced_interior":
+        return (
+            "96-well flat bottom, spaced interior layout: no edge wells (rows A/H, cols 1/12 empty). "
+            f"Controls ({control_total}) on B/D/F at cols 3/7/11; "
+            f"{sample_total} sample wells ({len(compounds)} compounds × {replicates}) "
+            "on an interior checkerboard (no sample–sample edge contact; "
+            "controls on spaced complement cells at cols 3/7/11)"
+            + _variable_concentration_note(compounds, default_uM=default_uM)
+            + "."
+        )
 
     buckets: dict[str, list[str]] = {}
     for compound in compounds:
@@ -172,6 +266,7 @@ def design_single_point_plate(
     compound_list: dict[str, Any],
     *,
     control_row: dict[str, Any] | None = None,
+    layout: LayoutMode | None = None,
 ) -> dict[str, Any]:
     """Build a plate map dict from a compound_list.json payload."""
     cfg = control_row if control_row is not None else DEFAULT_CONTROL_ROW
@@ -181,10 +276,19 @@ def design_single_point_plate(
     working_multiplier = compound_list.get("working_solution_multiplier", 10)
     compound_volume = compound_list.get("compound_volume_ul", 5)
     final_volume = compound_list.get("final_volume_ul", 50)
+    layout_mode: LayoutMode = layout or compound_list.get("layout", "compact")
 
     wells: dict[str, dict[str, Any]] = {}
-    add_control_row(wells, control_row=cfg)
-    add_compound_block(wells, compounds, replicates=replicates)
+    if layout_mode == "spaced_interior":
+        add_spaced_interior_layout(
+            wells,
+            compounds,
+            replicates=replicates,
+            control_row=cfg,
+        )
+    else:
+        add_control_row(wells, control_row=cfg)
+        add_compound_block(wells, compounds, replicates=replicates)
 
     run = compound_list.get("run")
     version = compound_list.get("version")
@@ -219,7 +323,9 @@ def design_single_point_plate(
             replicates=replicates,
             control_row=cfg,
             default_uM=screen_conc,
+            layout=layout_mode,
         ),
+        "layout": layout_mode,
         "wells": wells,
         "versioned_path": versioned_path,
         "rationale_doc_active": "pvjthomas/selection_rationale.md",
@@ -230,7 +336,7 @@ def design_single_point_plate(
         plate_map["default_compound_concentration_uM"] = screen_conc
         plate_map["concentrations_from"] = compound_list_path
         plate_map["working_solution_uM"] = screen_conc * working_multiplier
-        plate_map["description"] = (
+        desc = (
             f"Round {compound_list.get('round')} discovery v{version} — "
             f"{len(compounds)} compounds in triplicate with literature-backed "
             "per-compound concentrations (see compound_list.json)"
@@ -238,11 +344,14 @@ def design_single_point_plate(
     else:
         plate_map["compound_concentration_uM"] = screen_conc
         plate_map["working_solution_uM"] = screen_conc * working_multiplier
-        plate_map["description"] = (
+        desc = (
             f"Round {compound_list.get('round')} discovery v{version} — "
             f"{len(compounds)} compounds in triplicate @ {screen_conc} µM"
             + (f" (reduced from 24 in v{version - 1})" if version and version > 1 else "")
         )
+    if layout_mode == "spaced_interior":
+        desc += "; spaced interior layout (no edge wells)"
+    plate_map["description"] = desc
 
     return plate_map
 
