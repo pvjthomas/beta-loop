@@ -38,4 +38,20 @@ H    ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·   ← empty (edge)
 
 **V** @ B3/B7 + C11 · **N** @ D3/D7 + E11 · **P** @ F3/F7 + G11. Digits 1–5 = band 1 · **6–7** @ cols **5/9** · **8–9** @ cols **3/7**.
 
+---
+
+## Plate reader — nitrocefin kinetics
+
+Canonical: [`kinetic_schedule.json`](../../../../data/screens/2/v5/kinetic_schedule.json) · Working copy: [`pvjthomas/output/kinetic_schedule_r2_v5.json`](../../../output/kinetic_schedule_r2_v5.json)
+
+| Setting | Value |
+|---------|-------|
+| Incubator | **25 °C** |
+| Equilibration after lid close | **120 s** |
+| Read interval | **30 s** |
+| Kinetic window | **600 s** (21 reads) |
+| Slope fit window | **180–480 s** kinetic time |
+
+Robot workflow: `mastermix/workflows/tem1_activity_screen.json` → `platereader_run_kinetic_schedule`.
+
 Promote to robot: copy `plate_map.json` → `data/plate_map_r2.json` after sign-off.

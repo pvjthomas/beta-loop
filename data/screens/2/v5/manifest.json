@@ -14,6 +14,7 @@
     "compound_list": "data/screens/2/v5/compound_list.json",
     "compound_list_csv": "data/screens/2/v5/compound_list.csv",
     "plate_map": "data/screens/2/v5/plate_map.json",
+    "kinetic_schedule": "data/screens/2/v5/kinetic_schedule.json",
     "selection_rationale": "pvjthomas/runs/2/v5/selection_rationale.md",
     "active_plate_map": "data/plate_map_r2.json",
     "active_selection_rationale": "pvjthomas/selection_rationale.md"

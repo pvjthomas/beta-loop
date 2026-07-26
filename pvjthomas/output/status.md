@@ -44,6 +44,8 @@ Rationale docs: [`pvjthomas/runs/2/`](../runs/2/) (v1–v5).
 | [`plate_map_r2_v5.png`](plate_map_r2_v5.png) | Visualization — color by sample type |
 | [`plate_map_r2_v5_by_compound.png`](plate_map_r2_v5_by_compound.png) | Visualization — color by compound ID |
 | [`compound_list_r2_v5.json`](compound_list_r2_v5.json) | Compound list with literature-backed concentrations |
+| [`kinetic_schedule_r2_v5.json`](kinetic_schedule_r2_v5.json) | **A490 kinetic read plan** (25 °C, 2 min equilibration, 30 s × 10 min) |
+| [`kinetic_schedule_r2_v5.md`](kinetic_schedule_r2_v5.md) | Human-readable kinetic schedule for R2 v5 |
 | `plate_map_r2_v4.*` | Previous v4 spaced-interior layout (archive) |
 | `plate_map.json` / `plate_map.png` | Earlier v2-era working copy (archive) |
 
@@ -52,6 +54,7 @@ Canonical paths:
 - `data/screens/2/v5/plate_map.json`
 - `data/screens/2/v5/plate_map.png`
 - `data/screens/2/v5/plate_map_by_compound.png`
+- `data/screens/2/v5/kinetic_schedule.json`
 
 ### Reports & tables
 

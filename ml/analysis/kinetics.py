@@ -38,6 +38,8 @@ def analyze_kinetics_file(
     kinetics_csv: str | Path,
     plate_map_json: str | Path | None = None,
     round_number: int = 1,
+    slope_window_start_s: float | None = 180.0,
+    slope_window_end_s: float | None = 480.0,
 ) -> dict:
     """Parse kinetics CSV, score wells, and return round summary."""
     df = _normalize_columns(pd.read_csv(kinetics_csv))
@@ -56,6 +58,10 @@ def analyze_kinetics_file(
     slopes: dict[str, float] = {}
     for well, group in df.groupby(well_col):
         group = group.sort_values(time_col)
+        if slope_window_start_s is not None:
+            group = group[group[time_col] >= slope_window_start_s]
+        if slope_window_end_s is not None:
+            group = group[group[time_col] <= slope_window_end_s]
         if len(group) < 2:
             continue
         dt = group[time_col].diff().mean()
@@ -116,5 +122,7 @@ def analyze_kinetics_file(
             "mean_vehicle_slope": round(slope_vehicle, 4),
             "mean_no_tem1_slope": round(slope_no_tem1, 4),
         },
+        "slope_window_start_s": slope_window_start_s,
+        "slope_window_end_s": slope_window_end_s,
         "next_plate_design": "dose_response" if hits else "none",
     }
