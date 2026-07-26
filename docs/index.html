@@ -179,8 +179,8 @@
     <h1>Running the combined TEM-1 screen</h1>
     <p class="lede">One workflow file now does the whole job: it dilutes its own reagents — TEM-1 enzyme, 9 active test compounds plus a known-active control, matched vehicle, and (just-in-time) nitrocefin — then builds a 36-well assay plate, mixes it, pre-incubates, develops the color reaction in a stagger-aware order, and runs a real kinetic A490 read.</p>
     <div class="updated-banner">
-      <span class="tag">regenerated · v3</span>
-      <span>Two more upstream changes since the last version: (1) the plate moved to the <strong>R2 v5 column-strip layout</strong> — 36 wells instead of 39, no two occupied wells horizontally adjacent, and <strong>T1262 tazobactam is now Compound 1</strong> (was Compound 2) since clavulanic acid is no longer double-counted as a test compound; (2) the single A490 read became a <strong>real kinetic schedule</strong> — 21 reads over 10 minutes with a defined slope-fit window, replacing 3 hand-scheduled endpoint reads.</span>
+      <span class="tag">regenerated · v4</span>
+      <span>Latest fix ("fix compound 10"): <code>vehicle_addition_wells</code> had been left as <code>D3,D7,D11,B3,B7,B11</code> after negative/vehicle wells were relabeled to <code>E11</code>/<code>C11</code> elsewhere — it's now correctly <code>D3,D7,E11,B3,B7,C11</code>, matching <code>negative_wells</code> + <code>vehicle_wells</code>. The same commit also removed compound slot 10 <strong>entirely</strong> from the workflow graph (not just emptied its wells) — see the callout below the roster table for a residual mismatch this leaves in the dilution skill.</span>
     </div>
   </header>
 
@@ -244,7 +244,7 @@
         <div class="rail"><div class="dot">3</div><div class="line"></div></div>
         <div class="tcontent">
           <div class="ttitle">Batch-dispense BLB into 10 working wells <span class="tbadge">batched · 47.5 µL</span></div>
-          <div class="tdesc">Positive control + all 9 active compound wells (including T1262's) get their diluent from BLB tube 1 (<code>hole_5</code>) in one multi-dispense pass. The unused 10th slot has no dest well, so it's automatically filtered out of this batch.</div>
+          <div class="tdesc">Positive control + all 9 active compound wells (including T1262's) get their diluent from BLB tube 1 (<code>hole_5</code>) in one multi-dispense pass. Slot 10 no longer exists in the workflow's compound list at all — as of "fix compound 10," it was removed outright rather than left empty.</div>
         </div>
       </div>
       <div class="tstep batch">
@@ -278,7 +278,6 @@
           <tr><td>Vehicle</td><td>working plate, A2 (5% DMSO)</td><td class="num">5 µL</td><td>6 wells (negative + vehicle)</td></tr>
           <tr><td>Positive control</td><td>working plate, A1 (500 µM)</td><td class="num">5 µL</td><td>3 wells</td></tr>
           <tr><td>9× active test compounds</td><td>working plate, A3–A11</td><td class="num">5 µL</td><td>3 wells each (27 total)</td></tr>
-          <tr><td>Slot 10 (unused)</td><td>—</td><td class="num">—</td><td>empty wells → node skips</td></tr>
         </tbody>
       </table>
     </div>
@@ -318,7 +317,7 @@
         <div class="rail"><div class="dot">2</div></div>
         <div class="tcontent">
           <div class="ttitle">Dose 13 conditions in stagger-aware order <span class="tbadge">13× batched · 25 µL</span></div>
-          <div class="tdesc">Order: no-TEM-1 negative → positive control → compounds 1–9 (slot 10 skips, empty) → <strong>vehicle + TEM-1 last</strong>. The vehicle wells have no inhibitor at all, so they're the fastest-reacting condition on the plate — dosing them last minimizes the uncontrolled reaction time they accumulate before the first read.</div>
+          <div class="tdesc">Order: no-TEM-1 negative → positive control → compounds 1–9 → <strong>vehicle + TEM-1 last</strong>. The vehicle wells have no inhibitor at all, so they're the fastest-reacting condition on the plate — dosing them last minimizes the uncontrolled reaction time they accumulate before the first read.</div>
         </div>
       </div>
     </div>
@@ -444,11 +443,15 @@
           <tr><td>7</td><td><span class="dotc compound"></span>T0985 Oxacillin sodium salt</td><td>substrate_control</td><td>negative</td><td class="num">50 µM</td></tr>
           <tr><td>8</td><td><span class="dotc compound"></span>T0138 Cefpiramide acid</td><td>diverse_pick</td><td>unknown</td><td class="num">50 µM</td></tr>
           <tr><td>9</td><td><span class="dotc compound"></span>T8390 Cefazolin</td><td>diverse_pick</td><td>unknown</td><td class="num">50 µM</td></tr>
-          <tr><td>10</td><td>— unused —</td><td>—</td><td>—</td><td class="num">—</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="body-p" style="margin-top:12px;">From <code>compound_list.csv</code>: T1262's 1 µM comes from a "10× IC50" rule (ChEMBL IC50 = 0.1 µM); every other compound falls back to a 50 µM project-default HTS concentration, since no TEM-1/nitrocefin IC50 was found in open repositories for them.</p>
+    <p class="body-p" style="margin-top:12px;">From <code>compound_list.csv</code>: T1262's 1 µM comes from a "10× IC50" rule (ChEMBL IC50 = 0.1 µM); every other compound falls back to a 50 µM project-default HTS concentration, since no TEM-1/nitrocefin IC50 was found in open repositories for them. Slot 10 no longer appears here at all — it was removed from the workflow, not just left empty (see next section).</p>
+
+    <div class="updated-banner" style="border-color: var(--red); background: var(--red-soft);">
+      <span class="tag" style="border-color: var(--red); color: var(--red);">mismatch</span>
+      <span><code>tem1_activity_screen.json</code>'s <code>prepare_dilutions</code> node no longer passes <code>compound_10_source_plate</code> (removed in "fix compound 10"), but <code>prepare_tem1_dilution_plate</code>'s Python signature still declares <code>compound_10_source_plate: SkillObject</code> with <strong>no default value</strong> — unlike <code>compound_10_source_well</code>/<code>compound_10_dest_well</code>, which do (<code>"E5"</code>/<code>"A12"</code>). If the execution engine calls the skill strictly by the workflow's parameter map, this is a missing required argument and <code>prepare_dilutions</code> — the very first node in the graph — would fail before anything else runs. The skill itself hasn't been updated to drop slot 10 the way the workflow was.</span>
+    </div>
   </section>
 
   <section>
@@ -522,6 +525,7 @@
       <li><strong>Kinetic read:</strong> 3 A490 timepoints (initial, +5 min, +10 min) instead of a single read.</li>
       <li><strong>R2 v5 relayout ("change blb hole"):</strong> clavulanic acid is no longer double-counted as both the positive control and a test compound, which bumped every compound down one slot — T1262 tazobactam moved from Compound 2 to <strong>Compound 1</strong>. The roster dropped to 9 active compounds; slot 10 is now a defined-but-empty placeholder (its dispense and nitrocefin nodes still exist in the graph but skip at runtime). The plate itself moved from a 39-well row-triplet "spaced interior" layout to a 36-well column-strip layout with no horizontally adjacent occupied wells.</li>
       <li><strong>Real kinetic read ("nitrocefin kinetic read schedule"):</strong> the 3 hand-scheduled A490 reads were replaced by <code>platereader_run_kinetic_schedule</code> — 120 s equilibration at 25°C, then 21 reads at 30 s intervals over 10 min, with a defined 180–480 s slope-fit window. Every nitrocefin dispense node also gained a <code>timing_label</code> so each condition's actual dosing time is recorded against the shared reader clock.</li>
+      <li><strong>"fix compound 10":</strong> <code>vehicle_addition_wells</code> was still the pre-relabel union (<code>D11,B11</code>) after <code>negative_wells</code>/<code>vehicle_wells</code> moved to <code>E11</code>/<code>C11</code> — the no-TEM-1 and vehicle-plus-TEM-1 wells would have gotten no vehicle addition at all. Fixed to <code>D3,D7,E11,B3,B7,C11</code>. Slot 10 was also fully deleted from the workflow graph (nodes, edges, and inputs) instead of left as an empty placeholder — which now leaves <code>prepare_tem1_dilution_plate</code>'s Python signature out of sync (see the mismatch callout above).</li>
     </ul>
   </section>
 
