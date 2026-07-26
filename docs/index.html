@@ -456,26 +456,40 @@
   </section>
 
   <section>
-    <div class="section-head"><span class="section-num">07</span><span class="section-title">Reagent map</span></div>
-    <h2 class="section-h">Every cold-block hole, what's in it, and how it got there</h2>
+    <div class="section-head"><span class="section-num">07</span><span class="section-title">Deck setup</span></div>
+    <h2 class="section-h">What to load before pressing start</h2>
+    <p class="body-p">Straight from <code>mastermix/TEM1_COLD_BLOCK_LOADING.md</code>, the canonical operator loading table. Four holes start empty — the robot fills them during the run; the rest need real reagent in them before the workflow begins.</p>
     <div class="table-wrap">
       <table class="dtable">
-        <thead><tr><th>Hole</th><th>Contents</th><th>Prepared by</th></tr></thead>
+        <thead><tr><th>Hole</th><th>Load before starting</th><th class="num">Load at least</th><th>Prepared by</th></tr></thead>
         <tbody>
-          <tr><td><code>hole_1</code></td><td>100 ng/µL TEM-1 stock</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_2</code></td><td>1 ng/µL TEM-1 intermediate</td><td>Phase 0</td></tr>
-          <tr><td><code>hole_3</code></td><td>200 µM T1262 intermediate</td><td>Phase 0</td></tr>
-          <tr><td><code>hole_4</code></td><td>20 mM nitrocefin stock</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_5</code></td><td>BLB tube 1 (compound/control dilutions)</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_6</code></td><td>BLB tube 2 (TEM-1 dilution, vehicle, no-enzyme)</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_7</code></td><td>BLB for just-in-time nitrocefin dilution</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_8</code></td><td>0.1 ng/µL TEM-1 working solution</td><td>Phase 0</td></tr>
-          <tr><td><code>hole_9</code></td><td>100% DMSO</td><td>pre-loaded</td></tr>
-          <tr><td><code>hole_10</code></td><td>100 µM (2×) nitrocefin working solution</td><td>Phase IV</td></tr>
+          <tr><td><code>hole_1</code></td><td>100 ng/µL purified TEM-1 stock</td><td class="num">4 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_2</code></td><td><em>empty tube/well</em></td><td class="num">—</td><td>Phase 0 → 200 µL, 1 ng/µL intermediate</td></tr>
+          <tr><td><code>hole_3</code></td><td><em>empty tube/well</em></td><td class="num">—</td><td>Phase 0 → 50 µL, 200 µM T1262 intermediate</td></tr>
+          <tr><td><code>hole_4</code></td><td>20 mM nitrocefin stock in DMSO (protect from light)</td><td class="num">8.25 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_5</code></td><td>BLB — compound/control dilutions + T1262 intermediate</td><td class="num">554 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_6</code></td><td>BLB — TEM-1 dilution, vehicle prep, no-TEM-1 wells</td><td class="num">1283 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_7</code></td><td>BLB — just-in-time nitrocefin dilution only</td><td class="num">1293.75 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_8</code></td><td><em>empty tube/well</em></td><td class="num">—</td><td>Phase 0 → 1000 µL, 0.1 ng/µL TEM-1 working</td></tr>
+          <tr><td><code>hole_9</code></td><td>100% DMSO</td><td class="num">10 µL</td><td>pre-loaded</td></tr>
+          <tr><td><code>hole_10</code></td><td><em>empty, light-protected if possible</em></td><td class="num">—</td><td>Phase IV → 1250 µL, 100 µM nitrocefin working</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="body-p" style="margin-top:12px;">Every real dilution this screen depends on is now performed inside this one workflow — TEM-1, all 10 compounds plus control, vehicle, and nitrocefin. Only the raw stocks and buffers arrive pre-loaded. For exact load-at-least volumes per hole, see <code>mastermix/TEM1_COLD_BLOCK_LOADING.md</code> — the canonical operator loading table, which also flags that <code>hole_6</code> is UI-labeled "no-enzyme prep" but should physically just contain BLB.</p>
+    <p class="body-p" style="margin-top:12px;"><code>hole_6</code> is UI-labeled "no-enzyme prep" because it supplies the no-TEM-1 control wells, but physically it's just BLB — don't load enzyme there.</p>
+
+    <h2 class="section-h" style="margin-top:28px; font-size:16px;">Plus, outside the cold block</h2>
+    <div class="table-wrap">
+      <table class="dtable">
+        <thead><tr><th>Item</th><th>Location</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Positive control — clavulanic acid (T19860)</td><td><code>wellplate_pcr_parts_1</code>, well <code>H7</code></td><td>Source for the positive-control working solution</td></tr>
+          <tr><td>9 test compound stocks</td><td>source PCR plates/wells — see the roster in §06</td><td>Robot prepares each working solution before assay setup</td></tr>
+          <tr><td>Working plate</td><td><code>wellplate_pcr_parts_4</code></td><td>Starts empty — robot fills row A (positive control, vehicle, 9 compounds) in Phase 0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="body-p" style="margin-top:12px;">Every real dilution this screen depends on is now performed inside this one workflow — TEM-1, all 10 compounds plus control, vehicle, and nitrocefin. Only the raw stocks and buffers above arrive pre-loaded.</p>
   </section>
 
   <section>
@@ -508,26 +522,6 @@
       <div class="stat"><div class="stat-label">Wells used</div><div class="stat-value">36<span class="unit">/ 96</span></div></div>
       <div class="stat"><div class="stat-label">Plate read</div><div class="stat-value" style="font-size:15px;">manual<span class="unit">Gen5</span></div></div>
     </div>
-  </section>
-
-  <section>
-    <div class="section-head"><span class="section-num">10</span><span class="section-title">Changelog</span></div>
-    <h2 class="section-h">What changed since the last walkthrough</h2>
-    <ul class="rules changelog">
-      <li><strong>One workflow, not two:</strong> the dilution-plate workflow is now the first node (<code>prepare_dilutions</code>) inside this file, instead of a separate <code>tem1_dilution_plate.json</code> that had to be run first by hand.</li>
-      <li><strong>The stock/working-plate mismatch is fixed:</strong> compound, positive-control, and vehicle dispenses now source from the diluted working plate — previously they pointed at the same raw 10 mM stock wells the dilution plate itself used, a 20× overshoot.</li>
-      <li><strong>TEM-1 is now really diluted:</strong> a genuine 2-step 100 ng/µL → 0.1 ng/µL dilution runs in Phase 0, instead of assuming <code>hole_8</code> arrives pre-loaded.</li>
-      <li><strong>Nitrocefin is now really diluted, and just-in-time:</strong> a dedicated <code>prepare_nitrocefin_working_solution</code> skill dilutes 20 mM stock to 100 µM immediately before dosing, rather than assuming <code>hole_10</code> arrives pre-loaded.</li>
-      <li><strong>New low-dose branch:</strong> T1262 tazobactam gets its own 200 µM intermediate tube to hit a 1 µM assay target, instead of the standard 50 µM every other compound uses.</li>
-      <li><strong>Nitrocefin dosing is stagger-aware:</strong> negative → positive → 10 compounds → vehicle last, so the fastest-reacting condition accumulates the least uncontrolled time before the first read.</li>
-      <li><strong>Kinetic read:</strong> 3 A490 timepoints (initial, +5 min, +10 min) instead of a single read.</li>
-      <li><strong>R2 v5 relayout ("change blb hole"):</strong> clavulanic acid is no longer double-counted as both the positive control and a test compound, which bumped every compound down one slot — T1262 tazobactam moved from Compound 2 to <strong>Compound 1</strong>. The roster dropped to 9 active compounds. The plate itself moved from a 39-well row-triplet "spaced interior" layout to a 36-well column-strip layout with no horizontally adjacent occupied wells.</li>
-      <li><strong>Real kinetic read ("nitrocefin kinetic read schedule"):</strong> the 3 hand-scheduled A490 reads were replaced by <code>platereader_run_kinetic_schedule</code> — 120 s equilibration at 25°C, then 21 reads at 30 s intervals over 10 min, with a defined 180–480 s slope-fit window. Every nitrocefin dispense node also gained a <code>timing_label</code> so each condition's actual dosing time is recorded against the shared reader clock. <em>(Superseded below.)</em></li>
-      <li><strong>"fix compound 10":</strong> <code>vehicle_addition_wells</code> was still the pre-relabel union (<code>D11,B11</code>) after <code>negative_wells</code>/<code>vehicle_wells</code> moved to <code>E11</code>/<code>C11</code> — the no-TEM-1 and vehicle-plus-TEM-1 wells would have gotten no vehicle addition at all. Fixed to <code>D3,D7,E11,B3,B7,C11</code>. Slot 10 was also fully deleted from the workflow graph (nodes, edges, and inputs) at this point, not just left as an empty placeholder.</li>
-      <li><strong>"stale clean up":</strong> removed vestigial deprecated inputs (<code>enzyme_anchor</code>, <code>no_enzyme_anchor</code>, <code>vehicle_anchor</code> as separate placeholders, <code>all_assay_wells</code>/<code>all_assay_well_count</code>) that were no longer read by any node — pure dead-parameter cleanup, no behavior change.</li>
-      <li><strong>"fix compound 10" (round 2):</strong> the dilution skill's Python signature still required <code>compound_10_source_plate</code> with no default even after the workflow stopped passing it — a missing-argument crash waiting to happen on the very first node. Now removed from the skill entirely, along with <code>compound_10_source_well</code>/<code>compound_10_dest_well</code>.</li>
-      <li><strong>"remove plate reader steps":</strong> the automated kinetic-read section is gone from this workflow — no <code>platereader</code> input, no <code>grab_plate</code>/<code>open_reader</code>/<code>load_reader</code>/<code>run_kinetic_schedule</code>/<code>unload_reader</code>/<code>return_plate</code> nodes. The robot now stops after nitrocefin dosing and run-log save; a human loads the plate and starts Gen5's native kinetic method by hand. This directly addresses the timing problem in the previous entry: <code>platereader_measure</code>'s single-read click sequence takes ~100+ seconds per call, far longer than the 30 s interval the old automated schedule assumed, so its recorded read timestamps didn't reflect when reads actually happened. <code>platereader_run_kinetic_schedule</code> itself is untouched — it now only runs inside a new isolated smoke-test workflow, <code>test_platereader_kinetic_schedule.json</code>.</li>
-    </ul>
   </section>
 
   <footer class="foot">
