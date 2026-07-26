@@ -48,6 +48,26 @@
   .note-box { background: var(--c-note-bg); border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; }
   .note-box strong { color: var(--c-note); }
 
+  /* ── COMPOUND MISMATCH TABLE ──────────────────────────────── */
+  .mismatch-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .mismatch-table th { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;
+                       border-bottom: 2px solid var(--border); padding: 8px 10px; text-align: left; }
+  .mismatch-table td { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+  .mismatch-table tr:hover td { background: #fafafa; }
+  .mismatch-row-ok td:first-child { border-left: 3px solid #059669; }
+  .mismatch-row-bad td:first-child { border-left: 3px solid #dc2626; }
+  .mismatch-row-warn td:first-child { border-left: 3px solid #f59e0b; }
+  .badge { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 7px; }
+  .badge-ok   { background: #dcfce7; color: #166534; }
+  .badge-bad  { background: #fee2e2; color: #991b1b; }
+  .badge-warn { background: #fef3c7; color: #92400e; }
+  .source-well-box { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+  .sw-intended { background: #dbeafe; color: #1e40af; }
+  .sw-actual   { background: #fee2e2; color: #991b1b; }
+  .sw-ok       { background: #dcfce7; color: #166534; }
+  .root-cause-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; font-size: 12.5px; line-height: 1.7; margin-bottom: 14px; }
+  .root-cause-box strong { color: #92400e; }
+
   /* ── GANTT ─────────────────────────────────────────────── */
   .gantt-wrap { overflow-x: auto; }
   .gantt { position: relative; min-width: 900px; }
@@ -154,6 +174,30 @@
     <strong>ℹ Compound 1 (T1262 Tazobactam) received a dedicated serial dilution</strong>
     (1 µL stock → 50 µL BLB intermediate → 10 µM final), vs all other compounds at 500 µM.
     This matches the workflow spec for a 1 µM assay concentration. Confirm this is the intended final concentration.
+  </div>
+
+  <!-- ── COMPOUND IDENTITY MISMATCH ───────────────────────────── -->
+  <h2>⚠ Compound Identity Mismatch — Intended vs Actually Tested</h2>
+
+  <div class="root-cause-box">
+    <strong>Root cause (log evidence):</strong> The workflow canvas defaults use scattered source wells
+    (<code>B10, F2, F7, A8, A9, A3, A4, A2, F3</code> across <code>wellplate_pcr_parts_1/2</code>),
+    but the run log shows compound 1 stock drawn from <code>A2</code> and compounds 2–9 drawn sequentially
+    from <code>A3→A4→A5→…→A10</code> — a contiguous block from a single plate (PHD215176).
+    This matches the <em>actual</em> compound layout of the physical plate on the deck, which was
+    <strong>not the plate the canvas was parameterized for</strong>.
+    The canvas <code>DEFAULT_SOURCE_WELLS</code> / <code>DEFAULT_SOURCE_PLATES</code> arrays were never
+    overridden to match the physical plate loaded during this run, so the robot aspirated from the wells
+    that were passed in — which happened to be the sequential layout of PHD215176, not the intended R2 v5 library positions.
+  </div>
+  <div class="warn-box">
+    <strong>⚠ 9 of 9 test compounds are wrong.</strong>
+    Every compound slot is a mismatch. The positive control (H7 → clavulanic acid) is the only correct identity.
+    Assay results from this run cannot be attributed to the intended R2 v5 compound set.
+  </div>
+
+  <div class="card" style="overflow-x:auto">
+    <table class="mismatch-table" id="mismatch-table"></table>
   </div>
 
   <!-- ── STAT TILES ─────────────────────────────────────────── -->
@@ -277,6 +321,181 @@ const PHASES = [
   { label: "Nitro: Vehicle Ctrl",      start: "01:54:17", end: "01:55:52", color: "#0f766e",  group: "Nitrocefin" },
   { label: "Place Pipette Back",       start: "01:55:52", end: "01:55:53", color: "#94a3b8",  group: "Done" },
 ];
+
+// ── COMPOUND MISMATCH TABLE ──────────────────────────────────────
+(function buildMismatch() {
+  const el = document.getElementById('mismatch-table');
+
+  // Intended: from workflow JSON defaults + canvas DEFAULT_SOURCE_WELLS/PLATES
+  // Actual: from run log (what wells were actually aspirated)
+  // PHD215176 actual well contents: user-supplied mapping
+  const rows = [
+    {
+      slot: 'Positive control',
+      intendedId:   'T19860',
+      intendedName: 'Clavulanic Acid',
+      intendedPlate: 'wellplate_pcr_parts_1',
+      intendedWell: 'H7',
+      actualWell:   'H7',            // log: "Positive control: 2.5 uL H7 -> A1"
+      actualId:     'T19860',
+      actualName:   'Clavulanic Acid',
+      match: 'ok',
+      note: 'Correct — same plate, same well',
+    },
+    {
+      slot: 'Compound 1',
+      intendedId:   'T1262',
+      intendedName: 'Tazobactam',
+      intendedPlate: 'wellplate_pcr_parts_1',
+      intendedWell: 'B10',
+      actualWell:   'A2',            // log: "T1262 stock to intermediate: 1.0 uL A2 -> hole_3"
+      actualId:     'T0138',
+      actualName:   'Cefpiramide acid',
+      match: 'bad',
+      note: 'Log pulled from A2 (not B10). PHD215176 A2 = T0138 Cefpiramide acid.',
+    },
+    {
+      slot: 'Compound 2',
+      intendedId:   'T6685',
+      intendedName: 'Sulbactam sodium',
+      intendedPlate: 'wellplate_pcr_parts_1',
+      intendedWell: 'F2',
+      actualWell:   'A3',            // log: "Compound 2: 2.5 uL A3 -> A4"
+      actualId:     'T0198',
+      actualName:   'Ceftiofur sodium',
+      match: 'bad',
+      note: 'Log pulled from A3 (not F2). PHD215176 A3 = T0198.',
+    },
+    {
+      slot: 'Compound 3',
+      intendedId:   'T14081',
+      intendedName: 'Enmetazobactam',
+      intendedPlate: 'wellplate_pcr_parts_1',
+      intendedWell: 'F7',
+      actualWell:   'A4',            // log: "Compound 3: 2.5 uL A4 -> A5"
+      actualId:     'T0199',
+      actualName:   'Cephradine',
+      match: 'bad',
+      note: 'Log pulled from A4 (not F7). PHD215176 A4 = T0199.',
+    },
+    {
+      slot: 'Compound 4',
+      intendedId:   'T1005',
+      intendedName: 'Amoxicillin',
+      intendedPlate: 'wellplate_pcr_parts_1',
+      intendedWell: 'A8',
+      actualWell:   'A5',            // log: "Compound 4: 2.5 uL A5 -> A6"
+      actualId:     'T0234',
+      actualName:   'Methicillin sodium salt',
+      match: 'bad',
+      note: 'Log pulled from A5 (not A8). PHD215176 A5 = T0234.',
+    },
+    {
+      slot: 'Compound 5',
+      intendedId:   'T1008',
+      intendedName: 'Cephalexin',
+      intendedPlate: 'wellplate_pcr_parts_1',
+      intendedWell: 'A9',
+      actualWell:   'A6',            // log: "Compound 5: 2.5 uL A6 -> A7"
+      actualId:     'T0366',
+      actualName:   'Cefadroxil',
+      match: 'bad',
+      note: 'Log pulled from A6 (not A9). PHD215176 A6 = T0366.',
+    },
+    {
+      slot: 'Compound 6',
+      intendedId:   'T0224',
+      intendedName: 'Meropenem',
+      intendedPlate: 'wellplate_pcr_parts_2',
+      intendedWell: 'A3',
+      actualWell:   'A7',            // log: "Compound 6: 2.5 uL A7 -> A8"
+      actualId:     'T1001',
+      actualName:   'Dicloxacillin sodium hydrate',
+      match: 'bad',
+      note: 'Log pulled from A7 (not parts_2 / A3). PHD215176 A7 = T1001.',
+    },
+    {
+      slot: 'Compound 7',
+      intendedId:   'T0985',
+      intendedName: 'Oxacillin sodium salt',
+      intendedPlate: 'wellplate_pcr_parts_2',
+      intendedWell: 'A4',
+      actualWell:   'A8',            // log: "Compound 7: 2.5 uL A8 -> A9"
+      actualId:     'T1005',
+      actualName:   'Amoxicillin',
+      match: 'bad',
+      note: 'Log pulled from A8 (not parts_2 / A4). PHD215176 A8 = T1005.',
+    },
+    {
+      slot: 'Compound 8',
+      intendedId:   'T0138',
+      intendedName: 'Cefpiramide acid',
+      intendedPlate: 'wellplate_pcr_parts_1',
+      intendedWell: 'A2',
+      actualWell:   'A9',            // log: "Compound 8: 2.5 uL A9 -> A10"
+      actualId:     'T1008',
+      actualName:   'Cephalexin',
+      match: 'bad',
+      note: 'Log pulled from A9 (not A2). PHD215176 A9 = T1008.',
+    },
+    {
+      slot: 'Compound 9',
+      intendedId:   'T8390',
+      intendedName: 'Cefazolin',
+      intendedPlate: 'wellplate_pcr_parts_1',
+      intendedWell: 'F3',
+      actualWell:   'A10',           // log: "Compound 9: 2.5 uL A10 -> A11"
+      actualId:     'T1031',
+      actualName:   'Cloxacillin sodium monohydrate',
+      match: 'bad',
+      note: 'Log pulled from A10 (not F3). PHD215176 A10 = T1031.',
+    },
+  ];
+
+  // header
+  const thead = document.createElement('thead');
+  thead.innerHTML = `<tr>
+    <th>Slot</th>
+    <th>Intended ID / compound</th>
+    <th>Intended source well</th>
+    <th>Actual well aspirated (log)</th>
+    <th>Actual compound (PHD215176)</th>
+    <th>Status</th>
+    <th>Note</th>
+  </tr>`;
+  el.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.className = r.match === 'ok' ? 'mismatch-row-ok' : 'mismatch-row-bad';
+    tr.innerHTML = `
+      <td style="font-weight:700;white-space:nowrap">${r.slot}</td>
+      <td>
+        <span style="font-family:var(--mono);font-size:11px;font-weight:700">${r.intendedId}</span><br>
+        <span style="font-size:11.5px;color:var(--muted)">${r.intendedName}</span>
+      </td>
+      <td>
+        <span class="source-well-box ${r.match === 'ok' ? 'sw-ok' : 'sw-intended'}">${r.intendedPlate.replace('wellplate_pcr_parts_','P')} / ${r.intendedWell}</span>
+      </td>
+      <td>
+        <span class="source-well-box ${r.match === 'ok' ? 'sw-ok' : 'sw-actual'}">${r.actualWell}</span>
+      </td>
+      <td>
+        <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:${r.match==='ok'?'#166534':'#991b1b'}">${r.actualId}</span><br>
+        <span style="font-size:11.5px;color:var(--muted)">${r.actualName}</span>
+      </td>
+      <td style="white-space:nowrap">
+        <span class="badge ${r.match === 'ok' ? 'badge-ok' : 'badge-bad'}">
+          ${r.match === 'ok' ? '✓ Match' : '✗ Mismatch'}
+        </span>
+      </td>
+      <td style="font-size:11.5px;color:var(--muted);max-width:220px">${r.note}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  el.appendChild(tbody);
+})();
 
 // ── GANTT ────────────────────────────────────────────────────────
 (function buildGantt() {
