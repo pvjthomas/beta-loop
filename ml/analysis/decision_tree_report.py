@@ -14,6 +14,7 @@ HIT_LABELS = frozenset({"confirmed_hit", "surprise_hit", "novel_hit"})
 MISS_LABELS = frozenset({"confirmed_substrate", "surprise_miss", "inactive", "likely substrate"})
 
 DECISION_TREE_SPEC = "pvjthomas/runs/2/v5/run2_decision_tree.md"
+R3_DECISION_TREE_SPEC = "pvjthomas/runs/3/v1/run3_decision_tree.md"
 HAND_Q2 = "pvjthomas/runs/2/v5/hand_q2_enzyme_check.md"
 HAND_Q3 = "pvjthomas/runs/2/v5/hand_q3_inhibition_check.md"
 
@@ -46,11 +47,20 @@ def infer_next_action(summary: dict[str, Any]) -> tuple[str, str]:
     """Return (headline, detail) for Step 4 plate-level outcome."""
     qc = summary.get("qc_gates") or {}
     compounds = summary.get("compounds") or {}
+    rnd = int(summary.get("round") or summary.get("run") or 2)
+    assay_wells = len((summary.get("normalization") or {}).get("substrate_control_wells") or []) + len(
+        (summary.get("normalization") or {}).get("no_tem1_wells") or []
+    )
+    if rnd == 3:
+        assay_wells = 30
+    elif not assay_wells:
+        assay_wells = 36
+    q1_min = max(24 if rnd == 3 else 29, int(0.8 * assay_wells))
 
     if not qc.get("q1_pass"):
         return (
             "Fix data export",
-            "Fewer than 29/36 wells have a valid metric. Re-export the Gen5 kinetic CSV before interpreting compound calls.",
+            f"Fewer than {q1_min}/{assay_wells} wells have a valid metric. Re-export the Gen5 kinetic CSV before interpreting compound calls.",
         )
 
     if not qc.get("q2_pass"):
@@ -68,9 +78,10 @@ def infer_next_action(summary: dict[str, Any]) -> tuple[str, str]:
                 f"Neither slope Q2 nor endpoint Q2E passed. Follow [{HAND_Q2}]({HAND_Q2}) before trusting compound labels.",
             )
         else:
+            anchor = "Substrate/no-TEM-1" if rnd == 3 else "Vehicle/no-TEM-1"
             return (
                 "Assay enzyme QC failed — run hand Q2 check",
-                f"Vehicle/no-TEM-1 slope separation failed and endpoint fallback unavailable. Follow [{HAND_Q2}]({HAND_Q2}).",
+                f"{anchor} slope separation failed and endpoint fallback unavailable. Follow [{HAND_Q2}]({HAND_Q2}).",
             )
     elif not qc.get("q3_pass"):
         pos = qc.get("pos_ctrl_median_pct", "?")
@@ -157,14 +168,21 @@ def format_decision_tree_report(
     summary: dict[str, Any],
     *,
     compound_names: dict[str, str] | None = None,
-    spec_path: str = DECISION_TREE_SPEC,
+    spec_path: str | None = None,
 ) -> str:
-    """Render a readable markdown decision-tree report from ``run_2_summary.json``."""
+    """Render a readable markdown decision-tree report from assay summary JSON."""
     qc = summary.get("qc_gates") or {}
     compounds = summary.get("compounds") or {}
     control = summary.get("control_stats") or {}
     scoring_mode = summary.get("scoring_mode", "slope")
     names = compound_names or {}
+    rnd = int(summary.get("round") or summary.get("run") or 2)
+    anchor_mode = control.get("anchor_mode") or (summary.get("normalization") or {}).get("anchor_mode")
+    is_r3 = rnd == 3 or anchor_mode == "substrate"
+    if spec_path is None:
+        spec_path = R3_DECISION_TREE_SPEC if is_r3 else DECISION_TREE_SPEC
+    assay_wells = 30 if is_r3 else 36
+    q1_min = max(24 if is_r3 else 29, int(0.8 * assay_wells))
 
     headline, action_detail = infer_next_action(summary)
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -178,11 +196,15 @@ def format_decision_tree_report(
     timing_suspect_wells = summary.get("wells_timing_suspect") or []
     pre_read = summary.get("pre_read_overage_wells") or []
 
+    run_label = f"Run {rnd}"
+    plan_label = summary.get("plan_label", "r3-discovery-v1" if is_r3 else "r2-discovery-v5")
+    plan_version = summary.get("plan_version", 1 if is_r3 else 5)
+
     lines = [
-        "# Run 2 decision tree report",
+        f"# {run_label} decision tree report",
         "",
         f"**Generated:** {generated}  ",
-        f"**Plan:** {summary.get('plan_label', 'r2-discovery-v5')} (v{summary.get('plan_version', 5)})  ",
+        f"**Plan:** {plan_label} (v{plan_version})  ",
         f"**Spec:** [{spec_path}]({spec_path})",
         "",
         "---",
@@ -203,7 +225,7 @@ def format_decision_tree_report(
         "",
         "| Gate | Question | Result | Notes |",
         "|------|----------|--------|-------|",
-        f"| **Q1** | ≥29/36 wells valid? | **{_gate_icon(qc.get('q1_pass'))}** | {valid_wells}/36 wells scored |",
+        f"| **Q1** | ≥{q1_min}/{assay_wells} wells valid? | **{_gate_icon(qc.get('q1_pass'))}** | {valid_wells}/{assay_wells} assay wells scored |",
     ]
 
     q1t_note = "timing present"
@@ -212,22 +234,39 @@ def format_decision_tree_report(
     elif qc.get("q1t_timing_stagger"):
         stagger = summary.get("timing_stagger_min")
         q1t_note = f"stagger flagged ({stagger:.1f} min)" if stagger is not None else "stagger flagged (>15 min)"
+    elif is_r3 and summary.get("timing_stagger_min") is not None:
+        q1t_note = f"sync dose span {summary['timing_stagger_min']:.1f} min (operator estimate)"
     lines.append(
         f"| **Q1T** | Per-well t0 aligned? | **{'WARN' if qc.get('q1t_timing_stagger') or qc.get('q1t_timing_unknown') else 'PASS'}** | {q1t_note} |"
     )
-    lines.append(
-        f"| **Q2** | Vehicle HOT, no-TEM-1 FLAT (slopes)? | **{_gate_icon(qc.get('q2_pass'))}** | "
-        f"V slope {control.get('median_vehicle_slope', '?')} · NT slope {control.get('median_no_tem1_slope', '?')} |"
-    )
-    q2e_icon = _gate_icon(qc.get("q2_endpoint_pass"))
-    if scoring_mode == "endpoint":
-        q2e_icon = "PASS" if qc.get("q2_endpoint_pass") else "FAIL"
-    lines.append(
-        f"| **Q2E** | Endpoint dynamic range (A490)? | **{q2e_icon}** | "
-        f"V A490 {control.get('median_vehicle_a490_endpoint', '?')} · NT A490 "
-        f"{control.get('median_no_tem1_a490_endpoint', '?')} · Δ "
-        f"{control.get('endpoint_dynamic_range', '?')} |"
-    )
+    if is_r3:
+        lines.append(
+            f"| **Q2** | Substrate HOT, no-TEM-1 FLAT (slopes)? | **{_gate_icon(qc.get('q2_pass'))}** | "
+            f"Substrate slope {control.get('median_vehicle_slope', '?')} · NT slope {control.get('median_no_tem1_slope', '?')} |"
+        )
+        q2e_icon = _gate_icon(qc.get("q2_endpoint_pass"))
+        if scoring_mode == "endpoint":
+            q2e_icon = "PASS" if qc.get("q2_endpoint_pass") else "FAIL"
+        lines.append(
+            f"| **Q2E** | Endpoint dynamic range (A490)? | **{q2e_icon}** | "
+            f"Substrate A490 {control.get('median_vehicle_a490_endpoint', '?')} · NT A490 "
+            f"{control.get('median_no_tem1_a490_endpoint', '?')} · Δ "
+            f"{control.get('endpoint_dynamic_range', '?')} |"
+        )
+    else:
+        lines.append(
+            f"| **Q2** | Vehicle HOT, no-TEM-1 FLAT (slopes)? | **{_gate_icon(qc.get('q2_pass'))}** | "
+            f"V slope {control.get('median_vehicle_slope', '?')} · NT slope {control.get('median_no_tem1_slope', '?')} |"
+        )
+        q2e_icon = _gate_icon(qc.get("q2_endpoint_pass"))
+        if scoring_mode == "endpoint":
+            q2e_icon = "PASS" if qc.get("q2_endpoint_pass") else "FAIL"
+        lines.append(
+            f"| **Q2E** | Endpoint dynamic range (A490)? | **{q2e_icon}** | "
+            f"V A490 {control.get('median_vehicle_a490_endpoint', '?')} · NT A490 "
+            f"{control.get('median_no_tem1_a490_endpoint', '?')} · Δ "
+            f"{control.get('endpoint_dynamic_range', '?')} |"
+        )
     lines.append(
         f"| **Q3** | Clavulanic median ≥50? | **{_gate_icon(qc.get('q3_pass'))}** | "
         f"Pos ctrl median {qc.get('pos_ctrl_median_pct', '?')}% ({scoring_mode}) |"
@@ -271,15 +310,21 @@ def format_decision_tree_report(
 
     norm = summary.get("normalization") or {}
     lines.extend(["", "---", "", "## Controls", ""])
-    lines.append(f"- **Vehicle wells:** {', '.join(norm.get('vehicle_wells', []))}")
+    if is_r3:
+        lines.append(
+            f"- **Substrate control wells:** {', '.join(norm.get('substrate_control_wells', []))}"
+        )
+    else:
+        lines.append(f"- **Vehicle wells:** {', '.join(norm.get('vehicle_wells', []))}")
     lines.append(f"- **No-TEM-1 wells:** {', '.join(norm.get('no_tem1_wells', []))}")
     lines.append(f"- **Clavulanic wells:** {', '.join(norm.get('pos_ctrl_clavaculin_wells', []))}")
+    anchor_label = "substrate" if is_r3 else "vehicle"
     lines.append(
-        f"- **Median slopes (A490/s, aligned window):** vehicle={control.get('median_vehicle_slope', '?')}, "
+        f"- **Median slopes (A490/s, aligned window):** {anchor_label}={control.get('median_vehicle_slope', '?')}, "
         f"no-TEM-1={control.get('median_no_tem1_slope', '?')}"
     )
     lines.append(
-        f"- **Median endpoint A490 (t0+600s):** vehicle={control.get('median_vehicle_a490_endpoint', '?')}, "
+        f"- **Median endpoint A490 (t0+600s):** {anchor_label}={control.get('median_vehicle_a490_endpoint', '?')}, "
         f"no-TEM-1={control.get('median_no_tem1_a490_endpoint', '?')}, "
         f"Δ={control.get('endpoint_dynamic_range', '?')}"
     )
@@ -288,7 +333,8 @@ def format_decision_tree_report(
     lines.append(f"- **Reader lid close (UTC):** `{summary.get('reader_lid_close_utc', '—')}`")
     lines.append(f"- **Nitrocefin timing:** `{summary.get('nitrocefin_timing_json', '—')}`")
     if summary.get("timing_stagger_min") is not None:
-        lines.append(f"- **Stagger (vehicle median t0 − earliest t0):** {summary['timing_stagger_min']:.1f} min")
+        stagger_label = "Dose span (earliest t0 − latest t0)" if is_r3 else "Stagger (vehicle median t0 − earliest t0)"
+        lines.append(f"- **{stagger_label}:** {summary['timing_stagger_min']:.1f} min")
     if timing_suspect_wells:
         lines.append(f"- **Wells flagged timing_suspect:** {', '.join(timing_suspect_wells)}")
     if pre_read:
@@ -309,7 +355,8 @@ def format_decision_tree_report(
             )
 
     lines.extend(["", "---", "", "## Artifacts", ""])
-    lines.append("- Summary JSON: `data/assay/run_2_summary.json`")
+    summary_json = "data/assay/run_3_summary.json" if is_r3 else "data/assay/run_2_summary.json"
+    lines.append(f"- Summary JSON: `{summary_json}`")
     if summary.get("source_csv_git"):
         lines.append(f"- Kinetics CSV: `{summary['source_csv_git']}`")
     if summary.get("plate_map_active"):
@@ -335,7 +382,11 @@ def write_decision_tree_report(
     summary = json.loads(summary_path.read_text())
 
     if compound_list_path is None:
-        compound_list_path = REPO_ROOT / "data" / "screens" / "2" / "v5" / "compound_list.json"
+        rnd = int(summary.get("round") or summary.get("run") or 2)
+        if rnd == 3:
+            compound_list_path = REPO_ROOT / "data" / "screens" / "3" / "v1" / "compound_list.json"
+        else:
+            compound_list_path = REPO_ROOT / "data" / "screens" / "2" / "v5" / "compound_list.json"
     names = _load_compound_names(Path(compound_list_path) if compound_list_path else None)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

@@ -5,7 +5,7 @@
   "plate_version": 1,
   "label": "r3-discovery-v1-exec",
   "workflow": "tem1_activity_screen_manual_nitro_r3_v1",
-  "status": "awaiting_kinetics_csv",
+  "status": "complete",
   "plate_design": "data/screens/3/v1/manifest.json",
   "active_analysis_version": "v1",
   "sign_off_date": "2026-07-26",
@@ -24,6 +24,8 @@
   },
   "files": {
     "kinetics_csv": "data/screens/3/post-run/kinetics_r3.csv",
+    "gen5_pdf": "data/screens/3/post-run/r3_gen5_export.pdf",
+    "gen5_pdf_source": "data/screens/3/post-run/Team_3_FINAL_SUNDAY.pdf",
     "nitrocefin_timing_json": "data/screens/3/post-run/nitrocefin_timing.json",
     "reader_lid_close_utc": "data/screens/3/post-run/reader_lid_close_utc.txt",
     "run_log": null,

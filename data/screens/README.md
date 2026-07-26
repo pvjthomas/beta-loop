@@ -83,7 +83,7 @@ Outputs: `compound_list.json`, `compound_list.csv`, `plate_map.json`, `plate_map
 
 | Path | Label | Status |
 |------|-------|--------|
-| [`3/post-run/`](3/post-run/) | `r3-discovery-v1-exec` | Awaiting Gen5 CSV; synthetic timing (no run log / Gen5 PDF) |
+| [`3/post-run/`](3/post-run/) | `r3-discovery-v1-exec` | **Complete** — endpoint fallback analysis; sync manual nitrocefin |
 
 ## Plate map visualization
 
