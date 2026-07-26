@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-26T00:04:21Z",
+  "updated_at": "2026-07-26T00:13:26Z",
   "forward": {
     "library_matches": {
-      "ran_at": "2026-07-25T23:04:06Z",
+      "ran_at": "2026-07-26T00:07:44Z",
       "tanimoto_threshold": 0.85,
       "matches": [
         {
@@ -75,7 +75,7 @@
     "agent_version": "v1",
     "run_label": "forward-research-agent-v1",
     "manifest": "ml/workflows/compound_selection/snapshots/forward/v1/manifest.json",
-    "finalized_at": "2026-07-25T23:03:16Z",
+    "finalized_at": "2026-07-26T00:07:44Z",
     "compound_groups": [
       {
         "group_id": "clavulanate",
@@ -197,7 +197,7 @@
   },
   "reverse": {
     "scaffold_classification": {
-      "ran_at": "2026-07-25T23:11:13Z",
+      "ran_at": "2026-07-26T00:07:59Z",
       "rdkit": {
         "available": true
       },
@@ -946,7 +946,7 @@
       "csv_updated": false
     },
     "dock_rank": {
-      "ran_at": "2026-07-25T23:11:13Z",
+      "ran_at": "2026-07-26T00:09:49Z",
       "status": "fallback_no_scores",
       "tier3_candidates": [
         "T0138",
@@ -3354,21 +3354,40 @@
       ],
       "refs_skipped_curated": [],
       "cache_path": "/Users/fio/zeon_hack/ml/workflows/compound_selection/literature_search_cache.json"
+    },
+    "gnina_batch": {
+      "ran_at": "2026-07-26T00:11:27Z",
+      "status": "missing_binary",
+      "receptor_pdb": "1JQL",
+      "compound_count": 2,
+      "docked": 0,
+      "skipped_existing": 0,
+      "failed": 0,
+      "scores_in_dossiers": 0,
+      "poses_local": "/Users/fio/zeon_hack/pvjthomas/local/docking",
+      "gnina": {
+        "available": false,
+        "binary": null,
+        "rdkit": true
+      },
+      "autobox_residue": null,
+      "message": "GNINA binary not found. Install from https://github.com/gnina/gnina/releases or set GNINA_BIN to the executable path. See scripts/install-gnina.sh."
     }
   },
   "bridge": {
     "tanimoto_neighbors": {
-      "ran_at": "2026-07-25T21:43:56Z",
+      "ran_at": "2026-07-26T00:13:26Z",
       "threshold": 0.7,
       "reference_count": 5,
+      "groups_with_hits": 5,
       "output": "/Users/fio/zeon_hack/ml/workflows/compound_selection/neighbors.json"
     },
     "tier2_analogs": {
-      "ran_at": "2026-07-25T23:04:06Z",
+      "ran_at": "2026-07-26T00:11:45Z",
       "candidates": []
     },
     "clustering": {
-      "ran_at": "2026-07-25T23:04:06Z",
+      "ran_at": "2026-07-26T00:12:15Z",
       "tanimoto_threshold": 0.7,
       "cluster_count": 64,
       "representatives": [

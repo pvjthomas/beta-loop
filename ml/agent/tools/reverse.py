@@ -23,6 +23,7 @@ from agent.paths import (
 )
 from agent.tools.chem import RDKIT_AVAILABLE, normalize_name, rdkit_status, smarts_match
 from agent.tools.compounds import load_compounds
+from agent.tools.docking import gnina_status, run_batch_dock
 from agent.tools.forward import (
     _apply_entry_caps,
     _ref_file_is_curated,
@@ -722,27 +723,65 @@ def classify_scaffolds_rdkit(write_csv: bool = False) -> dict[str, Any]:
     }
 
 
-def run_gnina_batch(receptor_pdb: str = "1JQL", max_compounds: int = 105) -> dict[str, Any]:
-    """Stub: batch GNINA docking vs TEM-1. Poses go to pvjthomas/local/docking/ (Phase B reverse R2)."""
+def run_gnina_batch(
+    receptor_pdb: str = "1JQL",
+    max_compounds: int = 105,
+    *,
+    skip_existing: bool = True,
+    exhaustiveness: int = 8,
+    timeout_sec: int = 600,
+) -> dict[str, Any]:
+    """Batch GNINA docking vs TEM-1 (PDB 1JQL). Poses → pvjthomas/local/docking/ (Phase B reverse R2)."""
     LOCAL_DOCKING.mkdir(parents=True, exist_ok=True)
     compounds = [c for c in load_compounds() if not c.get("exclude")][:max_compounds]
+    batch = run_batch_dock(
+        compounds,
+        receptor_pdb=receptor_pdb,
+        skip_existing=skip_existing,
+        exhaustiveness=exhaustiveness,
+        timeout_sec=timeout_sec,
+    )
+
     state = _load_selection_state()
     state["reverse"]["gnina_batch"] = {
         "ran_at": _utc_now(),
-        "status": "not_run",
-        "receptor_pdb": receptor_pdb,
+        "status": batch["status"],
+        "receptor_pdb": batch.get("receptor_pdb", receptor_pdb),
+        "requested_pdb": receptor_pdb,
+        "alias_note": batch.get("alias_note"),
         "compound_count": len(compounds),
+        "docked": batch.get("docked", 0),
+        "skipped_existing": batch.get("skipped_existing", 0),
+        "failed": batch.get("failed", 0),
+        "scores_in_dossiers": batch.get("scores_in_dossiers", 0),
         "poses_local": str(LOCAL_DOCKING),
-        "message": "GNINA binary not invoked — implement batch dock and write gnina_cnn_affinity to dossiers.",
+        "gnina": batch.get("gnina", gnina_status()),
+        "autobox_residue": batch.get("autobox_residue"),
+        "message": batch.get("message"),
     }
     path = _save_selection_state(state)
+
+    if batch["status"] == "missing_binary":
+        return {
+            "status": "missing_binary",
+            "selection_state": path,
+            "receptor_pdb": receptor_pdb,
+            "compound_count": len(compounds),
+            "poses_local": str(LOCAL_DOCKING),
+            "message": batch["message"],
+            "next_step": "Install GNINA (scripts/install-gnina.sh), then re-run run_gnina_batch().",
+        }
+
     return {
-        "status": "stub",
+        "status": batch["status"],
         "selection_state": path,
         "receptor_pdb": receptor_pdb,
         "compound_count": len(compounds),
+        "docked": batch.get("docked", 0),
+        "scores_in_dossiers": batch.get("scores_in_dossiers", 0),
         "poses_local": str(LOCAL_DOCKING),
-        "next_step": "Run GNINA locally; patch compound_dossiers.json docking.gnina_cnn_affinity.",
+        "dossiers": batch.get("dossiers"),
+        "sample_results": (batch.get("results") or [])[:5],
     }
 
 

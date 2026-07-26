@@ -5,7 +5,7 @@
   "run_label": "forward-research-agent-v1",
   "forward": {
     "library_matches": {
-      "ran_at": "2026-07-25T23:03:08Z",
+      "ran_at": "2026-07-26T00:07:44Z",
       "tanimoto_threshold": 0.85,
       "matches": [
         {
@@ -77,7 +77,7 @@
     "agent_version": "v1",
     "run_label": "forward-research-agent-v1",
     "manifest": "ml/workflows/compound_selection/snapshots/forward/v1/manifest.json",
-    "finalized_at": "2026-07-25T22:15:16Z",
+    "finalized_at": "2026-07-25T23:03:16Z",
     "compound_groups": [
       {
         "group_id": "clavulanate",

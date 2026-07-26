@@ -101,10 +101,12 @@ def find_tanimoto_neighbors(
     LOCAL_SIMILARITY.mkdir(parents=True, exist_ok=True)
 
     state = _load_selection_state()
+    groups_with_hits = sum(1 for n in neighbors if n["neighbors"])
     state["bridge"]["tanimoto_neighbors"] = {
         "ran_at": _utc_now(),
         "threshold": threshold,
         "reference_count": len(references),
+        "groups_with_hits": groups_with_hits,
         "output": str(SIMILARITY_NEIGHBORS_JSON),
     }
     path = _save_selection_state(state)
@@ -114,7 +116,7 @@ def find_tanimoto_neighbors(
         "selection_state": path,
         "neighbors_file": str(SIMILARITY_NEIGHBORS_JSON),
         "reference_count": len(references),
-        "groups_with_hits": sum(1 for n in neighbors if n["neighbors"]),
+        "groups_with_hits": groups_with_hits,
     }
 
 
