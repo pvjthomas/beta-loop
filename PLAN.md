@@ -38,10 +38,12 @@
 
 By demo time we show a real **data → decision → better result** story:
 
-1. CFPS express TEM-1 → **GFP gate pass** → **Screen Round 1** → analyze → agent designs **Round 2** (visibly different plate)
+1. **Purified TEM-1** on-deck dilutions → **nitrocefin screen (Run 2)** → analyze → agent designs **next round** (visibly different plate)
 2. IC50 on at least one true inhibitor (clavulanate / tazobactam / sulbactam class)
 3. ADK agent loop with fixed file contract between layers
-4. Paperclip-grounded prioritization — agent cites literature when picking Round 1 compounds and designing Round 2 dose-response
+4. Paperclip-grounded prioritization — agent cites literature when picking compounds and designing dose-response follow-ups
+
+**Plan change (Run 2):** Original north star included CFPS expression + GFP gate before screening. That path is **deferred** — Run 2 and current robotics use **commercial/lab purified TEM-1** via [`tem1_activity_screen`](mastermix/workflows/tem1_activity_screen.json). See [ASSAY_WORKFLOW.md](ASSAY_WORKFLOW.md).
 
 **Scoring priorities (from brief):**
 - Inhibit TEM-1 as much as possible
@@ -59,7 +61,7 @@ By demo time we show a real **data → decision → better result** story:
 | Repo scaffold (PLAN, ROLES, REQUIREMENTS, team folders) | ✓ |
 | [`data/README.md`](data/README.md) — rounds vs versions, teammate index | ✓ |
 | [`data/STORAGE.md`](data/STORAGE.md) — git vs local policy | ✓ |
-| [`ASSAY_WORKFLOW.md`](ASSAY_WORKFLOW.md) — CFPS → GFP → screen pipeline | ✓ |
+| [`ASSAY_WORKFLOW.md`](ASSAY_WORKFLOW.md) — purified TEM-1 nitrocefin screen (Run 2 path) | ✓ |
 | Philip selection plan | ✓ [COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md) |
 | Assay cheat sheet | ✓ [NITROCEFIN_ASSAY.md](pvjthomas/NITROCEFIN_ASSAY.md) |
 | Automation split (Rob/Chang) | Draft — [learsch/](learsch/), [changhu/](changhu/) |
@@ -98,9 +100,10 @@ By demo time we show a real **data → decision → better result** story:
 | Philip analysis helpers | ✓ [`ml/analysis/`](ml/analysis/) — kinetics + plate DR |
 | Team `agent/` + `analysis/` at repo root | ✗ Consolidated under `ml/` |
 | Python env + Paperclip | ✓ `.venv`, CLI + SDK |
-| Zeon workflows (`workflows/` or `mastermix/`) | In progress — Rob + Chang |
+| Zeon workflows | **Run 2:** `mastermix/workflows/tem1_activity_screen.json` ✓ · CFPS/GFP deferred |
+| Run log timing parser + CI baselines | ✓ [`ml/analysis/run_log_timing.py`](ml/analysis/run_log_timing.py) |
 
-**Current phase:** Phase 1 Sat PM — **validation plate v2 active** on robot; full 24-compound discovery deferred until assay QC passes.
+**Current phase:** **Run 2** — purified TEM-1 activity screen executed on robot; kinetics analysis + agent loop in progress.
 
 ---
 
@@ -118,22 +121,24 @@ Zeon provides a **skills library** — pre-built robotic primitives (e.g. `plate
 
 | # | Task | Status | Owner | Deliverable |
 |---|------|--------|-------|-------------|
-| **1** | **Program the assay on robotics** | In progress (Sat AM) | Rob + Chang (+ pvjthomas QC) | Three Zeon workflows: CFPS → GFP gate → nitrocefin screen |
-| **2** | **Compound screening (closed loop)** | In progress — Phase A + B scaffold done | Philip (+ ML sign-off) | ADK: forward/reverse/bridge → plate → R1 → analyze → R2 |
+| **1** | **Program the assay on robotics** | **Run 2 workflow live** | Rob + Chang (+ pvjthomas QC) | `tem1_activity_screen` — dilutions + nitrocefin screen from **purified TEM-1** |
+| **2** | **Compound screening (closed loop)** | In progress — Run 2 data landing | Philip (+ ML sign-off) | ADK: forward/reverse/bridge → plate → screen → analyze → next round |
 
 **Plans:** [COMPOUND_SELECTION.md](pvjthomas/COMPOUND_SELECTION.md) · [ml/agent/README.md](ml/agent/README.md) · [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)
 
 ### Task 1 — Program the assay on robotics
 
-Use the Zeon skills library to build and run the wet-lab pipeline:
+Use the Zeon skills library to build and run the **nitrocefin inhibition screen** from **purified TEM-1** (Run 2 path):
 
-1. **Make the enzyme** — cell-free synthesis of TEM-1 (Sepia CFPS kit)
-2. **Confirm it** — sfGFP fluorescence gate before screening
-3. **Screen it** — assay plate assembly, nitrocefin kinetics, A490 readout
+1. **Prepare on deck** — dilute TEM-1 stock (100 ng/µL → 0.1 ng/µL working), compound/control working solutions, matched vehicle
+2. **Load assay plate** — enzyme, compounds, plate mix, pre-incubation
+3. **Start reaction** — just-in-time nitrocefin prep + dispense; kinetic A490 readout
 
-Skills are provided; we choose execution order, volumes, and variables. Workflows live in `workflows/` (shared). Simulate in Zeon before booking hardware blocks.
+Implemented workflow: [`mastermix/workflows/tem1_activity_screen.json`](mastermix/workflows/tem1_activity_screen.json). Run folder includes `timing_summary.json` and `nitrocefin_timing.json` via `save_run_folder`.
 
-**Open questions:** GFP reader instrument, CFPS incubation time, nitrocefin stock concentration — confirm at kickoff.
+**Deferred (original plan):** CFPS expression (`cfps_mastermix`) + GFP gate — not on Run 2 critical path. See [ASSAY_WORKFLOW.md § Original plan](ASSAY_WORKFLOW.md#original-plan--cfps--gfp-gate-deferred).
+
+**Open questions:** Pre-incubation time on hardware, nitrocefin prep overlap with pre-incubation, plate reader export format.
 
 ### Task 2 — Compound screening (closed loop)
 
@@ -150,14 +155,14 @@ Code lives in [`ml/agent/`](ml/agent/) and [`ml/analysis/`](ml/analysis/). File 
 ```
 Task 1 (robotics)                    Task 2 (screening)
 ─────────────────                    ──────────────────
-CFPS workflow  ──┐
-GFP workflow   ──┼── enzyme ready ──► plate_map_r1.json ──► Screen R1
-Screen workflow◄─┘                         │
-                                         ▼ kinetics_r1.csv
-                                    agent analyzes
-                                         │
-                                         ▼ plate_map_r2.json
-                                    Screen R2 ──► IC50 + demo
+Purified TEM-1 on deck ──┐
+tem1_activity_screen   ──┼── plate_map + run log ──► Screen Run 2
+save_run_folder          │         │
+                         │         ▼ kinetics_r2.csv + timing JSON
+                         │    agent analyzes (median scoring)
+                         │         │
+                         │         ▼ plate_map_r3 / DR draft
+                         └──── next screen round ──► IC50 + demo
 ```
 
 Neither task stands alone for the hackathon score — judges want **both** a working robot assay **and** a visible closed loop on compound selection.
@@ -223,7 +228,8 @@ flowchart LR
                 ▼                             │ round_summary_r{N}.json
 ┌─────────────────────────────────────────────────────────┐
 │  Robotics: Zeon protocol runner                         │
-│  Workflows: cfps · gfp_read · screen                    │
+│  Workflow: tem1_activity_screen (purified TEM-1)        │
+│  Deferred: cfps_mastermix · gfp_read                    │
 └───────────────┬────────────────────────────▲────────────┘
                 │ execution                   │ plate reader export
                 ▼                             │
@@ -308,10 +314,10 @@ compound_id,name,rack_id,well,scaffold_class,functional_class,tier,dock_score,ex
 
 ### Assay logic
 
-1. **CFPS:** sfGFP-TEM-1 fusion + positive (sfGFP) + negative (no template) controls
-2. **GFP gate:** TEM-1 well fluorescence >> no-template; positive control passes
-3. **Screen:** nitrocefin kinetics at A490; initial slope = enzyme velocity
-4. **Scoring:** normalize to vehicle (0% inhibition) and no-TEM-1 (100% inhibition)
+**Enzyme source (Run 2):** Purified TEM-1 diluted on-deck to 0.1 ng/µL; 20 µL per well → 2 ng TEM-1. No CFPS lysate on the critical path.
+
+1. **Screen:** nitrocefin kinetics at A490; initial slope = enzyme velocity (aligned to per-well nitrocefin t0 when timing metadata available)
+2. **Scoring:** normalize to vehicle (0% inhibition) and no-TEM-1 (100% inhibition)
 
 ```
 pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - slope_no_tem1))
@@ -451,7 +457,7 @@ Implementation: [`ml/agent/tools/literature.py`](ml/agent/tools/literature.py), 
 
 ### Literature in the demo (30 sec)
 
-> "Before touching the robot, our agent searched Europe PMC, ChEMBL, and PubMed — and identified clavulanate-class compounds as true inhibitors vs. β-lactam antibiotics as substrates — so Round 1 deliberately mixed both. Round 1 data confirmed the literature priors; Round 2 ran dose-response only on the inhibitor class."
+> "Before touching the robot, our agent searched Europe PMC, ChEMBL, and PubMed — and identified clavulanate-class compounds as true inhibitors vs. β-lactam antibiotics as substrates — so the Run 2 plate deliberately mixed both. Kinetic data confirms literature priors; the agent uses hits to design the next dose-response plate."
 
 ---
 
@@ -463,12 +469,13 @@ Implementation: [`ml/agent/tools/literature.py`](ml/agent/tools/literature.py), 
 
 | Check | Wells | Pass criterion |
 |-------|-------|----------------|
-| **Enzyme active** | Vehicle (enzyme + DMSO + nitrocefin) | Strong, linear A490 slope |
+| **Enzyme active** | Vehicle (purified TEM-1 + DMSO + nitrocefin) | Strong, linear A490 slope |
 | **Signal is enzymatic** | No-TEM-1 (no TEM-1 + nitrocefin) | Slope ≈ background (flat) |
 | **Inhibition detectable** | Clavulanic acid T19860 @ 50 µM + enzyme | Slope << vehicle (≥50% inhibition) |
-| **GFP gate** (upstream) | CFPS TEM-1 fusion | sfGFP >> no-template |
 
-If vehicle is flat → enzyme prep or nitrocefin problem. If clavulanate doesn’t inhibit → assay conditions wrong. **Do not run Round 1 until all three nitrocefin checks pass.**
+If vehicle is flat → purified enzyme dilution or nitrocefin problem. If clavulanate doesn’t inhibit → assay conditions wrong. **Do not run library screens until all three nitrocefin checks pass.**
+
+*(Deferred upstream check: GFP gate on CFPS plate — not required for Run 2.)*
 
 ### Minimal validation plate (run first — ~10 wells)
 
@@ -633,25 +640,31 @@ If R1 assay fails (all flat): fallback R2 runs known inhibitors + clavulanate DR
 
 ---
 
-## Three robot workflows (Task 1)
+## Robot workflows (Task 1)
 
-Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills library (GitHub repo TBA at event).
+Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills library.
 
-| # | Workflow | Input | Output | Owner |
-|---|----------|-------|--------|-------|
-| 1 | `cfps` | Template assignments | Sealed plate → incubator | Robotics |
-| 2 | `gfp_read` | CFPS plate | Fluorescence values → gate pass/fail | Robotics |
-| 3 | `screen` | `plate_map_r{N}.json` + enzyme prep | Kinetic A490 → `kinetics_r{N}.csv` | Robotics |
+### Active — Run 2 (`tem1_activity_screen`)
 
-**Screen workflow steps (per brief):**
-1. Fill wells with assay buffer
-2. Add enzyme (skip no-TEM-1 wells)
-3. Add one compound per well (from source plate, 10 µL pipette)
-4. Pre-incubate RT
-5. Add nitrocefin (track time)
-6. Read A490 every 30 s for several minutes
+| Workflow | Input | Output | Status |
+|----------|-------|--------|--------|
+| [`tem1_activity_screen`](mastermix/workflows/tem1_activity_screen.json) | Purified TEM-1 stock, compound library, nitrocefin stock, BLB | Assay plate + run log + timing artifacts | **Implemented — Run 2 executed** |
+
+**Workflow steps (Run 2):**
+1. Prepare dilutions (TEM-1 + compound/control working solutions)
+2. Dispense TEM-1, no-enzyme BLB, vehicle, compounds to assay plate
+3. Whole-plate shaker mix + pre-incubation
+4. Prepare nitrocefin working solution just-in-time; dispense by condition
+5. `save_run_folder` — log, `timing_summary.json`, `nitrocefin_timing.json`
 
 **Controls on every screen plate:** vehicle (max velocity) + no-TEM-1 (background).
+
+### Deferred — original CFPS → GFP plan
+
+| # | Workflow | Input | Output | Status |
+|---|----------|-------|--------|--------|
+| 1 | `cfps_mastermix` | DNA templates (hand-loaded) | Sealed CFPS plate → incubator | Implemented in repo; **not Run 2 path** |
+| 2 | `gfp_read` | CFPS plate | Fluorescence → gate pass/fail | Planned only |
 
 ---
 
@@ -692,21 +705,21 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 - [ ] Optional ADK `LoopAgent` wrapper (max 2 iterations)
 
 ### Robotics
-- [ ] Clone Zeon GitHub repo (when available)
-- [ ] Run example workflow in simulation
-- [ ] Draft `cfps`, `gfp_read`, `screen` workflows in sim
-- [ ] Confirm pipette volume constraints (0.5–10 µL grey, 10–120 µL large)
-- [ ] Document expected timing per workflow for 60-min blocks
+- [x] **`tem1_activity_screen`** workflow — dilutions + nitrocefin screen from purified TEM-1
+- [x] Run log timing auto-summary in `save_run_folder`
+- [ ] Plate reader kinetic export integrated with Run 2
+- [ ] Document expected timing per workflow (see [`ml/analysis/RUN_LOG_TIMING.md`](ml/analysis/RUN_LOG_TIMING.md))
+- [ ] *(Deferred)* CFPS + GFP gate workflows on hardware
 
 ### You (pvjthomas)
-- [ ] Kickoff question list (see below) — questions documented, answers TBD at kickoff
-- [ ] Define GFP pass threshold
+- [x] Plan change documented — purified TEM-1 path in ASSAY_WORKFLOW + PLAN
+- [ ] Kickoff question list — updated for Run 2 (pre-incubation, reader export)
 - [x] Define hit threshold and normalization formula (documented in [Scientific plan](#scientific-plan); median scoring in `ml/analysis/kinetics.py` + unit tests)
-- [ ] Validate median scoring on first real `kinetics_r2.csv` vs [run2 decision tree](pvjthomas/runs/2/v5/run2_decision_tree.md)
-- [ ] Draft 3-min demo script
+- [ ] Validate median scoring on Run 2 `kinetics_r2.csv` vs [run2 decision tree](pvjthomas/runs/2/v5/run2_decision_tree.md)
+- [ ] Draft 3-min demo script (purified enzyme path)
 - [ ] Set up shared status board (bookings, gates, file paths)
 - [x] Compound selection plan + assay cheat sheet
-- [x] Minimal validation plate spec + sign-off gate documented
+- [x] Run 2 plate layout + decision tree
 
 ### All (15-min sync)
 - [x] Agree file schemas above (documented; encode in JSON as artifacts land)
@@ -716,43 +729,41 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 
 ---
 
-## Phase 1: Saturday morning — setup & expression (hours 0–4)
+## Phase 1: Saturday — Run 2 screen (actual path)
 
 | Time | Robotics | ML | You |
 |------|----------|-----|-----|
-| 11:00–11:15 | — | — | **Kickoff sync:** booking plan + organizer Qs |
-| 11:15–11:45 | Hardware tour, sim env | Finalize ADK + schemas; confirm `literature_summary.json` loaded | Confirm GFP reader, nitrocefin conc, CFPS incubation time |
-| 11:45–12:30 | Build CFPS workflow in sim | Phase B pipeline + validation plate shipped | Book CFPS + screen blocks |
-| 12:30–13:30 | **Run CFPS on hardware** | `analyze_kinetics()` on synthetic CSV | QC plate layout, seal, start incubator |
-| 13:30–14:30 | Build GFP read workflow | ADK sub-agents live; optional Paperclip batch | Monitor CFPS (~30 min signal?) |
-| 14:30–15:00 | **GFP gate read** | Continue agent/analysis — do not block on gate | **Go/no-go for validation screen** |
+| Setup | Stage purified TEM-1, nitrocefin, compound library, BLB on deck | Confirm Run 2 plate map + priors | QC deck layout vs world |
+| Run | **`tem1_activity_screen` on hardware** (~3 h robot time per run log) | Monitor `timing_summary.json`; prep kinetics pipeline | QC run log / timing stagger |
+| Post-run | `save_run_folder` artifacts to cloud | **`analyze_kinetics()` on `kinetics_r2.csv`** | Verify vehicle / no-TEM-1 / clavulanate QC |
+| Analysis | — | **`round_summary` + agent next plate** | Sign off hits vs [run2 decision tree](pvjthomas/runs/2/v5/run2_decision_tree.md) |
 
-**Critical path (robotics):** No screen slot until GFP gate passes.  
-**Critical path (selection):** Validation v2 must pass before promoting 24-compound discovery plate. See [Compound list generation](#compound-list-generation-phase-a--phase-b).
+**Critical path (Run 2):** Nitrocefin validation checks on plate reader data — **no GFP gate**.  
+**Critical path (selection):** Median scoring + timing QC (Q1T) before calling compounds.
+
+*(Original Phase 1 schedule — CFPS block → GFP gate → screen — superseded; see [ASSAY_WORKFLOW.md](ASSAY_WORKFLOW.md).)*
 
 ---
 
-## Phase 2: Saturday afternoon — Round 1 (hours 4–8)
+## Phase 2: Analysis & next-round design
 
 | Time | Robotics | ML | You |
 |------|----------|-----|-----|
-| 15:00–16:00 | Sim + **run Screen R1** | Ready for `kinetics_r1.csv`; do not bench-QC | QC vehicle wells show enzyme activity |
-| 16:00–16:20 | — | **`analyze_kinetics()` → `round_summary_r1.json`** | Verify clavulanate shows inhibition |
-| 16:20–16:50 | — | **Agent emits `plate_map_r2.json` + rationale** | **Mandatory team sync — sign off R2** |
-| 16:50–18:00 | Prep R2 reagents/plate | R1 heatmap dashboard | Document R1→R2 diff for demo |
-| 18:00–19:00 | Dinner / buffer | Tune agent prompt from R1 | — |
+| Post Run 2 | — | **`analyze_kinetics()` → round summary** | Verify clavulanate shows inhibition |
+| Sync | — | **Agent emits next `plate_map` + rationale** | **Team sync — sign off next round** |
+| Prep | Prep next reagents/plate if block available | Hit heatmap / timing QC | Document screen → next-round diff for demo |
 
-**Target:** R1 analysis turnaround **< 20 minutes** after reader export.
+**Target:** Analysis turnaround **< 20 minutes** after reader export.
 
 ---
 
-## Phase 3: Saturday night — Round 2 (hours 8–12)
+## Phase 3: Follow-up screen / dose-response
 
 | Time | Robotics | ML | You |
 |------|----------|-----|-----|
-| 19:00–20:00 | **Run Screen R2** | IC50 fitting code ready | QC curves live |
-| 20:00–21:00 | Buffer / optional fixes | `round_summary_r2.json`, IC50 table | Pick hero compound for pitch |
-| 21:00–24:00 | Workflow polish | Demo dashboard | Pitch slides / script |
+| Next block | **Run agent-designed plate** (DR or follow-up) | IC50 fitting code ready | QC curves live |
+| Analysis | Buffer / optional fixes | `round_summary_r2.json`, IC50 table | Pick hero compound for pitch |
+| Polish | Workflow timing improvements | Demo dashboard | Pitch slides / script |
 
 ---
 
@@ -769,51 +780,47 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 
 ## Hardware booking plan
 
-Testbed booked in **60-min blocks**. Reader auto-reserved inside screen blocks.
+Testbed booked in **60-min blocks** (Run 2 screen ~3 h — may need chained blocks).
 
 | Priority | Block | Owner | Notes |
 |----------|-------|-------|-------|
-| P0 | CFPS expression | Robotics | One active batch per team |
-| P0 | GFP gate read | Robotics | Unlocks screening |
-| P0 | Screen Round 1 | Robotics | Reader included |
-| P0 | Screen Round 2 | Robotics | Reader included |
-| P1 | CFPS re-run | Robotics | If expression fails |
-| P2 | Confirmatory replicate | Robotics | Stretch goal |
+| P0 | **Run 2 screen** (`tem1_activity_screen`) | Robotics | Purified TEM-1; reader after run |
+| P0 | Plate reader kinetic read | Robotics / You | Export → `kinetics_r2.csv` |
+| P1 | Confirmatory / next-round screen | Robotics | Agent-designed plate |
+| P2 | *(Deferred)* CFPS + GFP | Robotics | Original plan only |
 
-**While robot runs:** ML analyzes · You QC · Robotics preps next workflow.
-
-ML and you do not need separate hardware blocks except to observe.
+**While robot runs:** ML analyzes prior runs · You QC timing/kinetics · Robotics preps next plate map.
 
 ---
 
-## Kickoff questions (you ask organizers)
+## Kickoff questions (Run 2 — still open)
 
-1. Which instrument reads sfGFP? (ELx808 may be absorbance-only)
-2. Validated CFPS incubation time at this event? (30 min vs 6 h)
-3. Nitrocefin stock concentration: 20 mM or 20 µM? (protocol has typo)
-4. Screen uses CFPS lysate directly, or separate enzyme prep step?
-5. DMSO concentration matched in all vehicle and compound wells?
-6. Plate reader export format / API for kinetic data?
+1. Pre-incubation time on hardware (workflow default 10 min vs 2 min observed in one run log)
+2. Nitrocefin working solution prep — overlap with pre-incubation vs substrate stability
+3. Plate reader export format / API for kinetic data (`kinetics_r2.csv`)
+4. DMSO concentration matched in all vehicle and compound wells?
+5. When / whether to re-enable CFPS + GFP for demo narrative
+
+*(Original kickoff Qs about GFP reader and CFPS incubation — relevant only if CFPS path returns.)*
 
 ---
 
 ## Deliverables checklist
 
 ### MVP (must ship)
-- [ ] CFPS completed with controls
-- [ ] GFP gate passed
-- [ ] Screen Round 1 on hardware
-- [ ] Screen Round 2 on hardware (agent-designed plate map)
-- [ ] Written agent rationale for R1 → R2 pivot (references Paperclip priors + R1 data)
-- [ ] IC50 on ≥ 1 known inhibitor
-- [ ] Demo showing R1 vs R2 plate diff
-- [ ] Paperclip literature summary used in Round 1 compound selection
+- [x] **Run 2 screen on hardware** (`tem1_activity_screen`, purified TEM-1)
+- [ ] Kinetics analysis + QC gates (vehicle, no-TEM-1, clavulanate)
+- [ ] Written agent rationale for screen → next-round pivot (Paperclip priors + Run 2 data)
+- [ ] IC50 or dose-response on ≥ 1 known inhibitor
+- [ ] Demo showing closed loop (plate map diff + kinetics)
+- [x] Paperclip literature summary used in compound selection
 
 ### Stretch
-- [x] Agent generates R2 plate map (draft — `ml/workflows/compound_selection/plate_map_r2_draft.json`)
+- [x] Agent generates next-round plate map (draft — `ml/workflows/compound_selection/plate_map_r2_draft.json`)
 - [ ] Live agent loop during demo
 - [ ] GNINA pose visualization
 - [x] Substrate vs inhibitor auto-classification (Phase A rules + Phase B RDKit tags)
+- [ ] *(Deferred)* CFPS + GFP gate for full expression narrative
 
 ---
 
@@ -821,10 +828,10 @@ ML and you do not need separate hardware blocks except to observe.
 
 1. **Problem** (15 s): AMR rising; TEM-1 destroys β-lactams before they work
 2. **System** (30 s): ADK agent + Paperclip literature + Zeon robot + plate reader closed loop
-3. **Round 1** (45 s): Paperclip priors → plate map → kinetics → ranked hits; substrates vs inhibitors confirmed
-4. **The loop** (45 s): Agent reads R1 → R2 plate **visibly different** → show rationale
-5. **Result** (30 s): IC50 on clavulanate / tazobactam; loop closed twice
-6. **Next** (15 s): Scale to full 95-compound library; overnight CFPS scheduling
+3. **Run 2 screen** (45 s): Purified TEM-1 on-deck → 9 compounds + controls → nitrocefin kinetics → ranked hits; substrates vs inhibitors
+4. **The loop** (45 s): Agent reads data → next plate **visibly different** → show rationale
+5. **Result** (30 s): IC50 / inhibition on clavulanate / tazobactam class; loop closed
+6. **Next** (15 s): Scale library; optional return to CFPS expression path for cost/demo
 
 ---
 
@@ -832,21 +839,22 @@ ML and you do not need separate hardware blocks except to observe.
 
 | Risk | Likelihood | Mitigation | Owner |
 |------|------------|------------|-------|
-| GFP reader unavailable | Medium | Confirm at kickoff; ask fallback | You |
-| CFPS needs 6 h | Medium | Start block 1 immediately; ask validated short protocol | Robotics |
-| R1 all flat (assay fail) | Medium | Debug enzyme/nitrocefin/DMSO; R2 runs known inhibitors | You |
-| Agent too slow to trust | Low | Hardcode R1; agent drives R2 only | ML |
-| 60-min block too tight | Medium | Pre-sim everything; no new params on hardware | Robotics |
+| Purified TEM-1 stock degraded / wrong conc | Medium | On-deck dilution QC; vehicle slope gate | You |
+| Nitrocefin stagger skews kinetics | Medium | `nitrocefin_timing.json` + Q1T gate; batch dispense improvement | ML |
+| R2 all flat (assay fail) | Medium | Debug enzyme/nitrocefin/DMSO; re-run with clavulanate controls | You |
+| Agent too slow to trust | Low | Hardcode plate; agent drives next round only | ML |
+| 60-min block too tight for full screen | Medium | Run 2 ~3 h — chain blocks; pre-sim | Robotics |
 | File format drift | Low | Freeze schemas Phase 0 | ML |
 | Nitrocefin in compound list | Low | Exclude T19709 in `compounds.csv` | ML |
 | Paperclip auth fails on-site | Low | Per-compound refs + hardcoded priors already shipped | Philip |
+| *(Deferred)* GFP reader / CFPS incubation | — | Not on Run 2 path | — |
 
 ---
 
 ## Communication
 
 - **Standup:** every 2 hours, 5 min (booking status, gates, blockers)
-- **Critical sync:** 30 min after R1 analysis — lock R2 plate map
+- **Critical sync:** after Run 2 kinetics land — lock next plate map
 - **Single source of truth:** this doc + shared booking calendar + `data/` folder
 
 ---
@@ -872,11 +880,11 @@ zeon_hack/
 │   └── plate_map_r2.json       ← (pending R1 results)
 ├── ml/
 │   ├── agent/                  ← ADK coordinator + Phase B sub-agents
-│   ├── analysis/               ← kinetics + dose-response helpers
+│   ├── analysis/               ← kinetics, run_log_timing, timing_baselines
 │   └── workflows/compound_selection/
-├── pvjthomas/                  ← bio QC, assay docs, local caches
-│   └── COMPOUND_SELECTION.md
-├── workflows/                  ← Zeon robot workflows (Rob + Chang)
+├── mastermix/workflows/        ← tem1_activity_screen (Run 2), cfps_mastermix (deferred)
+├── pvjthomas/                  ← bio QC, Run 2 decision tree, assay docs
+│   └── runs/2/v5/              ← run2_decision_tree.md
 └── ml/CLOSED_LOOP.md
 ```
 
@@ -919,15 +927,14 @@ Then **manually curate** Tier-1 inhibitor refs to T19860 quality (ChEMBL activit
 
 | Who | Task | Status |
 |-----|------|--------|
-| Rob + Chang | CFPS on hardware + GFP gate | In progress |
-| Rob + Chang | Run **validation v2** screen when gate passes | Blocked on GFP |
-| Philip | Validation sign-off after clavulanate inhibits | Waiting on data |
-| Philip | Promote discovery v3 plate after validation + **priors complete** | Blocked on assay QC + forward curation |
-| Philip | GNINA batch dock → Tier 3 ranking | Optional — Docker on Mac or Linux GPU; fallback rank OK |
-| Philip (ML) | Validate median kinetics on Run 2 CSV → `run_2_summary.json` | After plate reader export |
-| Philip (ML) | Synthetic kinetics test + demo plots | Parallel — does not block forward |
-| Philip (ML) | Forward Tier 4 Paperclip CI/nightly | Optional — baseline logged |
+| Rob + Chang | **Run 2** `tem1_activity_screen` on hardware | ✓ executed (see run log) |
+| Rob + Chang / You | Plate reader export → `kinetics_r2.csv` | In progress |
+| Philip | Run 2 QC sign-off (vehicle, no-TEM-1, clavulanate) | Waiting on reader data |
+| Philip | Median kinetics vs [run2 decision tree](pvjthomas/runs/2/v5/run2_decision_tree.md) | After CSV |
+| Philip | Promote next-round plate after QC + priors | Blocked on kinetics |
+| Philip (ML) | Timing regression baselines in CI | ✓ [`ml/analysis/timing_baselines/`](ml/analysis/timing_baselines/) |
+| *(Deferred)* Rob | CFPS + GFP on hardware | Not Run 2 path |
 
 ---
 
-*Last updated: 2026-07-25 ~16:06 PT*
+*Last updated: 2026-07-26 — aligned with purified TEM-1 / Run 2 path ([ASSAY_WORKFLOW.md](ASSAY_WORKFLOW.md))*

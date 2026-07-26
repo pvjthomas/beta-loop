@@ -117,10 +117,18 @@ def analyze_kinetics_run(
     output_dir: str | Path | None = None,
     slope_window_start_s: float | None = 180.0,
     slope_window_end_s: float | None = 480.0,
+    parsed_json: str | Path | None = None,
+    write_pattern_markdown: bool = True,
     **analyze_kwargs,
 ) -> dict:
-    """Map wells to plate layout and run kinetics analysis."""
+    """Map wells to plate layout, run kinetics analysis, and emit pattern EDA."""
     from analysis.kinetics import analyze_kinetics_file
+    from analysis.kinetics_eda import (
+        build_kinetics_llm_context,
+        summarize_kinetics_patterns,
+        write_kinetics_llm_context,
+        write_pattern_summary,
+    )
 
     plate_map = resolve_plate_map(plate_map_json, run=run, version=version)
     if plate_map is None:
@@ -131,8 +139,9 @@ def analyze_kinetics_run(
 
     out_dir = Path(output_dir) if output_dir else Path(kinetics_csv).parent
     out_dir.mkdir(parents=True, exist_ok=True)
+    stem = Path(kinetics_csv).stem
 
-    annotated_path = out_dir / f"{Path(kinetics_csv).stem}_annotated.csv"
+    annotated_path = out_dir / f"{stem}_annotated.csv"
     write_annotated_kinetics_csv(
         kinetics_csv,
         annotated_path,
@@ -149,11 +158,76 @@ def analyze_kinetics_run(
         slope_window_end_s=slope_window_end_s,
         **analyze_kwargs,
     )
-    summary_path = out_dir / f"round_summary_{Path(kinetics_csv).stem}.json"
+    summary_path = out_dir / f"round_summary_{stem}.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n")
+
+    parsed_path = Path(parsed_json) if parsed_json else None
+    if parsed_path is None:
+        base_stem = stem.replace("_kinetics", "")
+        candidate = out_dir / f"{base_stem}_parsed.json"
+        if candidate.exists():
+            parsed_path = candidate
+
+    gen5_results = None
+    if parsed_path and parsed_path.exists():
+        parsed_data = json.loads(parsed_path.read_text())
+        gen5_results = parsed_data.get("gen5_results")
+
+    pattern_report = summarize_kinetics_patterns(
+        kinetics_csv,
+        plate_map_path,
+        parsed_json=parsed_path,
+        gen5_results=gen5_results,
+    )
+    pattern_json_path = out_dir / f"pattern_summary_{stem}.json"
+    pattern_md_path = out_dir / f"pattern_summary_{stem}.md" if write_pattern_markdown else None
+    write_pattern_summary(
+        pattern_report,
+        pattern_json_path,
+        markdown_path=pattern_md_path,
+        plate_map_json=plate_map_path,
+    )
+
+    parsed_metadata = None
+    if parsed_path and parsed_path.exists():
+        parsed_metadata = json.loads(parsed_path.read_text()).get("metadata")
+
+    artifact_paths = {
+        "kinetics_csv": str(kinetics_csv),
+        "annotated_csv": str(annotated_path),
+        "round_summary_json": str(summary_path),
+        "pattern_summary_json": str(pattern_json_path),
+        "plate_map_json": str(plate_map_path),
+    }
+    if parsed_path:
+        artifact_paths["parsed_json"] = str(parsed_path)
+    if pattern_md_path:
+        artifact_paths["pattern_summary_md"] = str(pattern_md_path)
+
+    llm_context = build_kinetics_llm_context(
+        pattern_report,
+        summary,
+        plate_map=plate_map,
+        parsed_metadata=parsed_metadata,
+        artifact_paths=artifact_paths,
+        plate_map_json=plate_map_path,
+    )
+    llm_context_path = out_dir / f"kinetics_llm_context_{stem}.json"
+    llm_prompt_path = out_dir / f"kinetics_llm_context_{stem}.md"
+    write_kinetics_llm_context(
+        llm_context,
+        llm_context_path,
+        prompt_path=llm_prompt_path,
+    )
+
     summary["annotated_csv"] = str(annotated_path)
     summary["summary_json"] = str(summary_path)
     summary["plate_map"] = str(plate_map_path)
+    summary["pattern_summary_json"] = str(pattern_json_path)
+    if pattern_md_path:
+        summary["pattern_summary_md"] = str(pattern_md_path)
+    summary["kinetics_llm_context_json"] = str(llm_context_path)
+    summary["kinetics_llm_context_md"] = str(llm_prompt_path)
     return summary
 
 

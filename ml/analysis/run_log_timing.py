@@ -1,5 +1,7 @@
 """Parse Zeon run logs into structured timing reports.
 
+Full documentation: ``RUN_LOG_TIMING.md`` in this directory.
+
 Supports rendered ``run_log.txt`` (from ``save_run_folder``) and raw
 ``run_log.jsonl`` events.  Workflow node mapping uses workflow JSON
 ``nodes[].label`` as the join key against log step labels.

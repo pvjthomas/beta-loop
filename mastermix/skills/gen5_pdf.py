@@ -21,6 +21,7 @@ VALUES_PER_PLATE = WELLS_PER_PLATE * len(WAVELENGTHS_NM)
 WELL_RE = re.compile(r"^[A-H](?:1[0-2]|[1-9])$")
 TIME_ROW_RE = re.compile(r"^0:\d{2}:\d{2}$")
 KINETIC_HEADER_RE = re.compile(r"^Time T° (\d+) ((?:[A-H](?:1[0-2]|[1-9])\s*)+)$")
+METRICS_PER_WELL = 8  # Gen5 Results: 4 metrics × 2 wavelengths per well
 
 
 def _extract_text(pdf_path: Path) -> str:
@@ -179,6 +180,51 @@ def _parse_kinetic_timecourses(text: str, wavelengths_nm: list[int]) -> dict[str
     return wells
 
 
+def _parse_gen5_kinetic_results(
+    text: str,
+    wavelengths_nm: list[int],
+) -> dict[str, dict[int, dict[str, float | str | None]]]:
+    """Parse Gen5 kinetic Results section (Max V, Lagtime) for QC cross-check."""
+    idx = text.find("Results")
+    if idx < 0:
+        return {}
+
+    section = text[idx:]
+    tokens = re.findall(r"-?\d+\.\d+|\d+:\d+:\d+|\?\?\?\?\?", section)
+    expected = WELLS_PER_PLATE * METRICS_PER_WELL
+    if len(tokens) != expected:
+        return {}
+
+    wl_primary = wavelengths_nm[0] if wavelengths_nm else 490
+    wl_secondary = wavelengths_nm[1] if len(wavelengths_nm) > 1 else wl_primary
+
+    results: dict[str, dict[int, dict[str, float | str | None]]] = {}
+    well_idx = 0
+    for row in ROWS:
+        for col in COLS:
+            well = _well_id(row, col)
+            chunk = tokens[well_idx * METRICS_PER_WELL : (well_idx + 1) * METRICS_PER_WELL]
+            if len(chunk) != METRICS_PER_WELL:
+                well_idx += 1
+                continue
+            results[well] = {
+                wl_primary: {
+                    "max_v": float(chunk[0]),
+                    "r_squared": float(chunk[1]),
+                    "t_at_max_v": chunk[2],
+                    "lagtime": None if chunk[3] == "?????" else chunk[3],
+                },
+                wl_secondary: {
+                    "max_v": float(chunk[4]),
+                    "r_squared": float(chunk[5]),
+                    "t_at_max_v": chunk[6],
+                    "lagtime": None if chunk[7] == "?????" else chunk[7],
+                },
+            }
+            well_idx += 1
+    return results
+
+
 def parse_gen5_kinetic_pdf(pdf_path: str | Path) -> dict:
     """Parse a Gen5 kinetic PDF into metadata and per-well time courses."""
     path = Path(pdf_path)
@@ -193,7 +239,9 @@ def parse_gen5_kinetic_pdf(pdf_path: str | Path) -> dict:
     if not timecourses:
         raise ValueError(f"No kinetic time courses found in {path.name}")
 
-    return {"metadata": metadata, "timecourses": timecourses}
+    gen5_results = _parse_gen5_kinetic_results(text, wavelengths_nm)
+
+    return {"metadata": metadata, "timecourses": timecourses, "gen5_results": gen5_results}
 
 
 def parse_gen5_pdf(pdf_path: str | Path, mode: str = "auto") -> dict:

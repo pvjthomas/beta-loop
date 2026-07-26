@@ -97,6 +97,7 @@ def test_team3_kinetic_pdf() -> None:
 
     auto = parse_gen5_pdf(TEAM3_KINETIC_PDF, mode="auto")
     assert "timecourses" in auto
+    assert len(auto.get("gen5_results", {})) == 96
     print(f"OK  {TEAM3_KINETIC_PDF.name} — 96 wells × 31 reads @ 490 nm")
 
 
