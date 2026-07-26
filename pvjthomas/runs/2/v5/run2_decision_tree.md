@@ -4,7 +4,9 @@
 **Plate map:** [`data/screens/2/v5/plate_map.json`](../../../../data/screens/2/v5/plate_map.json)  
 **Kinetic schedule:** [`kinetic_schedule.json`](kinetic_schedule.json) · [`pvjthomas/output/kinetic_schedule_r2_v5.json`](../../../output/kinetic_schedule_r2_v5.json)
 
-Use this tree after the nitrocefin TEM-1 screen completes. It covers **kinetic** (preferred) and **endpoint** readouts.
+Use this tree after the nitrocefin TEM-1 screen completes. Readout is **kinetic only** — Gen5 saved method at **490 nm**, A490 every 30 s for 600 s after 120 s equilibration (see `kinetic_schedule.json`). The robot stops after nitrocefin dosing; operator moves the plate to the reader and starts the kinetic method manually.
+
+**Timing input:** per-well nitrocefin `t0_utc` from `nitrocefin_timing.json` in the run folder (recorded by `batched_dispense_mastermix` during staggered dosing).
 
 ---
 
@@ -20,6 +22,8 @@ Use this tree after the nitrocefin TEM-1 screen completes. It covers **kinetic**
 | No-TEM-1 | 3/36 — DMSO, no TEM-1 × 3 | `no_tem1` |
 
 Clavulanic acid is **not** in the 9-sample list — positive control only.
+
+Nitrocefin is dosed in **~13 staggered batches** (no-TEM-1 first, vehicle last) over **10–30 min**. Early-dosed substrate wells can appear **flat** in the global reader window even when enzyme is active — use per-well time alignment (Q1T) before calling hits.
 
 ---
 
@@ -49,14 +53,25 @@ inhibition_score = 100 × (1 − (metric_sample − metric_no_tem1) / (metric_ve
 
 ---
 
-## Scoring (both readout modes)
+## Signal classification — FLAT vs HOT
 
-Kinetic and endpoint answer the same question: **how fast is nitrocefin turning red?**
+Per-well metric: **A490 slope** in the **180–480 s kinetic window**, aligned to that well's nitrocefin `t0` when timing metadata is available (see Q1T).
 
-| Readout | Wavelength | Metric (per well) |
-|---------|------------|-------------------|
-| **Kinetic** | **490 nm** | Slope of A490 vs time in **180–480 s** kinetic window (see `kinetic_schedule.json`) |
-| **Endpoint** | **450/490 nm** | `(A490_final − A490_initial) / Δt`, or A490 at a single late time if no baseline |
+| Label | Rule (per well) |
+|-------|-----------------|
+| **FLAT** | `slope ≤ max(ε_abs, 3 × median_slope_no_tem1)` where `ε_abs ≈ 0.001 A490/s` (tune from first run CSV) |
+| **HOT** | `slope ≥ 3 × flat_threshold` where `flat_threshold = max(ε_abs, 3 × median_slope_no_tem1)` |
+| **AMBIGUOUS** | Between FLAT and HOT thresholds → use for QC only, not compound calls |
+
+**Important:** Strong inhibitors and no-TEM-1 are both **FLAT**. They are distinguished by vehicle being **HOT** and by inhibition score context — not by slope sign alone.
+
+---
+
+## Scoring (kinetic readout)
+
+| Wavelength | Metric (per well) |
+|------------|-------------------|
+| **490 nm** | Slope of A490 vs time in **180–480 s** window aligned to well `t0` (see `kinetic_schedule.json`) |
 
 ### Compound calls (median of 3/3 sample wells)
 
@@ -66,14 +81,16 @@ Kinetic and endpoint answer the same question: **how fast is nitrocefin turning 
 | **Borderline** | 3/3 | 20 – 49 | Weak or ambiguous |
 | **No hit** | 3/3 | < 20 | Substrate-like or inactive — looks like vehicle |
 | **Failed compound** | **≥2/3** reps bad | any score outside 0–150, or bad curve | Exclude compound call |
+| **timing_suspect** | **≥2/3** reps flagged | flat in global window but stagger artifact | Do not call HIT — retest with sync dose |
 
-**Note:** A strong inhibitor gives a **flat** kinetic slope (like no-TEM-1). That is a score near **100**, not a missing-enzyme artifact, as long as vehicle stays hot.
+**Note:** A strong inhibitor gives a **flat** kinetic slope (like no-TEM-1). That is a score near **100**, not a missing-enzyme artifact, as long as vehicle stays hot and timing alignment confirms the flat signal.
 
-### Per-well bad-data flags (either mode)
+### Per-well bad-data flags
 
 - Inhibition score outside **0–150** (1/1 well flagged)
 - Non-monotonic or negative slope (kinetic)
 - Replicate spread too high across **3/3** reps (CV > ~50% with no clear biological reason)
+- Aligned slope window has **<2** timepoints → `failed_well`
 
 ---
 
@@ -81,32 +98,38 @@ Kinetic and endpoint answer the same question: **how fast is nitrocefin turning 
 
 ```mermaid
 flowchart TD
-    START([Plate reader export]) --> TYPE{Readout type?}
-    TYPE -->|Kinetic CSV| KIN["A490 slope · 180–480 s"]
-    TYPE -->|Endpoint| EP{Timepoints?}
-    EP -->|Init + final| EP2["ΔA490 / Δt"]
-    EP -->|Final only| EP1["A490 final — tentative"]
-    KIN --> Q1
-    EP2 --> Q1
-    EP1 --> Q1
+    START([Kinetic CSV + nitrocefin_timing.json]) --> ALIGN[Per-well slope window aligned to t0]
+    ALIGN --> Q1
 
     Q1{"Q1 — Do we have data?<br/>≥29/36 wells have valid metric?"}
     Q1 -->|&lt;29/36| STOP1[STOP — fix export / protocol]
-    Q1 -->|≥29/36| Q2
+    Q1 -->|≥29/36| Q1T
 
-    Q2{"Q2 — Is enzyme working?<br/>Vehicle HIGH · no-TEM-1 LOW?<br/>3/3 vs 3/3"}
-    Q2 -->|Similar| FAIL1["HARD FAIL → hand_q2_enzyme_check"]
-    Q2 -->|Yes| Q3
+    Q1T{"Q1T — Timing metadata?<br/>stagger span · per-well t0"}
+    Q1T -->|missing| WARN[Flag timing_unknown<br/>use global window]
+    Q1T -->|stagger &gt; 15 min| TIMEFLAG[Flag timing_stagger<br/>mandatory alignment]
+    Q1T -->|ok| Q2
+    WARN --> Q2
+    TIMEFLAG --> Q2
 
-    Q3{"Q3 — Can we detect inhibition?<br/>Clavulanic median score ≥50?<br/>3/3 pos ctrl wells"}
+    Q2{"Q2 — Is enzyme working?<br/>Vehicle HOT · no-TEM-1 FLAT?"}
+    Q2 -->|both FLAT| FAIL_DEAD["DEAD → hand_q2_enzyme_check"]
+    Q2 -->|both HOT| FAIL_CONTAM["CONTAM → hand_q2_enzyme_check"]
+    Q2 -->|no separation| FAIL1["HARD FAIL → hand_q2_enzyme_check"]
+    Q2 -->|V hot NT flat| Q3
+
+    Q3{"Q3 — Can we detect inhibition?<br/>Clavulanic median score ≥50?"}
     Q3 -->|No| FAIL2["ASSAY FAIL → hand_q3_inhibition_check"]
-    Q3 -->|Yes| CLASSIFY
+    Q3 -->|Yes| STEP2B
 
-    CLASSIFY[Step 3 — Classify 9 compounds<br/>score 3/3 wells · median inhibition score] --> P{Median score?}
+    STEP2B[Step 2b — Flat sample disambiguation] --> CLASSIFY
+
+    CLASSIFY[Step 3 — Classify 9 compounds] --> P{Median score?}
     P -->|≥50| HIT[HIT]
     P -->|20–49| BOR[BORDERLINE]
     P -->|<20| MISS[NO HIT]
     P -->|≥2/3 bad| FW[failed_well]
+    P -->|timing_suspect| TS[retest_sync_dose]
 
     HIT --> H1{Prior?}
     H1 -->|tier-1| CH[confirmed_hit]
@@ -133,6 +156,7 @@ flowchart TD
     CS --> OUT
     INACT --> OUT
     FW --> OUT
+    TS --> OUT
 
     OUT{Step 4 — Plate pattern?}
     OUT -->|Tier-1 hit + subs cold| BEST[8-pt DR · top 1–3 inhibitors]
@@ -140,46 +164,48 @@ flowchart TD
     OUT -->|Tier-1 + pos miss| DEBUG[Repeat validation plate]
     OUT -->|Mixed tier-1| MIX[Retest misses]
     OUT -->|Substrate surprise hit| SURP[Priority 8-pt DR]
-    OUT -->|Borderline only| RET[Retest / kinetic re-read]
+    OUT -->|Borderline only| RET[Retest @ 50 µM]
+    OUT -->|Widespread timing_suspect| STAG[Fix stagger / sync nitrocefin add]
     OUT -->|All flat incl. vehicle| DEAD[Do not advance]
 ```
 
 | Gate | Question | Pass |
 |------|----------|------|
 | **Q1** | Do we have data? | **≥29/36** wells have valid metric |
-| **Q2** | Is enzyme working? | **3/3** vehicle hot, **3/3** no-TEM-1 flat | Fail → [hand_q2_enzyme_check.md](hand_q2_enzyme_check.md) |
+| **Q1T** | Timing aligned? | `nitrocefin_timing.json` present; per-well windows computed; stagger flagged if >15 min |
+| **Q2** | Is enzyme working? | **≥2/3** vehicle **HOT**, **≥2/3** no-TEM-1 **FLAT**, vehicle median ≥ **3×** no-TEM-1 | Fail → [hand_q2_enzyme_check.md](hand_q2_enzyme_check.md) |
 | **Q3** | Can we detect inhibition? | **3/3** clavulanic median score ≥50 | Fail → [hand_q3_inhibition_check.md](hand_q3_inhibition_check.md) |
 
 ---
 
-## Step 0 — What data did you get?
+## Step 0 — Inputs
 
 ```mermaid
 flowchart TD
-    START([Plate reader export]) --> TYPE{Readout type?}
-    TYPE -->|Kinetic CSV| KIN["Metric = A490 slope<br/>window 180–480 s"]
-    TYPE -->|Endpoint| EP{How many timepoints?}
-    EP -->|Initial + final| EP2["Metric = ΔA490 / Δt"]
-    EP -->|Final only| EP1["Metric = A490_final<br/>(weaker — tentative calls)"]
-    KIN --> Q1["Q1 — Do we have data?"]
-    EP2 --> Q1
-    EP1 --> Q1
+    START([Run folder artifacts]) --> CSV[Kinetic CSV — well, time_s, A490]
+    START --> TIMING[nitrocefin_timing.json — t0_utc per well]
+    CSV --> ALIGN[Align slope window per well]
+    TIMING --> ALIGN
+    ALIGN --> METRIC["Metric = A490 slope<br/>window 180–480 s from well t0"]
+    METRIC --> Q1["Q1 — Do we have data?"]
 ```
+
+Required kinetic export columns: well ID, elapsed time (s), A490 absorbance. Gen5 method settings: see `kinetic_schedule.json`.
 
 ---
 
-## Step 1 — Data quality gate
+## Step 1 — Data quality gate (Q1)
 
-**What “wells OK” means:** for each of the **36/36 plated assay wells**, can you compute the readout metric (kinetic slope in the 180–480 s window, or endpoint ΔA490/Δt)? Pass if **≥29/36 wells** have a valid metric — i.e. at most **7/36** wells may be missing or unusable.
+**What “wells OK” means:** for each of the **36/36 plated assay wells**, can you compute the readout metric (kinetic slope in the aligned 180–480 s window)? Pass if **≥29/36 wells** have a valid metric — i.e. at most **7/36** wells may be missing or unusable.
 
 ```mermaid
 flowchart TD
     Q1{"Q1 — Do we have data?<br/>Metric computable for ≥29/36 wells?"}
-    Q1 -->|No — &lt;29/36| STOP1["STOP — fix export / protocol<br/>Kinetic: missing time column, &lt;2 points in window<br/>Endpoint: PDF only, no numeric export"]
-    Q1 -->|Yes — ≥29/36| Q2["Q2 — Is enzyme working?"]
+    Q1 -->|No — &lt;29/36| STOP1["STOP — fix export / protocol<br/>Missing time column, &lt;2 points in window"]
+    Q1 -->|Yes — ≥29/36| Q1T["Q1T — Timing gate"]
 ```
 
-**Failed-well flags (either mode):**
+**Failed-well flags:**
 
 - Inhibition score outside 0–150 for that well
 - Non-monotonic or negative slope (kinetic)
@@ -187,7 +213,30 @@ flowchart TD
 
 ---
 
-## Step 2 — Control gate (must pass before sample calls)
+## Step 1T — Timing gate (Q1T)
+
+Uses `nitrocefin_timing.json` from the run folder (`data/timing/<execution_id>/` copied by `save_run_folder`).
+
+| Check | Pass | Fail action |
+|-------|------|-------------|
+| **Timing metadata present?** | File exists with ≥29/36 wells timestamped | Warn: use global window; flag all sample flats as `timing_unknown` |
+| **Stagger span** | `t0_vehicle − t0_first ≤ 15 min` | **timing_stagger** flag on plate; mandatory per-well alignment |
+| **Pre-reader age** | For each well: `(reader_lid_close − t0_well) ≤ 30 min` | Wells exceeding threshold get `pre_read_overage` flag |
+
+**Per-well slope window (analysis):**
+
+```
+effective_start = max(180, (t0_well − reader_t0) + 180)
+effective_end   = min(480, (t0_well − reader_t0) + 480)
+```
+
+If effective window has **<2 points** → well is `failed_well` (insufficient kinetic phase in reader data).
+
+Vehicle wells (dosed last) define the reference reaction age. Early-dosed substrate wells that appear **FLAT** in the **global** window but **HOT** in the **aligned** window → reclassify from false inhibitor to substrate (`timing_suspect`).
+
+---
+
+## Step 2 — Control gate (Q2 / Q3)
 
 **If Q2 or Q3 fails, run the matching hand protocol before touching discovery data:**
 
@@ -196,26 +245,66 @@ flowchart TD
 | **Q2** — enzyme dead | [hand_q2_enzyme_check.md](hand_q2_enzyme_check.md) | 10/96 |
 | **Q3** — inhibition not detected | [hand_q3_inhibition_check.md](hand_q3_inhibition_check.md) | 12/96 |
 
+### Q2 pass criteria
+
+**≥2/3** vehicle wells **HOT** AND **≥2/3** no-TEM-1 wells **FLAT** AND vehicle median slope ≥ **3×** no-TEM-1 median.
+
+### Q2 fail patterns
+
+| Vehicle | No-TEM-1 | Likely cause | Route |
+|---------|----------|--------------|-------|
+| FLAT | FLAT | Dead enzyme / nitrocefin / reader | → hand_q2 → Step 4 **DEAD** |
+| HOT | HOT | Enzyme in NT wells or background drift | → hand_q2 |
+| FLAT | HOT | Pipetting error / wrong wells | → hand_q2 |
+| AMBIGUOUS | AMBIGUOUS | Weak signal — check nitrocefin stock, 490 nm | → hand_q2 |
+
 ```mermaid
 flowchart TD
-    Q2{"Q2 — Is enzyme working?<br/>Vehicle HIGH and no-TEM-1 LOW?<br/>compare 3/3 vs 3/3"}
-    Q2 -->|No — similar| FAIL1["HARD FAIL — assay dead<br/>→ hand_q2_enzyme_check.md"]
-    Q2 -->|Yes| Q3{"Q3 — Can we detect inhibition?<br/>Pos ctrl T19860 median score ≥50?<br/>3/3 wells scored"}
-    Q3 -->|No| FAIL2["ASSAY FAIL — debug before samples<br/>→ hand_q3_inhibition_check.md"]
-    Q3 -->|Yes| PASS[Plate QC pass → Step 3]
+    Q2{"Q2 — Is enzyme working?<br/>Vehicle HOT and no-TEM-1 FLAT?"}
+    Q2 -->|both FLAT| FAIL_DEAD["DEAD assay → hand_q2"]
+    Q2 -->|both HOT| FAIL_CONTAM["Contamination → hand_q2"]
+    Q2 -->|No separation| FAIL1["HARD FAIL → hand_q2"]
+    Q2 -->|V hot NT flat| Q3{"Q3 — Can we detect inhibition?<br/>Pos ctrl T19860 median score ≥50?"}
+    Q3 -->|No| FAIL2["ASSAY FAIL → hand_q3"]
+    Q3 -->|Yes| PASS[Plate QC pass → Step 2b]
 ```
 
-| Control | Reps | Kinetic expectation | Endpoint expectation |
-|---------|------|--------------------|-----------------------|
-| **Vehicle** (DMSO + TEM-1) | 3/3 | Steep slope | Large ΔA490 |
-| **No-TEM-1** (DMSO, no enzyme) | 3/3 | Flat (~0 slope) | Small ΔA490 |
-| **Positive T19860** (clavulanic) | 3/3 | Flat vs vehicle | Small ΔA490 vs vehicle |
+| Control | Reps | Kinetic expectation |
+|---------|------|---------------------|
+| **Vehicle** (DMSO + TEM-1) | 3/3 | **HOT** — steep slope |
+| **No-TEM-1** (DMSO, no enzyme) | 3/3 | **FLAT** (~0 slope) |
+| **Positive T19860** (clavulanic) | 3/3 | **FLAT** vs vehicle |
+
+---
+
+## Step 2b — Flat sample disambiguation
+
+After Q3 passes, before applying compound priors, resolve **sample wells that are FLAT while vehicle is HOT**:
+
+```mermaid
+flowchart TD
+    S[Sample well FLAT, vehicle HOT] --> T{t0 earlier than vehicle by &gt; 10 min?}
+    T -->|yes| P{Pos ctrl also FLAT?}
+    T -->|no| SCORE[Score normally via pct_inhibition]
+    P -->|yes| SCORE
+    P -->|no| TS[timing_suspect — substrate plateau artifact]
+    TS --> RET[Do not call HIT — label retest_sync_dose]
+```
+
+| Outcome label | Criteria | Next action |
+|---------------|----------|-------------|
+| Normal HIT / `confirmed_hit` | Flat + aligned window flat + pos ctrl flat + score ≥50 | Proceed to DR |
+| `timing_suspect` | Flat in global window, HOT in aligned window OR early t0 + pos ctrl hot | Retest with synchronized nitrocefin add (hand or batched-all-at-once) |
+| `false_flat_substrate` | Substrate prior (T1005 etc.) + `timing_suspect` | Call **confirmed_substrate** tentatively; note timing caveat |
+| `ambiguous_flat` | Flat + tier-1 inhibitor prior + pos ctrl hot | Do not trust — run hand_q3 or sync retest before calling surprise_miss |
+
+Also check: flat in **aligned** window but HOT in **global** window is rare — usually indicates mis-timestamp; flag `timing_unknown`.
 
 ---
 
 ## Step 3 — Classify each sample (median of 3/3 wells)
 
-Score **each of 3/3 sample wells**, then use **median inhibition score** per `compound_id`.
+Score **each of 3/3 sample wells**, then use **median inhibition score** per `compound_id`. Skip or downgrade HIT calls on compounds with **≥2/3** reps flagged `timing_suspect`.
 
 ```mermaid
 flowchart TD
@@ -224,6 +313,7 @@ flowchart TD
     P -->|20 – 49| BOR[BORDERLINE]
     P -->|< 20| MISS[NO HIT]
     P -->|≥2/3 wells bad| FW[failed_well]
+    P -->|≥2/3 timing_suspect| TS[retest_sync_dose]
 
     HIT --> H1{Prior class?}
     H1 -->|tier-1 inhibitor| CH[confirmed_hit]
@@ -251,6 +341,8 @@ flowchart TD
 | `surprise_miss` | Median score <20 (or borderline) + expected tier-1 inhibitor |
 | `borderline` | Median score 20–49 on unknown — retest or mini dose-response |
 | `failed_well` | **≥2/3** of 3 sample wells bad kinetics or score outside 0–150 |
+| `timing_suspect` | **≥2/3** reps flat due to stagger artifact — do not call HIT |
+| `retest_sync_dose` | Compound-level action: re-run with simultaneous nitrocefin add |
 
 ### Sample priors (v5 compound list)
 
@@ -279,7 +371,8 @@ flowchart TD
     O -->|Tier-1 miss + pos ctrl miss| DEBUG["ASSAY BROKEN<br/>Repeat validation: vehicle / no-TEM-1 / clavulanic"]
     O -->|Mixed tier-1 hit/miss| MIX["Check replicates + layout<br/>Retest misses before concluding"]
     O -->|Any surprise_hit on substrate| SURP["Strong follow-up story<br/>8-point DR on that compound"]
-    O -->|Only borderline, no clean hits| RET["Retest borderlines or kinetic re-read"]
+    O -->|Only borderline, no clean hits| RET["Retest borderlines @ 50 µM"]
+    O -->|Widespread timing_suspect on substrates| STAG["Fix dispensing speed / sync nitrocefin add<br/>before trusting negative calls"]
     O -->|Everything flat incl. vehicle| DEAD["Enzyme / nitrocefin / reader failure<br/>Do not advance to DR"]
 ```
 
@@ -289,34 +382,21 @@ flowchart TD
 | Surprise hit | Priority dose-response on that compound |
 | Borderline only | Retest @ 50 µM (4th rep) or mini-DR |
 | Tier-1 surprise miss | Assay debug — do not trust negative calls on other wells |
+| Widespread timing_suspect | Shorten stagger or sync nitrocefin; re-run substrate priors |
 | Hard assay fail | Fix protocol; run [hand_q2](hand_q2_enzyme_check.md) or [hand_q3](hand_q3_inhibition_check.md); then re-run validation |
-
----
-
-## Kinetic vs endpoint — interpretation differences
-
-| Situation | Kinetic (490 nm) | Endpoint (450/490 nm) |
-|-----------|------------------|------------------------|
-| Strong inhibitor | Flat slope in window | Low ΔA490 |
-| Substrate / no inhibition | Steep slope | High ΔA490 |
-| Partial inhibition | Intermediate slope | Intermediate ΔA490 |
-| Bad well | Noisy / non-linear curve | Outlier ΔA490 vs reps |
-| Confidence | Higher — linear phase visible | Lower — prefer initial + final, not single read |
-
-**Endpoint fallback:** If only one timepoint is available, run the same tree but mark borderline calls **tentative** and plan a kinetic re-read or replicate boost.
 
 ---
 
 ## Expected pattern (assay working)
 
 ```
-Well type              Reps   Kinetic          Endpoint (~10 min)
-──────────────────────────────────────────────────────────────────
-Vehicle                3/3    HIGH slope       HIGH ΔA490
-No-TEM-1               3/3    ~ZERO            ~ZERO ΔA490
-Clavulanic (pos ctrl)  3/3    ~ZERO            ~ZERO ΔA490
-Tier-1 inhibitors      3/3    ~ZERO            ~ZERO ΔA490
-Substrate controls     3/3    HIGH             HIGH ΔA490
+Well type              Reps   Kinetic (490 nm, aligned window)
+──────────────────────────────────────────────────────────────
+Vehicle                3/3    HOT slope
+No-TEM-1               3/3    FLAT (~zero)
+Clavulanic (pos ctrl)  3/3    FLAT (~zero vs vehicle)
+Tier-1 inhibitors      3/3    FLAT (~zero)
+Substrate controls     3/3    HOT
 ```
 
 ---
@@ -327,7 +407,8 @@ Substrate controls     3/3    HIGH             HIGH ΔA490
 |------|----------------|
 | Kinetic analysis | `ml/analysis/kinetics.py` → `analyze_kinetics_file()` |
 | Plate map | `data/screens/2/v5/plate_map.json` |
-| Output summary | `data/assay/run_2_summary.json` (labels per compound) |
+| Timing metadata | `nitrocefin_timing.json` in run folder |
+| Output summary | `data/assay/run_2_summary.json` (labels + QC gates per compound) |
 | Hit threshold | Median inhibition score ≥50 across 3/3 sample wells (`HIT_THRESHOLD_PCT = 50.0`) |
 
 ---

@@ -93,6 +93,10 @@ Score slope in **180–480 s** window (same as run 2).
 | **V 3/3 high, NT 3/3 high** | Enzyme in no-TEM-1 wells, or NT not truly enzyme-free | Re-pipette NT wells; new tips; separate reservoir |
 | **V+ (B9) high, V (B1–B3) flat** | Pre-incubation enzyme unstable | Shorter pre-incub; add enzyme with nitrocefin instead |
 | **NF (B7–B8) high** | Nitrocefin autohydrolysis / chemical background | Lower nitrocefin conc; fresh stock |
+| **V hot, early compounds flat, pos ctrl flat** | Real inhibition on early-dosed wells | Normal — timing alignment confirms (see [run2_decision_tree.md](run2_decision_tree.md) Step 2b) |
+| **V hot, early compounds flat, pos ctrl hot** | Stagger artifact on substrates | Shorten stagger or sync nitrocefin; see decision tree Step 2b (`timing_suspect`) |
+
+Flat vs HOT criteria and `timing_suspect` labels: [run2_decision_tree.md](run2_decision_tree.md) § Signal classification.
 
 ---
 

@@ -317,7 +317,29 @@ compound_id,name,rack_id,well,scaffold_class,functional_class,tier,dock_score,ex
 pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - slope_no_tem1))
 ```
 
-- **Hit threshold (Round 1):** ≥ 50% inhibition at 50 µM
+**Control anchors (per plate):** use the **median** slope across replicate control wells — not the mean.
+
+| Control | Typical reps | Anchor metric |
+|---------|--------------|---------------|
+| Vehicle (DMSO + TEM-1) | 3/3 | `median(slope_vehicle_wells)` → score 0 |
+| No-TEM-1 | 3/3 | `median(slope_no_tem1_wells)` → score 100 |
+
+**Per-well score:** plug each well’s slope (kinetic window 180–480 s, aligned per well to nitrocefin `t0` when timing metadata is available) into the formula above using those median control slopes.
+
+**Compound call (triplicates):** score **each of 3/3** sample wells independently, then take the **median** of those three `pct_inhibition` values → one number per `compound_id`. Example: scores 88, 92, 12 → median **88**.
+
+| Compound call | Rule (median of 3/3 well scores) |
+|---------------|-------------------------------------|
+| Hit | ≥ 50 |
+| Borderline | 20 – 49 |
+| No hit | < 20 |
+| Failed compound | ≥ 2/3 reps bad (score outside 0–150 or bad curve) |
+
+Pos ctrl QC (clavulanic T19860): same formula on **3/3** pos ctrl wells → median must be ≥ 50 before sample calls.
+
+Canonical decision tree: [`pvjthomas/runs/2/v5/run2_decision_tree.md`](pvjthomas/runs/2/v5/run2_decision_tree.md).
+
+- **Hit threshold (Round 1):** median ≥ 50% inhibition at 50 µM (3/3 reps)
 - **Round 2:** 8-point dose-response on top inhibitors (3 µM → 100 µM log scale)
 
 ### In silico stack (ML, pre-hackathon)
@@ -662,7 +684,11 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 - [x] ADK coordinator + Phase B pipeline → `ml/agent/`
 - [x] Analysis helpers → `ml/analysis/`
 - [x] ML workspace + closed-loop plan → [ml/CLOSED_LOOP.md](ml/CLOSED_LOOP.md)
-- [ ] Synthetic kinetics fixture + unit test
+- [ ] Synthetic kinetics fixture + unit test on fake CSV
+- [x] **`ml/analysis/kinetics.py` — median scoring:** median control slopes (3/3 vehicle, 3/3 no-TEM-1); score each sample well; compound call = median of 3/3 well scores per `compound_id`; Q1/Q2/Q3 gates — see [Scientific plan — Scoring](#assay-logic) and [`test_kinetics.py`](ml/agent/tests/unit/test_kinetics.py)
+- [ ] **Validate median scoring on real Run 2 CSV** — compare compound medians to manual decision-tree calls
+- [ ] **Emit `data/assay/run_2_summary.json`** — per-compound `median_pct_inhibition`, post-hoc labels, QC gate pass/fail
+- [ ] **ADK `analyze_kinetics()`** — surface compound-level medians + labels in agent round summary
 - [ ] Optional ADK `LoopAgent` wrapper (max 2 iterations)
 
 ### Robotics
@@ -675,7 +701,8 @@ Part of **Task 1: Program the assay on robotics**. Composed from the Zeon skills
 ### You (pvjthomas)
 - [ ] Kickoff question list (see below) — questions documented, answers TBD at kickoff
 - [ ] Define GFP pass threshold
-- [x] Define hit threshold and normalization formula (documented in [Scientific plan](#scientific-plan); implement in ML code)
+- [x] Define hit threshold and normalization formula (documented in [Scientific plan](#scientific-plan); median scoring in `ml/analysis/kinetics.py` + unit tests)
+- [ ] Validate median scoring on first real `kinetics_r2.csv` vs [run2 decision tree](pvjthomas/runs/2/v5/run2_decision_tree.md)
 - [ ] Draft 3-min demo script
 - [ ] Set up shared status board (bookings, gates, file paths)
 - [x] Compound selection plan + assay cheat sheet
@@ -897,6 +924,7 @@ Then **manually curate** Tier-1 inhibitor refs to T19860 quality (ChEMBL activit
 | Philip | Validation sign-off after clavulanate inhibits | Waiting on data |
 | Philip | Promote discovery v3 plate after validation + **priors complete** | Blocked on assay QC + forward curation |
 | Philip | GNINA batch dock → Tier 3 ranking | Optional — Docker on Mac or Linux GPU; fallback rank OK |
+| Philip (ML) | Validate median kinetics on Run 2 CSV → `run_2_summary.json` | After plate reader export |
 | Philip (ML) | Synthetic kinetics test + demo plots | Parallel — does not block forward |
 | Philip (ML) | Forward Tier 4 Paperclip CI/nightly | Optional — baseline logged |
 

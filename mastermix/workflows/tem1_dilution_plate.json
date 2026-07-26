@@ -67,6 +67,9 @@
     { "name": "mix_volume_ul", "type": "float", "description": "Pipette-mix volume per working-solution well.", "defaultValue": 10.0 },
     { "name": "mix_cycles", "type": "int", "description": "Pipette-mix cycles per working-solution well.", "defaultValue": 5 }
   ],
+  "timing_phases": [
+    { "phase": "setup", "match": ["prepare dilution plate"] }
+  ],
   "nodes": [
     { "node_id": "start_0", "type": "start", "label": "Start" },
     {

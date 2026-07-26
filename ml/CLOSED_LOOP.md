@@ -111,8 +111,13 @@ Hit scoring (implemented in `ml/analysis/kinetics.py`):
 pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - slope_no_tem1))
 ```
 
-- **Hit @ R1:** ≥ 50% inhibition at 50 µM
-- **Round 2:** 8-point dose-response, 3–100 µM log scale on R1 hits
+- **Control anchors:** median of 3/3 vehicle wells and 3/3 no-TEM-1 wells (not mean)
+- **Compound call:** score each of 3/3 sample wells → **median** of those scores per `compound_id`
+- **Hit @ R1/R2:** median ≥ 50% inhibition at screen concentration
+- **Round 2:** 8-point dose-response, 3–100 µM log scale on R1/R2 hits
+
+- [x] Median control slopes + per-compound median aggregation + Q1/Q2/Q3 gates — `kinetics.py` + `test_kinetics.py`
+- [ ] Real Run 2 CSV validation + `data/assay/run_2_summary.json`
 
 ---
 
@@ -138,11 +143,13 @@ pct_inhibition = 100 * (1 - (slope_sample - slope_no_tem1) / (slope_vehicle - sl
 - [ ] Promote 24-compound discovery plate after validation sign-off
 
 ### Analysis
-- [x] `ml/analysis/kinetics.py` — slopes, `pct_inhibition`, round summary dict
+- [x] `ml/analysis/kinetics.py` — slopes, median `pct_inhibition`, Q1/Q2/Q3 gates, compound-level medians
+- [x] `ml/agent/tests/unit/test_kinetics.py` — synthetic fixture + decision-tree gate tests
 - [x] `ml/analysis/plates.py` — R2 dose-response layout
 - [x] `analyze_kinetics()` ADK tool wrapper
 - [ ] `analysis/ic50.py` — 4PL or log-linear fit (R2)
-- [ ] Synthetic fixture + unit test on fake CSV
+- [ ] Validate `analyze_kinetics_file()` on real Run 2 CSV; write `data/assay/run_2_summary.json`
+- [ ] ADK tool: return compound medians + labels in round summary (not per-well hits only)
 
 ### ADK agent
 - [x] `ml/agent/agent.py` — coordinator + 6 sub-agents

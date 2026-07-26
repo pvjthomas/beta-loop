@@ -1,4 +1,8 @@
-"""Parse Gen5 endpoint absorbance PDF exports from BioTek ELx808 plate readers."""
+"""Parse Gen5 absorbance PDF exports from BioTek ELx808 plate readers.
+
+Supports endpoint reads (single absorbance per well) and kinetic reads
+(time course per well at one or more wavelengths).
+"""
 
 from __future__ import annotations
 
@@ -14,11 +18,19 @@ COLS = range(1, 13)
 WAVELENGTHS_NM = (450, 490, 630)
 WELLS_PER_PLATE = 96
 VALUES_PER_PLATE = WELLS_PER_PLATE * len(WAVELENGTHS_NM)
+WELL_RE = re.compile(r"^[A-H](?:1[0-2]|[1-9])$")
+TIME_ROW_RE = re.compile(r"^0:\d{2}:\d{2}$")
+KINETIC_HEADER_RE = re.compile(r"^Time T° (\d+) ((?:[A-H](?:1[0-2]|[1-9])\s*)+)$")
 
 
 def _extract_text(pdf_path: Path) -> str:
     reader = PdfReader(str(pdf_path))
     return "\n".join(page.extract_text() or "" for page in reader.pages)
+
+
+def _parse_time_hms(value: str) -> float:
+    hours, minutes, seconds = (int(part) for part in value.split(":"))
+    return float(hours * 3600 + minutes * 60 + seconds)
 
 
 def _parse_metadata(text: str) -> dict:
@@ -34,7 +46,7 @@ def _parse_metadata(text: str) -> dict:
         meta["plate_number"] = m.group(1).strip()
     if m := re.search(r"Date\s+(.+)", text):
         meta["date"] = m.group(1).strip()
-    if m := re.search(r"Time\s+(.+)", text):
+    if m := re.search(r"^Time\s+(.+)", text, re.MULTILINE):
         meta["time"] = m.group(1).strip()
     if m := re.search(r"Reader Type:\s*(.+)", text):
         meta["reader_type"] = m.group(1).strip()
@@ -44,8 +56,21 @@ def _parse_metadata(text: str) -> dict:
         meta["wavelengths_nm"] = [int(w.strip()) for w in m.group(1).split(",") if w.strip()]
     if m := re.search(r"Actual Temperature:\s*([\d.]+)", text):
         meta["temperature_c"] = float(m.group(1))
+    if m := re.search(
+        r"Start Kinetic\s+Runtime (0:\d{2}:\d{2}).*?Interval (0:\d{2}:\d{2}),\s*(\d+) Reads",
+        text,
+    ):
+        meta["kinetic_runtime_s"] = _parse_time_hms(m.group(1))
+        meta["kinetic_interval_s"] = _parse_time_hms(m.group(2))
+        meta["kinetic_reads"] = int(m.group(3))
+    if m := re.search(r"Set Temperature\s+Setpoint\s*([\d.]+)", text):
+        meta["setpoint_temperature_c"] = float(m.group(1))
 
     return meta
+
+
+def is_kinetic_export(text: str) -> bool:
+    return "Start Kinetic" in text
 
 
 def _well_id(row: str, col: int) -> str:
@@ -76,6 +101,117 @@ def _parse_absorbance_values(text: str, wavelengths_nm: list[int]) -> dict[str, 
     return wells
 
 
+def _section_for_wavelength(text: str, wavelength_nm: int) -> str:
+    marker = f"\n{wavelength_nm}\n"
+    start = text.find(marker)
+    if start < 0:
+        if text.startswith(f"{wavelength_nm}\n"):
+            start = 0
+        else:
+            return ""
+    else:
+        start += 1
+
+    next_markers = [text.find(f"\n{wl}\n", start + 1) for wl in (490, 405, 450, 630) if wl != wavelength_nm]
+    next_markers.append(text.find("\nResults\n", start + 1))
+    end_candidates = [idx for idx in next_markers if idx >= 0]
+    end = min(end_candidates) if end_candidates else len(text)
+    return text[start:end]
+
+
+def _parse_kinetic_wavelength_section(section: str, wavelength_nm: int) -> dict[str, list[dict[str, float]]]:
+    """Parse one wavelength block into per-well time courses."""
+    series: dict[str, list[dict[str, float]]] = {}
+    active_wells: list[str] = []
+
+    for raw_line in section.splitlines():
+        line = raw_line.strip()
+        if not line or line.endswith("of 23") or line.startswith("--"):
+            continue
+
+        header = KINETIC_HEADER_RE.match(line.replace("\t", " "))
+        if header:
+            header_wl = int(header.group(1))
+            if header_wl != wavelength_nm:
+                continue
+            active_wells = header.group(2).split()
+            continue
+
+        if not active_wells:
+            continue
+
+        parts = line.replace("\t", " ").split()
+        if len(parts) < 3 or not TIME_ROW_RE.match(parts[0]):
+            continue
+
+        time_s = _parse_time_hms(parts[0])
+        try:
+            temperature_c = float(parts[1])
+            values = [float(v) for v in parts[2:]]
+        except ValueError:
+            continue
+
+        if len(values) != len(active_wells):
+            continue
+
+        for well, absorbance in zip(active_wells, values):
+            if not WELL_RE.match(well):
+                continue
+            series.setdefault(well, []).append(
+                {
+                    "time_s": time_s,
+                    "temperature_c": temperature_c,
+                    "absorbance": absorbance,
+                }
+            )
+
+    return series
+
+
+def _parse_kinetic_timecourses(text: str, wavelengths_nm: list[int]) -> dict[str, dict[int, list[dict[str, float]]]]:
+    wells: dict[str, dict[int, list[dict[str, float]]]] = {}
+    for wavelength_nm in wavelengths_nm:
+        section = _section_for_wavelength(text, wavelength_nm)
+        if not section:
+            continue
+        for well, points in _parse_kinetic_wavelength_section(section, wavelength_nm).items():
+            wells.setdefault(well, {})[wavelength_nm] = points
+    return wells
+
+
+def parse_gen5_kinetic_pdf(pdf_path: str | Path) -> dict:
+    """Parse a Gen5 kinetic PDF into metadata and per-well time courses."""
+    path = Path(pdf_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Gen5 PDF not found: {path}")
+
+    text = _extract_text(path)
+    metadata = _parse_metadata(text)
+    metadata["export_type"] = "kinetic"
+    wavelengths_nm = metadata.get("wavelengths_nm") or [490]
+    timecourses = _parse_kinetic_timecourses(text, wavelengths_nm)
+    if not timecourses:
+        raise ValueError(f"No kinetic time courses found in {path.name}")
+
+    return {"metadata": metadata, "timecourses": timecourses}
+
+
+def parse_gen5_pdf(pdf_path: str | Path, mode: str = "auto") -> dict:
+    """Parse a Gen5 PDF in endpoint or kinetic mode."""
+    path = Path(pdf_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Gen5 PDF not found: {path}")
+
+    if mode not in {"auto", "endpoint", "kinetic"}:
+        raise ValueError(f"Unsupported mode: {mode}")
+
+    text = _extract_text(path)
+    use_kinetic = mode == "kinetic" or (mode == "auto" and is_kinetic_export(text))
+    if use_kinetic:
+        return parse_gen5_kinetic_pdf(path)
+    return parse_gen5_endpoint_pdf(path)
+
+
 def parse_gen5_endpoint_pdf(pdf_path: str | Path) -> dict:
     """Parse a Gen5 endpoint PDF into metadata and per-well absorbance.
 
@@ -92,7 +228,52 @@ def parse_gen5_endpoint_pdf(pdf_path: str | Path) -> dict:
     wavelengths_nm = metadata.get("wavelengths_nm") or list(WAVELENGTHS_NM)
     wells = _parse_absorbance_values(text, wavelengths_nm)
 
+    metadata["export_type"] = "endpoint"
     return {"metadata": metadata, "wells": wells}
+
+
+def kinetics_to_csv_rows(
+    parsed: dict,
+    *,
+    wavelength_nm: int = 490,
+) -> list[dict[str, str | int | float]]:
+    """Flatten kinetic time courses to CSV-ready rows."""
+    rows: list[dict[str, str | int | float]] = []
+    timecourses = parsed.get("timecourses", {})
+    for well in sorted(timecourses, key=_well_sort_key):
+        wl_points = timecourses[well].get(wavelength_nm)
+        if not wl_points:
+            continue
+        for point in sorted(wl_points, key=lambda p: p["time_s"]):
+            rows.append(
+                {
+                    "well": well,
+                    "time_s": point["time_s"],
+                    "temperature_c": point["temperature_c"],
+                    "wavelength_nm": wavelength_nm,
+                    "absorbance_a490": point["absorbance"],
+                }
+            )
+    return rows
+
+
+def write_kinetics_csv(
+    parsed: dict,
+    csv_path: str | Path,
+    *,
+    wavelength_nm: int = 490,
+) -> Path:
+    """Write kinetic time courses for one wavelength to CSV."""
+    path = Path(csv_path)
+    rows = kinetics_to_csv_rows(parsed, wavelength_nm=wavelength_nm)
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["well", "time_s", "temperature_c", "wavelength_nm", "absorbance_a490"],
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+    return path
 
 
 def wells_to_csv_rows(parsed: dict) -> list[dict[str, str | int | float]]:

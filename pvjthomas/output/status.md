@@ -110,6 +110,11 @@ Code:
 2. Promote: `cp data/screens/2/v5/plate_map.json data/plate_map_r2.json`
 3. Point active rationale at [`pvjthomas/runs/2/v5/selection_rationale.md`](../runs/2/v5/selection_rationale.md)
 4. Run on robot / plate reader; merge results back via `ml/analysis/` pipeline
+5. **After Run 2 CSV lands** — median scoring pipeline ([`run2_decision_tree.md`](../runs/2/v5/run2_decision_tree.md)):
+   - [ ] `analyze_kinetics_file(kinetics_csv, plate_map_json=data/screens/2/v5/plate_map.json)` → check Q1 (≥29/36 wells), Q2, Q3
+   - [ ] Confirm compound calls use **median of 3/3** well scores per `compound_id` (T1262/T6685/T14081 ≥50; substrates <20)
+   - [ ] Emit `data/assay/run_2_summary.json` with labels (`confirmed_hit`, `confirmed_substrate`, etc.)
+   - [ ] If Q2 fail → [hand_q2_enzyme_check.md](../runs/2/v5/hand_q2_enzyme_check.md); if Q3 fail → [hand_q3_inhibition_check.md](../runs/2/v5/hand_q3_inhibition_check.md)
 
 ---
 
