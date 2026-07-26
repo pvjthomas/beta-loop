@@ -86,7 +86,6 @@ def prepare_tem1_dilution_plate(
     compound_7_source_plate: SkillObject,
     compound_8_source_plate: SkillObject,
     compound_9_source_plate: SkillObject,
-    compound_10_source_plate: SkillObject,
     blb_anchor: str = "hole_5",
     blb_anchor_2: str = "hole_6",
     dmso_anchor: str = "hole_9",
@@ -115,8 +114,6 @@ def prepare_tem1_dilution_plate(
     compound_8_dest_well: str = "A10",
     compound_9_source_well: str = "A3",
     compound_9_dest_well: str = "A11",
-    compound_10_source_well: str = "E5",
-    compound_10_dest_well: str = "A12",
     stock_volume_ul: float = 2.5,
     compound_blb_volume_ul: float = 47.5,
     vehicle_dmso_volume_ul: float = 5.0,
@@ -152,7 +149,6 @@ def prepare_tem1_dilution_plate(
         ("Compound 7", compound_7_source_plate, compound_7_source_well, compound_7_dest_well),
         ("Compound 8", compound_8_source_plate, compound_8_source_well, compound_8_dest_well),
         ("Compound 9", compound_9_source_plate, compound_9_source_well, compound_9_dest_well),
-        ("Compound 10", compound_10_source_plate, compound_10_source_well, compound_10_dest_well),
     ]
     working_solutions = [s for s in working_solutions if str(s[2]).strip() and str(s[3]).strip()]
     compound_dests = [dest for _, _, _, dest in working_solutions]
