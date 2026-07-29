@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zeon Systems — Team Learning Session</title>
+<style>
+  /* ── Reset & Base ─────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #fafaf8;
+    --surface:   #ffffff;
+    --ink:       #1a1a18;
+    --ink-2:     #4a4a44;
+    --ink-3:     #8a8a80;
+    --rule:      #e4e4dc;
+    --accent:    #2563eb;
+    --accent-lt: #dbeafe;
+    --green:     #16a34a;
+    --green-lt:  #dcfce7;
+    --amber:     #d97706;
+    --amber-lt:  #fef3c7;
+    --red:       #dc2626;
+    --red-lt:    #fee2e2;
+    --purple:    #7c3aed;
+    --purple-lt: #ede9fe;
+    --mono:      'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    --sans:      'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --radius:    8px;
+    --shadow:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,.1);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink);
+    background: var(--bg);
+  }
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  .shell { display: flex; min-height: 100vh; }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--rule);
+    padding: 24px 0;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  nav .logo {
+    padding: 0 20px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 16px;
+  }
+
+  nav a {
+    display: block;
+    padding: 6px 20px;
+    font-size: 13px;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+  }
+  nav a:hover { color: var(--accent); background: var(--accent-lt); }
+  nav a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  nav .section-label {
+    padding: 14px 20px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  main {
+    margin-left: 220px;
+    max-width: 860px;
+    padding: 48px 56px 120px;
+  }
+
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 8px; }
+  h2 { font-size: 1.35rem; font-weight: 700; margin: 56px 0 16px; padding-top: 8px;
+       border-top: 2px solid var(--rule); }
+  h3 { font-size: 1.05rem; font-weight: 700; margin: 28px 0 10px; color: var(--ink); }
+  h4 { font-size: .9rem; font-weight: 700; margin: 20px 0 8px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .05em; }
+  p  { margin-bottom: 14px; color: var(--ink-2); }
+  strong { color: var(--ink); }
+  ul, ol { padding-left: 20px; margin-bottom: 14px; color: var(--ink-2); }
+  li { margin-bottom: 5px; }
+  a  { color: var(--accent); }
+
+  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 60%, #3b82f6 100%);
+    border-radius: var(--radius);
+    padding: 40px 48px;
+    color: #fff;
+    margin-bottom: 48px;
+  }
+  .hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,.2);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero h1 { color: #fff; margin-bottom: 10px; }
+  .hero p  { color: rgba(255,255,255,.8); margin: 0; font-size: 1rem; }
+  .hero-meta { margin-top: 24px; display: flex; gap: 24px; flex-wrap: wrap; }
+  .hero-meta span {
+    font-size: 12px; color: rgba(255,255,255,.65);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .hero-meta strong { color: #fff; font-size: 13px; }
+
+  /* ── Callout boxes ─────────────────────────────────────────────────────── */
+  .callout {
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-left: 4px solid;
+    font-size: 14px;
+  }
+  .callout-title { font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+  .callout.info  { background: var(--accent-lt); border-color: var(--accent); }
+  .callout.info .callout-title { color: var(--accent); }
+  .callout.tip   { background: var(--green-lt);  border-color: var(--green); }
+  .callout.tip .callout-title  { color: var(--green); }
+  .callout.warn  { background: var(--amber-lt);  border-color: var(--amber); }
+  .callout.warn .callout-title { color: var(--amber); }
+  .callout.danger{ background: var(--red-lt);    border-color: var(--red); }
+  .callout.danger .callout-title { color: var(--red); }
+
+  /* ── Code blocks ───────────────────────────────────────────────────────── */
+  pre {
+    background: #1e2430;
+    color: #cdd6f4;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    margin: 16px 0;
+    box-shadow: var(--shadow);
+  }
+  code { font-family: var(--mono); font-size: .875em; }
+  p code, li code {
+    background: #eef2f9;
+    color: #1e40af;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* syntax highlight helpers */
+  .kw  { color: #cba6f7; }  /* keyword */
+  .fn  { color: #89b4fa; }  /* function */
+  .st  { color: #a6e3a1; }  /* string */
+  .cm  { color: #585b70; font-style: italic; }  /* comment */
+  .nb  { color: #fab387; }  /* number */
+  .tp  { color: #f5c2e7; }  /* type */
+
+  /* ── Tables ────────────────────────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px; }
+  th {
+    background: var(--ink);
+    color: #fff;
+    padding: 9px 14px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--rule); color: var(--ink-2); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f5f5f0; }
+
+  /* ── Cards / grid ─────────────────────────────────────────────────────── */
+  .card-grid { display: grid; gap: 14px; }
+  .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .card h4 { margin-top: 0; }
+  .card p  { margin-bottom: 0; font-size: 13px; }
+  .card .icon { font-size: 22px; margin-bottom: 8px; }
+
+  /* ── Layer stack diagram ───────────────────────────────────────────────── */
+  .layer-stack { display: flex; flex-direction: column; gap: 2px; margin: 20px 0; }
+  .layer {
+    display: flex;
+    align-items: stretch;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .layer-badge {
+    width: 8px;
+    flex-shrink: 0;
+  }
+  .layer-body {
+    flex: 1;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: none;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .layer-body .layer-title { font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+  .layer-body .layer-desc  { font-size: 12.5px; color: var(--ink-2); margin: 0; }
+  .layer-body .layer-examples { font-size: 11.5px; color: var(--ink-3); font-family: var(--mono); margin-top: 4px; }
+  .layer-arrow {
+    text-align: center;
+    color: var(--ink-3);
+    font-size: 18px;
+    line-height: 1;
+    padding: 2px 0;
+  }
+
+  /* ── Anchor diagram ────────────────────────────────────────────────────── */
+  /* ── Anchor diagram (CSS) ──────────────────────────────────────────────── */
+  .anchor-diagram {
+    background: #1a1f2e;
+    border-radius: var(--radius);
+    padding: 32px 28px 24px;
+    margin: 20px 0;
+    font-family: var(--mono);
+  }
+  .anchor-diagram-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 16px;
+  }
+  .anchor-box {
+    background: #242b3d;
+    border: 1px solid #3a4255;
+    border-radius: 8px;
+    padding: 16px 18px;
+    min-width: 0;
+    flex-shrink: 0;
+  }
+  .anchor-box-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #6b7a99;
+    margin-bottom: 6px;
+  }
+  .anchor-box-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #cdd6f4;
+    margin-bottom: 4px;
+  }
+  .anchor-box-sub {
+    font-size: 11px;
+    color: #585b70;
+    white-space: nowrap;
+  }
+  .anchor-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 10px;
+    flex-shrink: 0;
+  }
+  .anchor-arrow-line {
+    flex: 1;
+    height: 2px;
+    width: 48px;
+    background: #3a4255;
+    position: relative;
+  }
+  .anchor-arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: -4px;
+    border: 5px solid transparent;
+    border-left-color: #3a4255;
+  }
+  .anchor-arrow-label {
+    font-size: 10px;
+    color: #6b7a99;
+    text-align: center;
+    margin-top: 4px;
+    white-space: nowrap;
+  }
+  .anchor-dots {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+    border: 1px solid #3a4255;
+    border-radius: 8px;
+    background: #1e2430;
+    min-width: 160px;
+  }
+  .anchor-dot-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .anchor-dot-name { font-size: 12px; color: #cdd6f4; }
+  .anchor-dot-sub  { font-size: 10px; color: #585b70; }
+  .anchor-result {
+    background: #1a2b1a;
+    border: 1.5px solid #16a34a;
+    border-radius: 8px;
+    padding: 14px 18px;
+    flex-shrink: 0;
+  }
+  .anchor-result-label { font-size: 10px; color: #4ade80; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+  .anchor-result-val   { font-size: 13px; color: #86efac; font-weight: 700; }
+  .anchor-result-sub   { font-size: 11px; color: #585b70; margin-top: 2px; }
+  .anchor-footer {
+    margin-top: 4px;
+    background: #1e2b1e;
+    border: 1px solid #16a34a40;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 11.5px;
+    color: #4ade80;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .anchor-footer::before { content: '✓'; font-size: 13px; }
+
+  /* ── Observation cards ─────────────────────────────────────────────────── */
+  .obs-card {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 16px 0;
+    box-shadow: var(--shadow);
+  }
+  .obs-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    user-select: none;
+  }
+  .obs-header:hover { background: #f5f5f0; }
+  .obs-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; flex-shrink: 0;
+    color: #fff;
+  }
+  .obs-title { font-weight: 700; font-size: 14px; flex: 1; }
+  .obs-layer { font-size: 11px; font-family: var(--mono); color: var(--ink-3); }
+  .obs-chevron { color: var(--ink-3); transition: transform .2s; font-size: 12px; }
+  .obs-card.open .obs-chevron { transform: rotate(90deg); }
+  .obs-body { padding: 20px; background: #fafaf8; display: none; }
+  .obs-card.open .obs-body { display: block; }
+  .obs-quote {
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    border-left: 3px solid var(--ink-3);
+    padding-left: 14px;
+    margin-bottom: 14px;
+  }
+
+  /* ── Workflow timeline ─────────────────────────────────────────────────── */
+  .workflow-nodes {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 20px 0;
+    padding-left: 20px;
+    border-left: 2px solid var(--rule);
+  }
+  .wf-node {
+    position: relative;
+    padding: 10px 16px;
+    margin-left: -1px;
+  }
+  .wf-node::before {
+    content: '';
+    position: absolute;
+    left: -6px; top: 18px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+  .wf-node.wf-group::before { background: var(--green); }
+  .wf-node.wf-end::before   { background: var(--ink-3); }
+  .wf-node-name { font-family: var(--mono); font-size: 12.5px; font-weight: 700; color: var(--ink); }
+  .wf-node-desc { font-size: 12px; color: var(--ink-2); }
+
+  /* ── Pill badges ───────────────────────────────────────────────────────── */
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .03em;
+  }
+  .pill-blue   { background: var(--accent-lt); color: var(--accent); }
+  .pill-green  { background: var(--green-lt);  color: var(--green); }
+  .pill-amber  { background: var(--amber-lt);  color: var(--amber); }
+  .pill-purple { background: var(--purple-lt); color: var(--purple); }
+  .pill-gray   { background: #f0f0ea;          color: var(--ink-2); }
+
+  /* ── Section anchor ────────────────────────────────────────────────────── */
+  section { scroll-margin-top: 24px; }
+
+  /* ── zeon.* API table ──────────────────────────────────────────────────── */
+  .api-row td:first-child { font-family: var(--mono); font-size: 12px; color: var(--purple); font-weight: 600; }
+  .api-row td:nth-child(2) { font-size: 12px; color: var(--ink-3); font-family: var(--mono); }
+
+  /* ── Tech stack grid ───────────────────────────────────────────────────── */
+  .tech-row { display: flex; gap: 0; margin: 4px 0; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--rule); }
+  .tech-layer-label { width: 130px; flex-shrink: 0; padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; background: #f0f0ea; color: var(--ink-2); display: flex; align-items: center; }
+  .tech-tech { flex: 1; padding: 10px 14px; background: var(--surface); font-size: 13px; color: var(--ink); font-weight: 600; }
+  .tech-desc { flex: 2; padding: 10px 14px; background: var(--surface); font-size: 12.5px; color: var(--ink-2); border-left: 1px solid var(--rule); }
+
+  /* ── Steps list ─────────────────────────────────────────────────────────── */
+  .steps { counter-reset: step; }
+  .step {
+    counter-increment: step;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  .step::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 2px;
+  }
+  .step-body h4 { margin-top: 0; color: var(--ink); }
+  .step-body p  { margin-bottom: 6px; }
+
+  /* ── Interview taxonomy ─────────────────────────────────────────────────── */
+  .interview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .int-card {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    background: var(--surface);
+  }
+  .int-card .int-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .int-card .int-q { font-size: 12.5px; color: var(--ink-2); font-style: italic; }
+
+  /* ── Summary Q&A ────────────────────────────────────────────────────────── */
+  .qa-list { }
+  .qa-item { border-bottom: 1px solid var(--rule); padding: 14px 0; }
+  .qa-item:last-child { border-bottom: none; }
+  .qa-q { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--ink); }
+  .qa-a { font-size: 13.5px; color: var(--ink-2); margin: 0; }
+
+  /* ── Responsive ─────────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    nav { display: none; }
+    main { margin-left: 0; padding: 24px 20px 80px; }
+    .card-grid.cols-2, .card-grid.cols-3 { grid-template-columns: 1fr; }
+    .interview-grid { grid-template-columns: 1fr; }
+    .tech-row { flex-direction: column; }
+    .tech-layer-label { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar nav ──────────────────────────────────────────────────────────── -->
+<nav id="sidebar">
+  <div class="logo">Zeon Systems</div>
+
+  <div class="section-label">Context</div>
+  <a href="#s0">What is Zeon?</a>
+  <a href="#s1">Hackathon hook</a>
+
+  <div class="section-label">Architecture</div>
+  <a href="#s2">Project structure</a>
+  <a href="#s3">5-layer state stack</a>
+  <a href="#s4">Anchors</a>
+  <a href="#s5">hack_world_22</a>
+
+  <div class="section-label">Programming</div>
+  <a href="#s6">Skills</a>
+  <a href="#s7">Workflows</a>
+  <a href="#s8">Canvas UI</a>
+
+  <div class="section-label">Lessons</div>
+  <a href="#s9">Hackathon observations</a>
+
+  <div class="section-label">Going deeper</div>
+  <a href="#s10">New lab setup</a>
+  <a href="#s11">Teaching movements</a>
+  <a href="#s12">Tech stack</a>
+
+  <div class="section-label">Wrap-up</div>
+  <a href="#s13">Summary</a>
+</nav>
+
+<!-- ── Main content ─────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="tag">Team Learning Session</div>
+    <h1>Zeon Systems</h1>
+    <p>Writing robot lab automation protocols as code — from a drug screening hackathon to a mental model you can take to any lab.</p>
+    <div class="hero-meta">
+      <span>🧬 <strong>Hook:</strong> TEM-1 β-lactamase inhibitor screen</span>
+      <span>📦 <strong>Project:</strong> beta-loop / mastermix</span>
+      <span>🎯 <strong>Goal:</strong> Understand the whole system, zero to running protocol</span>
+    </div>
+  </div>
+
+  <!-- ── S0: What is Zeon ──────────────────────────────────────────────────── -->
+  <section id="s0">
+    <h2>What is Zeon?</h2>
+    <p>Zeon is a platform for writing robot lab automation protocols <strong>as code</strong>. It replaces drag-and-drop scheduling software with a programmable stack — skills in Python, workflows in JSON, world models in YAML, and optionally a custom React run-setup UI.</p>
+
+    <div class="callout info">
+      <div class="callout-title">💡 Analogy</div>
+      If Hamilton / TADM is Excel, Zeon is Python. You trade the drag-and-drop interface for full programmability, composition, and reproducibility.
+    </div>
+
+    <div class="card-grid cols-2" style="margin-top:20px">
+      <div class="card">
+        <div class="icon">🗂️</div>
+        <h4>Plain text files</h4>
+        <p>Everything is a file in a directory. Python, JSON, YAML. Version-controlled by Zeon's own VCS (<code>zeon sync</code>).</p>
+      </div>
+      <div class="card">
+        <div class="icon">🌐</div>
+        <h4>Web UI as operator terminal</h4>
+        <p>Workflows run only from the web UI — never from the CLI. The Canvas form is the "start run" interface.</p>
+      </div>
+      <div class="card">
+        <div class="icon">⚓</div>
+        <h4>Anchors, not coordinates</h4>
+        <p>Skills never hard-code robot positions. They reference named poses on objects. If equipment moves, the code doesn't change.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔄</div>
+        <h4>Calibration stack</h4>
+        <p>5 layers from nominal bench layout down to per-well pipetting offsets. Each layer answers a different question.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── S1: Hackathon hook ────────────────────────────────────────────────── -->
+  <section id="s1">
+    <h2>The Hackathon Hook</h2>
+    <p>The project screened <strong>TEM-1 β-lactamase inhibitors</strong> — a drug target for antibiotic resistance. The robot prepares a cell-free protein synthesis (CFPS) reaction at miniaturized scale in a 96-well plate.</p>
+
+    <table>
+      <thead><tr><th>Condition</th><th>DNA</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill pill-green">Positive</span></td><td>sfGFP only</td><td>Verify CFPS machinery works</td></tr>
+        <tr><td><span class="pill pill-gray">Negative</span></td><td>No DNA</td><td>Rule out background signal</td></tr>
+        <tr><td><span class="pill pill-blue">Sample</span></td><td>sfGFP-TEM-1 fusion</td><td>Expression suppressed by active inhibitor</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Three-part workflow</h3>
+    <div class="card-grid cols-3">
+      <div class="card">
+        <div class="icon">🤖</div>
+        <h4>Part 1 — Robot (hackathon)</h4>
+        <p>Prepare mastermix, dispense into 96-well plate, apply conditions, seal and shake.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🟢</div>
+        <h4>Part 2 — sfGFP readout</h4>
+        <p>Fluorescence plate reader. Go / no-go on whether CFPS worked.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🟡→🔴</div>
+        <h4>Part 3 — Nitrocefin screen</h4>
+        <p>Colorimetric activity screen. Yellow → red at A490 nm when TEM-1 is active.</p>
+      </div>
+    </div>
+
+    <div class="callout tip" style="margin-top:16px">
+      <div class="callout-title">Why use this as a hook</div>
+      The hackathon project touches every layer of the Zeon architecture. Every concept below can be grounded in something that actually ran.
+    </div>
+  </section>
+
+  <!-- ── S2: Project structure ─────────────────────────────────────────────── -->
+  <section id="s2">
+    <h2>A Project is Just a Directory</h2>
+    <pre><span class="cm"># beta-loop/mastermix/</span>
+├── <span class="kw">.zeon/</span>                   <span class="cm"># Zeon VCS — like .git/</span>
+│   ├── HEAD
+│   ├── project.json         <span class="cm"># active world + active workflow</span>
+│   ├── objects/blobs/       <span class="cm"># content-addressed object store</span>
+│   └── refs/heads/          <span class="cm"># branches</span>
+├── <span class="fn">skills/</span>                  <span class="cm"># one folder per robot action</span>
+│   ├── cfps_dispense_mastermix/robotic_code.py
+│   ├── batched_dispense_mastermix/robotic_code.py
+│   └── epipette_attach/
+├── <span class="fn">workflows/</span>
+│   └── cfps_mastermix.json
+├── <span class="fn">worlds/</span>
+│   └── hack_world_22/
+│       ├── world_state.json <span class="cm"># nominal bench layout</span>
+│       └── live_state.yaml  <span class="cm"># calibrated runtime state</span>
+├── objects/                 <span class="cm"># local object model overrides</span>
+└── <span class="fn">canvas/</span>
+    └── cfps_mastermix_screen.tsx</pre>
+
+    <div class="card-grid cols-2">
+      <div class="card">
+        <h4>🗃️ .zeon/ is the VCS</h4>
+        <p><code>zeon sync</code> is atomic: commit + merge + push in one operation. Works like a simplified Git. Binary assets (meshes, calibration data) that would be too large for Git live in the blob store.</p>
+      </div>
+      <div class="card">
+        <h4>🔌 project.json is the wiring</h4>
+        <pre style="font-size:11px;margin:8px 0 0">{
+  "name": "hackathon_v2",
+  "active_workflow": "cfps_mastermix",
+  "active_world":    "hack_world_22"
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── S3: 5-layer state stack ───────────────────────────────────────────── -->
+  <section id="s3">
+    <h2>The 5-Layer State Stack</h2>
+    <p>The most important mental model. Each layer answers a different question. Understanding this explains nearly every design decision — and every hackathon failure mode.</p>
+
+    <div class="layer-stack">
+      <div class="layer">
+        <div class="layer-badge" style="background:#1d4ed8"></div>
+        <div class="layer-body">
+          <div class="layer-title">1. world_state.json</div>
+          <p class="layer-desc">Nominal bench layout — what objects exist and where they approximately are.</p>
+          <div class="layer-examples">xyz + quaternion poses · collide_in_planner flags · joint initial states</div>
+        </div>
+      </div>
+      <div class="layer-arrow">↓</div>
+      <div class="layer">
+        <div class="layer-badge" style="background:#7c3aed"></div>
+        <div class="layer-body">
+          <div class="layer-title">2. object_model.yaml + URDF</div>
+          <p class="layer-desc">Geometry and interaction points for each object type.</p>
+          <div class="layer-examples">links · joints · collision shapes · named anchors · well coordinates</div>
+        </div>
+      </div>
+      <div class="layer-arrow">↓</div>
+      <div class="layer">
+        <div class="layer-badge" style="background:#16a34a"></div>
+        <div class="layer-body">
+          <div class="layer-title">3. live_state.yaml</div>
+          <p class="layer-desc">Mutable calibration on top of the nominal model — changes during a run.</p>
+          <div class="layer-examples">TCP offsets · per-well XY deltas · tip counters · in_hand state</div>
+        </div>
+      </div>
+      <div class="layer-arrow">↓</div>
+      <div class="layer">
+        <div class="layer-badge" style="background:#d97706"></div>
+        <div class="layer-body">
+          <div class="layer-title">4. Skills (Python)</div>
+          <p class="layer-desc">Robot behavior. Resolves anchors at runtime, reads/writes live_state.</p>
+          <div class="layer-examples">robotic_code.py · load_object_anchor() · move_arm() · set_gripper()</div>
+        </div>
+      </div>
+      <div class="layer-arrow">↓</div>
+      <div class="layer">
+        <div class="layer-badge" style="background:#dc2626"></div>
+        <div class="layer-body">
+          <div class="layer-title">5. Workflows (JSON)</div>
+          <p class="layer-desc">Sequence and logic. Binds skill parameters to run inputs.</p>
+          <div class="layer-examples">nodes · on_success / on_failure edges · {"$input": name} binding</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-title">Key insight</div>
+      Skills never contain hard-coded coordinates. They call <code>load_object_anchor(object_id, anchor_name)</code>, which resolves through all layers at runtime — including any AprilTag relocalization that may have updated the object's pose.
+    </div>
+  </section>
+
+  <!-- ── S4: Anchors ───────────────────────────────────────────────────────── -->
+  <section id="s4">
+    <h2>Anchors — The Core Philosophy</h2>
+
+    <div class="callout tip">
+      <div class="callout-title">One-liner</div>
+      Anchors are named poses that live in <em>object-space</em>, not <em>world-space</em>. If the equipment moves, the code doesn't change.
+    </div>
+
+    <!-- Anchor diagram (CSS layout) -->
+    <div class="anchor-diagram">
+
+      <!-- Row 1: World pose → Equipment → Anchors defined on it -->
+      <div style="display:flex;align-items:stretch;gap:0;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+
+        <!-- Step 1: World pose -->
+        <div class="anchor-box" style="width:180px">
+          <div class="anchor-box-label">Step 1</div>
+          <div class="anchor-box-name">world_state.json</div>
+          <div class="anchor-box-sub">plate_reader pose</div>
+          <div class="anchor-box-sub" style="margin-top:4px;color:#8b9cbd">xyz: [0.32, -0.73, 0.0]</div>
+          <div class="anchor-box-sub">Updated by AprilTag</div>
+          <div class="anchor-box-sub">localization at runtime</div>
+        </div>
+
+        <!-- Arrow -->
+        <div style="display:flex;align-items:center;padding:0 4px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:10px;color:#6b7a99;white-space:nowrap">world → equipment</span>
+            <span style="font-size:20px;color:#3a4255">→</span>
+          </div>
+        </div>
+
+        <!-- Step 2: Object model with anchor dots -->
+        <div class="anchor-box" style="flex:1;min-width:200px">
+          <div class="anchor-box-label">Step 2 — object_model.yaml defines anchors <span style="color:#4a5568">(fixed, relative to body)</span></div>
+          <div class="anchor-dots" style="border:none;background:transparent;padding:4px 0">
+            <div class="anchor-dot-row">
+              <div class="dot" style="background:#3b82f6"></div>
+              <div>
+                <div class="anchor-dot-name">load_plate</div>
+                <div class="anchor-dot-sub">where gripper places a plate</div>
+              </div>
+            </div>
+            <div class="anchor-dot-row">
+              <div class="dot" style="background:#10b981"></div>
+              <div>
+                <div class="anchor-dot-name">tag_204</div>
+                <div class="anchor-dot-sub">AprilTag location on body</div>
+              </div>
+            </div>
+            <div class="anchor-dot-row">
+              <div class="dot" style="background:#f59e0b"></div>
+              <div>
+                <div class="anchor-dot-name">lid_open</div>
+                <div class="anchor-dot-sub">attached to lid link, not body</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Arrow -->
+        <div style="display:flex;align-items:center;padding:0 4px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:10px;color:#6b7a99;white-space:nowrap">× equipment → anchor</span>
+            <span style="font-size:20px;color:#3a4255">→</span>
+          </div>
+        </div>
+
+        <!-- Step 3: Result -->
+        <div class="anchor-result" style="display:flex;flex-direction:column;justify-content:center;min-width:180px">
+          <div class="anchor-result-label">Result from load_object_anchor()</div>
+          <div class="anchor-result-val">{xyz, rpy, wxyz}</div>
+          <div class="anchor-result-sub" style="color:#4ade80;margin-top:6px">↓</div>
+          <div class="anchor-result-sub">passed to move_arm()</div>
+          <div class="anchor-result-sub">No coordinates in skill code</div>
+        </div>
+      </div>
+
+      <!-- Footer: the key property -->
+      <div class="anchor-footer">
+        Reader moved 2 cm to the right → AprilTag localization updates equipment pose → all anchors shift automatically → <strong style="color:#86efac">same skill code, no changes</strong>
+      </div>
+    </div>
+
+    <h3>Anchor spec (inside object_model.yaml)</h3>
+    <pre><span class="cm"># plate_reader.object_model.yaml</span>
+<span class="fn">anchors</span>:
+  <span class="st">load_plate</span>:
+    parent_link: body
+    link_T_anchor:
+      xyz:  [<span class="nb">0.037</span>, <span class="nb">0.054</span>, <span class="nb">-0.547</span>]
+      wxyz: [<span class="nb">0.242</span>, <span class="nb">0.631</span>, <span class="nb">0.684</span>, <span class="nb">-0.274</span>]
+    grasp:
+      width: <span class="nb">0.085</span>         <span class="cm"># gripper jaw opening in metres</span>
+      standoff: <span class="nb">0.03</span>      <span class="cm"># approach clearance</span>
+      gripper_variant: wide
+
+  <span class="st">depth_top</span>:            <span class="cm"># top of well</span>
+    parent_link: well_A1
+    ...
+  <span class="st">depth_bottom</span>:         <span class="cm"># bottom — gap = descent depth</span>
+    parent_link: well_A1
+    ...</pre>
+
+    <h3>Frame conventions</h3>
+    <table>
+      <thead><tr><th>Frame</th><th>+Z direction</th><th>Used for</th></tr></thead>
+      <tbody>
+        <tr><td><code>world</code></td><td>Up (standard)</td><td>Global positions, motion targets</td></tr>
+        <tr><td><code>tcp</code></td><td>Into grasp / approach direction</td><td>Gripper / pipette alignment</td></tr>
+        <tr><td><code>camera</code></td><td>Into scene (OpenCV convention)</td><td>RGBD cameras, AprilTag detection</td></tr>
+      </tbody>
+    </table>
+
+    <h3>How skills use anchors</h3>
+    <pre><span class="kw">def</span> <span class="fn">cfps_dispense_mastermix</span>(...):
+    <span class="cm"># No coordinates here — only anchor names</span>
+    anchor = <span class="fn">load_object_anchor</span>(reagent_block.id, mm_anchor)
+
+    <span class="cm"># Compute standoff approach point</span>
+    pre_xyz = <span class="fn">anchor_preapproach</span>(anchor, standoff=<span class="nb">0.05</span>)
+
+    <span class="cm"># Move to standoff, then descend</span>
+    <span class="fn">move_arm</span>(<span class="st">"right_arm"</span>, position=pre_xyz, orientation=anchor[<span class="st">"rpy"</span>])
+    <span class="fn">move_arm</span>(<span class="st">"right_arm"</span>, position=anchor[<span class="st">"xyz"</span>], orientation=anchor[<span class="st">"rpy"</span>])</pre>
+
+    <h3>AprilTag localization chain</h3>
+    <p>When the robot detects a tag on a piece of equipment, it updates the equipment's world pose. All anchors follow automatically:</p>
+    <pre><span class="cm"># world → load_plate</span>
+= world → camera             <span class="cm">(camera extrinsic, calibrated once)</span>
+  × camera → tag_204         <span class="cm">(detected at runtime by RGBD camera)</span>
+  × inverse(body → tag_204)  <span class="cm">(stored in object_model.yaml)</span>
+  × body → load_plate        <span class="cm">(stored in object_model.yaml)</span></pre>
+  </section>
+
+  <!-- ── S5: hack_world_22 ─────────────────────────────────────────────────── -->
+  <section id="s5">
+    <h2>The hack_world_22 Scene</h2>
+    <p>36 entries total: <strong>26 real equipment objects</strong> + <strong>10 virtual collision cuboids</strong> (workspace limits and robot-base filters).</p>
+
+    <div class="card-grid cols-3">
+      <div class="card">
+        <h4>🧪 Liquid handling</h4>
+        <ul>
+          <li>epipette 10 µL (BLE)</li>
+          <li>epipette 120 µL (BLE)</li>
+          <li>3 tip boxes</li>
+          <li>Cold-block well plate</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🧫 Labware</h4>
+        <ul>
+          <li>4 PCR plates</li>
+          <li>1 flat-bottom 96-well plate</li>
+          <li>Seal holder</li>
+          <li>Fixture plate</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🔬 Instruments</h4>
+        <ul>
+          <li>Plate reader</li>
+          <li>Plate shaker</li>
+          <li>PlateMax plate sealer</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Anatomy of a world_state.json entry</h3>
+    <pre><span class="st">"plate_reader_417cbfa5"</span>: {
+  <span class="st">"metadata"</span>:  { <span class="st">"name"</span>: <span class="st">"plate_reader"</span>, <span class="st">"type"</span>: <span class="st">"plate_reader"</span> },
+  <span class="st">"geometry"</span>:  { <span class="st">"yaml_path"</span>: <span class="st">"objects/plate_reader/plate_reader.object_model.yaml"</span> },
+  <span class="st">"mount"</span>: {
+    <span class="st">"type"</span>: <span class="st">"FixedMount"</span>,
+    <span class="st">"world_P_body_fixed"</span>: {
+      <span class="st">"xyz"</span>:  [<span class="nb">0.32</span>, <span class="nb">-0.73</span>, <span class="nb">-0.00</span>],
+      <span class="st">"wxyz"</span>: [<span class="nb">1</span>, <span class="nb">0</span>, <span class="nb">0</span>, <span class="nb">0</span>]
+    }
+  },
+  <span class="st">"collide_in_planner"</span>: <span class="kw">true</span>,  <span class="cm">// motion planner avoids this object</span>
+  <span class="st">"filter_from_depth"</span>:  <span class="kw">true</span>   <span class="cm">// remove known geometry from depth camera</span>
+}</pre>
+    <div class="callout warn">
+      <div class="callout-title">⚠️ FixedMount ≠ immovable</div>
+      <code>FixedMount</code> describes how the pose is <em>stored in the file</em>. Skills can pick up objects; AprilTag localization can update runtime poses. The word "fixed" only means "not a joint."
+    </div>
+  </section>
+
+  <!-- ── S6: Skills ────────────────────────────────────────────────────────── -->
+  <section id="s6">
+    <h2>Skills — Robot Actions as Python Functions</h2>
+
+    <pre><span class="cm"># skills/cfps_dispense_mastermix/robotic_code.py</span>
+<span class="kw">def</span> <span class="fn">cfps_dispense_mastermix</span>(
+    pipette:        <span class="tp">SkillObject</span>,    <span class="cm"># required — no default</span>
+    tipbox:         <span class="tp">SkillObject</span>,
+    reagent_block:  <span class="tp">SkillObject</span>,
+    reaction_plate: <span class="tp">SkillObject</span>,
+    mm_anchor:      <span class="tp">str</span>,            <span class="cm"># which anchor to aspirate from</span>
+    wells:          <span class="tp">list</span>,           <span class="cm"># ["A1", "A2", ...]</span>
+    rxn_volume:     <span class="tp">float</span>,
+    num_reactions:  <span class="tp">int</span>,
+    speed:          <span class="tp">int</span> = <span class="nb">80</span>,      <span class="cm"># optional — has default</span>
+) <span class="kw">-></span> <span class="tp">dict</span>:
+    ...
+    <span class="kw">return</span> {<span class="st">"success"</span>: <span class="kw">True</span>}       <span class="cm"># or raise — NEVER return {"success": False}</span></pre>
+
+    <div class="callout info">
+      <div class="callout-title">📐 The function signature IS the schema</div>
+      The system parses the function definition and creates form fields from it. Annotated types become field types. Arguments without defaults are required. <strong>Change the signature and you change the skill's inputs.</strong>
+    </div>
+
+    <h3>The four motion primitives</h3>
+    <table>
+      <thead><tr><th>Call</th><th>What it does</th><th>Gotcha</th></tr></thead>
+      <tbody>
+        <tr><td><code>move_arm(arm, position, orientation)</code></td><td>Cartesian, IK with retry (max 3)</td><td>Fails if target unreachable</td></tr>
+        <tr><td><code>move_arm_js(arm, joint_angles)</code></td><td>Joint-space, no IK</td><td>No reachability check until execution</td></tr>
+        <tr><td><code>move_relative(arm, delta_xyz)</code></td><td>World-frame increment</td><td><strong>[d,0,0] is always world +X</strong> — not object-aligned</td></tr>
+        <tr><td><code>set_gripper(arm, width_m)</code></td><td>Set jaw width, blocking</td><td>Write-only — no read-back</td></tr>
+      </tbody>
+    </table>
+    <div class="callout danger">
+      <div class="callout-title">⚡ All four move real hardware immediately</div>
+      There is no "preview mode." The moment you call <code>move_arm()</code>, the physical robot starts moving.
+    </div>
+
+    <h3>Two tip management strategies</h3>
+    <div class="card-grid cols-2">
+      <div class="card">
+        <h4>🔴 Pattern A — Fresh tip per stroke</h4>
+        <p><span class="pill pill-gray">Safe</span> <span class="pill pill-amber">Expensive</span></p>
+        <p style="margin-top:8px">New tip for every aspirate-dispense cycle. No cross-contamination possible. Used in the original hackathon code (<code>cfps_dispense_mastermix</code>).</p>
+      </div>
+      <div class="card">
+        <h4>🟢 Pattern B — Batch aspirate</h4>
+        <p><span class="pill pill-green">Efficient</span> <span class="pill pill-blue">Homogeneous only</span></p>
+        <p style="margin-top:8px">One aspirate for N wells, dispense each, eject once. Used in the improved version (<code>batched_dispense_mastermix</code>). Safe only when the liquid is the same across all wells.</p>
+      </div>
+    </div>
+
+    <h3>Rules every skill must follow</h3>
+    <ul>
+      <li><strong>Enter and exit through transition poses</strong> (named joint-space stow positions). Skipping causes IK failures when skills are composed.</li>
+      <li><strong>Failure is <code>raise</code>, not <code>return {"success": False}</code>.</strong> Returning false does <em>not</em> stop the workflow.</li>
+      <li><strong>Snap after every pick</strong> — call <code>snap_plate_into_gripper()</code> to assert the canonical grip relationship in the simulator.</li>
+    </ul>
+  </section>
+
+  <!-- ── S7: Workflows ─────────────────────────────────────────────────────── -->
+  <section id="s7">
+    <h2>Workflows — JSON Graphs</h2>
+    <p>A workflow is a directed graph where each node is a skill call. Parameters bind via <code>{"$input": "name"}</code> against declared workflow inputs.</p>
+
+    <pre><span class="st">"disp_sample"</span>: {
+  <span class="st">"skill_id"</span>: <span class="st">"batched_dispense_mastermix"</span>,
+  <span class="st">"parameters"</span>: {
+    <span class="st">"pipette"</span>:    { <span class="st">"$input"</span>: <span class="st">"pipette"</span> },
+    <span class="st">"wells"</span>:      { <span class="st">"$input"</span>: <span class="st">"sample_wells"</span> },
+    <span class="st">"rxn_volume"</span>: { <span class="st">"$input"</span>: <span class="st">"vol_per_well"</span> }
+  },
+  <span class="st">"on_success"</span>: <span class="st">"place_pipette"</span>,
+  <span class="st">"on_failure"</span>: <span class="st">"end"</span>
+}</pre>
+
+    <h3>cfps_mastermix.json — 17 nodes</h3>
+    <div class="workflow-nodes">
+      <div class="wf-node"><span class="wf-node-name">start</span></div>
+      <div class="wf-node"><span class="wf-node-name">seed_shaker_state</span> <span class="wf-node-desc">— initialize shaker flags in live_state</span></div>
+      <div class="wf-node"><span class="wf-node-name">log_platemap</span> <span class="wf-node-desc">— record well assignments to data/</span></div>
+      <div class="wf-node"><span class="wf-node-name">grab_pipette</span> <span class="wf-node-desc">— attach pipette from stand</span></div>
+      <div class="wf-node wf-group"><span class="wf-node-name">make_pos / make_neg / make_sample</span> <span class="wf-node-desc">— prepare each condition's mastermix</span></div>
+      <div class="wf-node wf-group"><span class="wf-node-name">disp_pos / disp_neg / disp_sample</span> <span class="wf-node-desc">— dispense into assigned wells</span></div>
+      <div class="wf-node"><span class="wf-node-name">place_pipette</span> <span class="wf-node-desc">— return pipette to stand</span></div>
+      <div class="wf-node"><span class="wf-node-name">seal</span> <span class="wf-node-desc">— PlateMax sealer</span></div>
+      <div class="wf-node"><span class="wf-node-name">shaker_off → shaker_open → regrab_plate → shaker_load → shaker_close → shaker_on</span></div>
+      <div class="wf-node"><span class="wf-node-name">save_run</span> <span class="wf-node-desc">— write run record to data/</span></div>
+      <div class="wf-node wf-end"><span class="wf-node-name">end</span></div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-title">⚠️ Workflows run from the web UI only</div>
+      <code>zeon run</code> is a common mistake. The correct path: web UI → select project → select workflow → fill Canvas form → start run.
+    </div>
+  </section>
+
+  <!-- ── S8: Canvas ────────────────────────────────────────────────────────── -->
+  <section id="s8">
+    <h2>Canvas — The Run Setup UI</h2>
+    <p>When a workflow declares <code>"canvas_ui": {"kind": "react", "source_ref": "canvas/cfps_mastermix_screen.tsx"}</code>, the web UI renders a custom React form before starting the run.</p>
+
+    <div class="callout info">
+      <div class="callout-title">Sandboxed iframe</div>
+      The canvas is isolated. Only <code>import React from "react"</code> is allowed. No network access, no filesystem. Communication is through <code>zeon.*</code> globals injected by the host.
+    </div>
+
+    <h3>The zeon.* API</h3>
+    <table class="api-row">
+      <thead><tr><th>Global</th><th>Type</th><th>What it contains</th></tr></thead>
+      <tbody>
+        <tr class="api-row"><td>zeon.schema</td><td>object</td><td>Declared workflow inputs and their types</td></tr>
+        <tr class="api-row"><td>zeon.worldObjects</td><td>array</td><td>Live world objects: <code>{uuid, name, meshType, anchors, pose: {xyz, wxyz}}</code></td></tr>
+        <tr class="api-row"><td>zeon.defaults</td><td>object</td><td>Default values from workflow input declarations</td></tr>
+        <tr class="api-row"><td>zeon.submit(values)</td><td>function</td><td>Submit the form → start the workflow run</td></tr>
+        <tr class="api-row"><td>zeon.tipBoxes</td><td>array</td><td>Live tip-box states pushed by host</td></tr>
+        <tr class="api-row"><td>zeon.onTipCounts(cb)</td><td>function</td><td>Subscribe to live tip count updates</td></tr>
+        <tr class="api-row"><td>zeon.onValidationErrors(cb)</td><td>function</td><td>Receive validation errors from host</td></tr>
+      </tbody>
+    </table>
+
+    <h3>What the cfps_mastermix canvas does</h3>
+    <div class="card-grid cols-2">
+      <div class="card">
+        <h4>🗺️ WorkspaceMap</h4>
+        <p>Reads <code>zeon.worldObjects[].pose.xyz</code>, clusters by proximity, renders a top-down bench grid as SVG. Shows where each object physically is right now.</p>
+      </div>
+      <div class="card">
+        <h4>🎯 Object pickers</h4>
+        <p>Filtered dropdowns per category: pipettes, tipboxes, coldblocks, wellplates, sealers. Auto-populated from live world objects.</p>
+      </div>
+      <div class="card">
+        <h4>🧫 96-well plate map</h4>
+        <p>Clickable grid (8 rows × 12 cols). Click or paint by condition: Positive / Negative / Sample / Erase.</p>
+      </div>
+      <div class="card">
+        <h4>📊 Pre-flight checks</h4>
+        <p>Volume calculator (flags sub-minimum volumes) + tip usage estimator (compares needed vs <code>zeon.tipBoxes</code> live counts). Alerts before run, not mid-run.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── S9: Observations ──────────────────────────────────────────────────── -->
+  <section id="s9">
+    <h2>Hackathon Observations → Architecture Lessons</h2>
+    <p>Four things that went wrong — each exposes a real architectural constraint.</p>
+
+    <!-- Obs 1 -->
+    <div class="obs-card" id="obs1">
+      <div class="obs-header" onclick="toggleObs('obs1')">
+        <div class="obs-num" style="background:#dc2626">1</div>
+        <div>
+          <div class="obs-title">Tip stuck on discard — pipette stopped</div>
+          <div class="obs-layer">live_state.yaml · set_gripper() write-only · physical state desync</div>
+        </div>
+        <span class="obs-chevron">▶</span>
+      </div>
+      <div class="obs-body">
+        <div class="obs-quote">"Tip got stuck when being discarded; pipette stopped moving."</div>
+        <p><strong>What happened:</strong> Tip eject failed. The arm halted rather than recovering.</p>
+        <p><strong>Why the architecture can't auto-recover:</strong> <code>set_gripper()</code> is <em>write-only</em> — there is no read-back. The system cannot confirm whether the tip released. <code>attach_next_tip()</code> may have already incremented the tip counter before the physical eject was confirmed, so the world model and physical reality diverged.</p>
+        <div class="callout warn">
+          <div class="callout-title">Design constraint</div>
+          Pressure monitoring (Hamilton TADM-style) can catch aspiration failures and pickup failures — but not eject failures. Detecting a stuck tip requires either force sensing or a camera with line-of-sight to the tip chute.
+        </div>
+        <p><strong>General lesson:</strong> This is the central difficulty of physical automation. The system's model of state and the physical world can diverge at any step where there is no sensor read-back to confirm the action succeeded.</p>
+      </div>
+    </div>
+
+    <!-- Obs 2 -->
+    <div class="obs-card" id="obs2">
+      <div class="obs-header" onclick="toggleObs('obs2')">
+        <div class="obs-num" style="background:#d97706">2</div>
+        <div>
+          <div class="obs-title">Simulation slow, no fast-forward, pause corrupted state</div>
+          <div class="obs-layer">workflow executor · viser.studio viewer (not physics sim) · physical state checkpointing</div>
+        </div>
+        <span class="obs-chevron">▶</span>
+      </div>
+      <div class="obs-body">
+        <div class="obs-quote">"Simulation takes too long, cannot fast forward, cannot restart from the middle; pausing the experiment messed up something."</div>
+        <p><strong>What "simulation" means here:</strong> The 3D view is <strong>viser.studio</strong> — a Python-native browser-rendered scene viewer (WebGL/Three.js). It shows what the robot <em>thinks</em> the world looks like. It is <em>not</em> a physics simulator. It doesn't model fluid dynamics, deformable bodies, or contact forces.</p>
+        <p><strong>Why there's no fast-forward:</strong> The workflow executor sequences real-time skill calls. Even in sim mode, skills run at real-robot speed because the timing matters (settle times, gripper actuation, IK computation).</p>
+        <p><strong>Why pause corrupts state:</strong> Pausing mid-skill leaves the arm at an unknown intermediate pose, <code>live_state.yaml</code> possibly not flushed, and async operations in flight. There is no checkpoint mechanism for physical state.</p>
+        <div class="callout info">
+          <div class="callout-title">Fundamental constraint</div>
+          Physical automation cannot "seek" to an arbitrary past state — unlike pure software. Design experiments as sequences of independently resumable skills with explicit checkpoints.
+        </div>
+      </div>
+    </div>
+
+    <!-- Obs 3 -->
+    <div class="obs-card" id="obs3">
+      <div class="obs-header" onclick="toggleObs('obs3')">
+        <div class="obs-num" style="background:#2563eb">3</div>
+        <div>
+          <div class="obs-title">Vibe-coded movement — tip waste, unnecessary home-returns</div>
+          <div class="obs-layer">skill authoring · tip management · path sequencing</div>
+        </div>
+        <span class="obs-chevron">▶</span>
+      </div>
+      <div class="obs-body">
+        <div class="obs-quote">"Vibe coded movement not optimal (not reusing tips, return to position before moving to the next spot)."</div>
+        <p><strong>Two inefficiencies:</strong></p>
+        <ol>
+          <li><strong>Not reusing tips</strong> — acquiring a new tip for operations where the same tip could have been used. Wastes tips, adds discard overhead (see Observation 1).</li>
+          <li><strong>Home-return between every move</strong> — swinging to stow before every target instead of moving directly. Unnecessary travel time on every step.</li>
+        </ol>
+        <p><strong>Why the planner doesn't fix this:</strong> The motion planner finds collision-free paths between two poses. It does not optimize tip reuse or minimize travel across a multi-step protocol. These are authoring decisions, not planner constraints.</p>
+        <p><strong>The fix:</strong> <code>batched_dispense_mastermix</code> — one aspirate for N wells, dispensing continuously, ejecting once. This is the version that actually ran in the final hackathon demo.</p>
+      </div>
+    </div>
+
+    <!-- Obs 4 -->
+    <div class="obs-card" id="obs4">
+      <div class="obs-header" onclick="toggleObs('obs4')">
+        <div class="obs-num" style="background:#7c3aed">4</div>
+        <div>
+          <div class="obs-title">Wireless cube button pusher device</div>
+          <div class="obs-layer">workcell integration · auxiliary actuators · instrument APIs</div>
+        </div>
+        <span class="obs-chevron">▶</span>
+      </div>
+      <div class="obs-body">
+        <div class="obs-quote">"Wireless cube ish button pusher."</div>
+        <p><strong>What it is:</strong> A small wireless actuator for pressing physical buttons on lab instruments that lack a software API — e.g., a plate reader "start" button or sealer activation.</p>
+        <p><strong>Why it exists:</strong> Lab instruments often have physical controls that predate software integration. The 6-axis robot arm is a precision liquid handler — pressing a small button with it is awkward and collision-risky. A purpose-built BLE actuator fills the gap cheaply.</p>
+        <p><strong>Integration pattern:</strong> Such a device is typically wrapped as a workflow step — similar to how the SiLA2 driver wraps the PreciseFlex400 arm as a callable device. The workflow calls it like any other skill node; the implementation handles the BLE connection.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── S10: New lab setup ─────────────────────────────────────────────────── -->
+  <section id="s10">
+    <h2>Going to a New Lab — Zero to Running Workflow</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-body">
+          <h4>Bootstrap the project</h4>
+          <pre style="margin:4px 0"><span class="fn">zeon</span> new project my_lab_project
+<span class="fn">cd</span> my_lab_project</pre>
+          <p>Pulls a scaffold from the Zeon server. Not <code>git init</code> — this is <code>zeon new</code>, which seeds from the server with the directory structure and CLAUDE.md authoring guide.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-body">
+          <h4>Import object models from the shared mesh database</h4>
+          <pre style="margin:4px 0"><span class="fn">zeon</span> new object plate_reader
+<span class="fn">zeon</span> new object wellplate_96_flatbottom
+<span class="cm"># ... for each piece of equipment</span></pre>
+          <p>Each import creates <code>objects/&lt;type&gt;/</code> with the URDF, geometry, and anchor definitions. If a type doesn't exist in the shared database, it needs 3D scanning or modeling — this is the hard part.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-body">
+          <h4>Build world_state.json</h4>
+          <p>Hand-author or use the World Builder UI. Place objects with approximate poses — exact accuracy isn't required at this stage. AprilTag localization will refine poses at runtime.</p>
+          <p>Physical AprilTag stickers must be placed on each piece of equipment matching the tag anchors in the object model.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-body">
+          <h4>Initialize live_state.yaml</h4>
+          <pre style="margin:4px 0">epipette_10ul:
+  tcp_offset: [<span class="nb">0.0</span>, <span class="nb">0.0</span>, <span class="nb">0.0</span>]  <span class="cm"># will be calibrated</span>
+  in_hand: <span class="kw">false</span>
+tipbox_10ul_1:
+  tip_index: <span class="nb">0</span>
+  active: <span class="kw">true</span></pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-body">
+          <h4>Calibrate (the time-consuming part)</h4>
+          <ul>
+            <li><strong>TCP calibration</strong> — touch a reference point; solve for pipette TCP offset → <code>live_state.yaml</code></li>
+            <li><strong>Per-tip attachment calibration</strong> — record XY offset for each tip position → <code>live_state.yaml</code></li>
+            <li><strong>Per-well dispensing calibration</strong> — aspirate and dispense; inspect landing vs. nominal → <code>live_state.yaml</code></li>
+            <li><strong>AprilTag verification</strong> — move an object, run localization, confirm <code>load_object_anchor</code> shifts by the same amount</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-body">
+          <h4>Author anchor-driven skills</h4>
+          <p>Always reference <code>load_object_anchor()</code>, never literal coordinates. The skill should work if the equipment is relocated.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-body">
+          <h4>Wire a workflow, push, run</h4>
+          <pre style="margin:4px 0"><span class="fn">zeon</span> sync -m <span class="st">"initial world setup"</span></pre>
+          <p>Then: web UI → select project → select workflow → fill Canvas form → start run.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── S11: Teaching movements ───────────────────────────────────────────── -->
+  <section id="s11">
+    <h2>Teaching the Robot New Movements</h2>
+
+    <div class="card-grid cols-3">
+      <div class="card">
+        <h4>⚡ A — World coordinate capture</h4>
+        <p><span class="pill pill-amber">Fast</span> <span class="pill pill-gray">Fragile</span></p>
+        <ol style="margin-top:8px;font-size:13px">
+          <li>Jog arm in the UI</li>
+          <li><code>get_arm_pose("right_arm")</code></li>
+          <li>Paste literal xyz into skill</li>
+          <li>Test in sim, iterate</li>
+          <li>Later promote to anchors</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h4>🎓 B — Tacit-teacher interview</h4>
+        <p><span class="pill pill-green">Rigorous</span> <span class="pill pill-blue">Provenance-tracked</span></p>
+        <p style="margin-top:8px;font-size:13px">Structured interview with a human expert → transcript → extracted YAML (every parameter cites its source question) → validated Zeon skill.</p>
+      </div>
+      <div class="card">
+        <h4>🖱️ C — World Builder waypoints</h4>
+        <p><span class="pill pill-gray">Interactive</span></p>
+        <p style="margin-top:8px;font-size:13px">Jog arm in the World Builder UI, save as named waypoints. Promote to object model anchors when settled.</p>
+      </div>
+    </div>
+
+    <h3>The tacit-teacher session structure</h3>
+    <pre>tacit/sessions/peel_seal/
+├── 00-brief.md        <span class="cm"># task definition, why it's hard for a robot</span>
+├── 10-transcript.md   <span class="cm"># interview Q&A with the human expert</span>
+├── 15-observed.md     <span class="cm"># video analysis (VLM-driven, optional)</span>
+├── 20-extracted.yaml  <span class="cm"># parameters — each MUST cite Q&lt;n&gt; or V&lt;n&gt;@MM:SS</span>
+└── 30-outcome.md      <span class="cm"># what happened when the robot actually tried it</span></pre>
+
+    <h3>Interview taxonomy — 6 categories</h3>
+    <div class="interview-grid">
+      <div class="int-card">
+        <div class="int-label" style="color:#2563eb">📐 Geometry</div>
+        <div class="int-q">"Where do you reach? Which direction do you approach from? Is there a prepose?"</div>
+      </div>
+      <div class="int-card">
+        <div class="int-label" style="color:#dc2626">💪 Force</div>
+        <div class="int-q">"How hard do you grip? What does success feel like vs. failure?"</div>
+      </div>
+      <div class="int-card">
+        <div class="int-label" style="color:#16a34a">⏱️ Speed / timing</div>
+        <div class="int-q">"Which parts are fast vs slow? Any pauses? Does speed matter?"</div>
+      </div>
+      <div class="int-card">
+        <div class="int-label" style="color:#7c3aed">✅ Verification</div>
+        <div class="int-q">"How do you check after each step that it worked?"</div>
+      </div>
+      <div class="int-card">
+        <div class="int-label" style="color:#d97706">⚠️ Failure / recovery</div>
+        <div class="int-q">"What goes wrong most often? How do you recover? When do you stop?"</div>
+      </div>
+      <div class="int-card">
+        <div class="int-label" style="color:#0891b2">🔄 Variation</div>
+        <div class="int-q">"Does it differ by batch, brand, temperature? What stays the same?"</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-title">Real example — peel_seal skill</div>
+      <ul style="margin:0">
+        <li><code>peel_angle_deg = 45</code> → cited to Q3 (expert corrected video's 45–90° estimate: "camera is a bit off")</li>
+        <li><code>grip as hard as possible</code> → Q2 ("the mat will not break; grip strength gives control")</li>
+        <li><code>peel_speed must not increase</code> → Q4 + V4@00:22 ("speed is what contaminates the wells")</li>
+        <li>Optional re-grip parameter is OFF by default — explicitly noted as "no expert source"</li>
+      </ul>
+    </div>
+
+    <h3>Anchor promotion math</h3>
+    <p>To convert a world-frame pose captured by <code>get_arm_pose()</code> into an object-relative anchor:</p>
+    <pre>anchor_local = inverse(object_world_pose) ∘ arm_world_pose</pre>
+    <p>Compose the captured pose with the inverse of the object's current world pose. The result is the anchor expressed in the object's own frame — paste it into <code>object_model.yaml</code> as a new anchor entry.</p>
+  </section>
+
+  <!-- ── S12: Tech stack ───────────────────────────────────────────────────── -->
+  <section id="s12">
+    <h2>Tech Stack</h2>
+
+    <div style="display:flex;flex-direction:column;gap:6px;margin:16px 0">
+      <div class="tech-row">
+        <div class="tech-layer-label">Visualization</div>
+        <div class="tech-tech">viser.studio</div>
+        <div class="tech-desc">Python-native, browser-rendered (WebGL/Three.js). Renders URDF, point clouds, transforms in real time. Not a physics simulator.</div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer-label">Pipettes</div>
+        <div class="tech-tech">BLE serial</div>
+        <div class="tech-desc">epipette_120ul: BLE serial "Picus-46883520". epipette_10ul: serial None (wired or absent). Controlled via BLE from the Zeon runtime.</div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer-label">Localization</div>
+        <div class="tech-tech">AprilTags + solvePnP</div>
+        <div class="tech-desc">Camera detects tags on equipment, solves 6-DoF pose, updates world model. Multiple tags per device for redundancy and angle coverage.</div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer-label">Robot arms</div>
+        <div class="tech-tech">6-DoF manipulators</div>
+        <div class="tech-desc">IK solver runs internally; <code>move_arm()</code> sends Cartesian targets. Joint-space via <code>move_arm_js()</code> for transition poses.</div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer-label">Perception</div>
+        <div class="tech-tech">On-arm RGBD cameras</div>
+        <div class="tech-desc">Cameras mounted on robot wrists. Used for AprilTag detection, point cloud scanning for world building, and (optionally) verification images.</div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer-label">Version control</div>
+        <div class="tech-tech">Zeon VCS</div>
+        <div class="tech-desc">Content-addressed blob store + branches + atomic sync. Plain text files + binary assets (meshes, calibration files). <code>zeon sync -m "msg"</code> = commit + merge + push.</div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer-label">Run UI</div>
+        <div class="tech-tech">Zeon web UI</div>
+        <div class="tech-desc">Workflows execute only here. Renders Canvas forms, streams logs, shows live world state.</div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer-label">Canvas</div>
+        <div class="tech-tech">React (sandboxed)</div>
+        <div class="tech-desc">TSX compiled and run in a sandboxed iframe. Host injects <code>zeon.*</code> globals. No network. Submit via <code>zeon.submit(values)</code>.</div>
+      </div>
+      <div class="tech-row">
+        <div class="tech-layer-label">Skills</div>
+        <div class="tech-tech">Python</div>
+        <div class="tech-desc">All robot actions. <code>from .modules import move_arm, set_gripper, load_object_anchor, ...</code>. Function signature = parameter schema.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── S13: Summary ──────────────────────────────────────────────────────── -->
+  <section id="s13">
+    <h2>Summary — Q&A</h2>
+    <div class="qa-list">
+      <div class="qa-item">
+        <div class="qa-q">What is a Zeon project?</div>
+        <p class="qa-a">A plain directory of Python skills, JSON workflows, YAML worlds, and optional React canvas — versioned by <code>zeon sync</code> (like Git but with binary asset support).</p>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">How does the robot know where to go?</div>
+        <p class="qa-a">Anchors — named poses relative to the equipment, defined in the object model YAML, resolved at runtime by composing the equipment's world pose with the anchor's local offset. If the equipment moves, the anchor moves with it. No code changes needed.</p>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">What's live_state.yaml?</div>
+        <p class="qa-a">The mutable calibration layer: pipette TCP offsets, per-well XY dispensing deltas, tip counters, in_hand state. Skills read and write it explicitly. It bridges the gap between the nominal world model and physical reality.</p>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">Why did the tip stuck issue break state?</div>
+        <p class="qa-a"><code>set_gripper()</code> is write-only. The system cannot detect a stuck tip. The tip counter may have incremented before the physical eject was confirmed, leaving the model and reality diverged.</p>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">Why can't you pause mid-experiment?</div>
+        <p class="qa-a">Physical state — arm position, tip attachment, liquid volumes — has no checkpoint mechanism. Pausing mid-skill leaves state inconsistent with no safe way to resume.</p>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">How do you set up Zeon in a new lab?</div>
+        <p class="qa-a">Bootstrap project → import object models from shared mesh DB → build world_state.json (approximate OK) → initialize and calibrate live_state.yaml → author anchor-driven skills → push and run from web UI.</p>
+      </div>
+      <div class="qa-item">
+        <div class="qa-q">How do you teach the robot a new movement?</div>
+        <p class="qa-a">Three options: (A) jog + <code>get_arm_pose()</code> capture (fast, fragile); (B) tacit-teacher structured interview with a human expert (rigorous, provenance-tracked); (C) World Builder waypoint panel. Promote captured poses to YAML anchors when settled.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ── Accordion for observation cards ───────────────────────────────────────
+  function toggleObs(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  // ── Active nav link on scroll ──────────────────────────────────────────────
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks  = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
