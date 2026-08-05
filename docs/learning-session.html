@@ -687,7 +687,7 @@
         <div class="layer-badge" style="background:#7c3aed"></div>
         <div class="layer-body">
           <div class="layer-title">2. object_model.yaml + URDF</div>
-          <p class="layer-desc">Geometry and interaction points for each object type.</p>
+          <p class="layer-desc">Where are the grab points, wells, and joints on this object type? Geometry and interaction points for each object type.</p>
           <div class="layer-examples">links · joints · collision shapes · named anchors · well coordinates</div>
         </div>
       </div>
@@ -696,7 +696,7 @@
         <div class="layer-badge" style="background:#16a34a"></div>
         <div class="layer-body">
           <div class="layer-title">3. live_state.yaml</div>
-          <p class="layer-desc">Mutable calibration on top of the nominal model — changes during a run.</p>
+          <p class="layer-desc">What calibration offsets and runtime state apply to this specific instance? Mutable calibration on top of the nominal model — changes during a run.</p>
           <div class="layer-examples">TCP offsets · per-well XY deltas · tip counters · in_hand state</div>
         </div>
       </div>
@@ -843,7 +843,7 @@
 
     <h3>How skills use anchors</h3>
     <pre><span class="kw">def</span> <span class="fn">cfps_dispense_mastermix</span>(...):
-    <span class="cm"># No coordinates here — only anchor names</span>
+    <span class="cm"># Coordinates come from the data layers, not hard-coded values</span>
     anchor = <span class="fn">load_object_anchor</span>(reagent_block.id, mm_anchor)
 
     <span class="cm"># Compute standoff approach point</span>
@@ -936,8 +936,15 @@
     <span class="kw">return</span> {<span class="st">"success"</span>: <span class="kw">True</span>}       <span class="cm"># or raise — NEVER return {"success": False}</span></pre>
 
     <div class="callout info">
+      <div class="callout-title">What this skill does</div>
+      This skill dispenses a master-mix reagent from a cold block tube into reaction wells on a plate. It doesn't call <code>move_arm()</code> directly; it composes three lower-level skills (<code>epipette_aspirate</code>, <code>epipette_dispense</code>, <code>epipette_eject</code>), showing that skills can be built from smaller skills.
+      <br><br>
+      The arguments split into two groups: <strong>physical objects</strong> (which pipette, tipbox, source block, destination plate) and <strong>protocol parameters</strong> (which hole to aspirate from, which wells to fill, volume per well, how many reactions to run).
+    </div>
+
+    <div class="callout info">
       <div class="callout-title">📐 The function signature IS the schema</div>
-      The system parses the function definition and creates form fields from it. Annotated types become field types. Arguments without defaults are required. <strong>Change the signature and you change the skill's inputs.</strong>
+      The Zeon app reads the function signature and auto-generates an input form from it — <code>rxn_volume: float</code> becomes a number field, <code>SkillObject</code> becomes a dropdown of world objects, and parameters without defaults are required. Default values are set in the workflow JSON (<code>defaultValue</code> on each input). A canvas (optional React UI) can replace the auto-generated form with a richer setup experience.
     </div>
 
     <h3>The four motion primitives</h3>
@@ -952,7 +959,6 @@
     </table>
     <div class="callout danger">
       <div class="callout-title">⚡ All four move real hardware immediately</div>
-      There is no "preview mode." The moment you call <code>move_arm()</code>, the physical robot starts moving.
     </div>
 
     <h3>Two tip management strategies</h3>
@@ -980,18 +986,34 @@
   <!-- ── S7: Workflows ─────────────────────────────────────────────────────── -->
   <section id="s7">
     <h2>Workflows — JSON Graphs</h2>
-    <p>A workflow is a directed graph where each node is a skill call. Parameters bind via <code>{"$input": "name"}</code> against declared workflow inputs.</p>
+    <p>A workflow JSON has two parts: <strong>nodes</strong> (each one calls a skill) and <strong>edges</strong> (the order they run in). <code>start</code> and <code>end</code> nodes mark the boundaries.</p>
 
-    <pre><span class="st">"disp_sample"</span>: {
-  <span class="st">"skill_id"</span>: <span class="st">"batched_dispense_mastermix"</span>,
+    <pre><span class="cm">// nodes</span>
+{
+  <span class="st">"node_id"</span>: <span class="st">"grab_pipette"</span>,
+  <span class="st">"skill_id"</span>: <span class="st">"epipette_grab"</span>,
+  <span class="st">"parameters"</span>: { <span class="st">"pipette"</span>: { <span class="st">"$input"</span>: <span class="st">"pipette"</span> } }
+}
+
+{
+  <span class="st">"node_id"</span>: <span class="st">"make_pos"</span>,
+  <span class="st">"skill_id"</span>: <span class="st">"cfps_make_mastermix"</span>,
   <span class="st">"parameters"</span>: {
-    <span class="st">"pipette"</span>:    { <span class="st">"$input"</span>: <span class="st">"pipette"</span> },
-    <span class="st">"wells"</span>:      { <span class="st">"$input"</span>: <span class="st">"sample_wells"</span> },
-    <span class="st">"rxn_volume"</span>: { <span class="st">"$input"</span>: <span class="st">"vol_per_well"</span> }
-  },
-  <span class="st">"on_success"</span>: <span class="st">"place_pipette"</span>,
-  <span class="st">"on_failure"</span>: <span class="st">"end"</span>
-}</pre>
+    <span class="st">"pipette"</span>:        { <span class="st">"$input"</span>: <span class="st">"pipette"</span> },
+    <span class="st">"tipbox"</span>:         { <span class="st">"$input"</span>: <span class="st">"tipbox"</span> },
+    <span class="st">"reagent_block"</span>:  { <span class="st">"$input"</span>: <span class="st">"reagent_block"</span> },
+    <span class="st">"extract_anchor"</span>: { <span class="st">"$input"</span>: <span class="st">"extract_hole"</span> },
+    <span class="st">"mm_anchor"</span>:      { <span class="st">"$input"</span>: <span class="st">"pos_mm_hole"</span> },
+    ...
+    <span class="st">"extract_per_rxn"</span>: <span class="nb">3.0</span>,
+    <span class="st">"buffer_per_rxn"</span>:  <span class="nb">4.0</span>,
+    <span class="st">"dna_per_rxn"</span>:     <span class="nb">0.2</span>,
+    <span class="st">"num_reactions"</span>:  { <span class="st">"$input"</span>: <span class="st">"pos_n"</span> }
+  }
+}
+
+<span class="cm">// edge</span>
+{ <span class="st">"from_node"</span>: <span class="st">"grab_pipette"</span>, <span class="st">"to_node"</span>: <span class="st">"make_pos"</span>, <span class="st">"condition"</span>: { <span class="st">"type"</span>: <span class="st">"on_success"</span> } }</pre>
 
     <h3>cfps_mastermix.json — 17 nodes</h3>
     <div class="workflow-nodes">
@@ -1126,7 +1148,7 @@
           <li><strong>Home-return between every move</strong> — swinging to stow before every target instead of moving directly. Unnecessary travel time on every step.</li>
         </ol>
         <p><strong>Why the planner doesn't fix this:</strong> The motion planner finds collision-free paths between two poses. It does not optimize tip reuse or minimize travel across a multi-step protocol. These are authoring decisions, not planner constraints.</p>
-        <p><strong>The fix:</strong> <code>batched_dispense_mastermix</code> — one aspirate for N wells, dispensing continuously, ejecting once. This is the version that actually ran in the final hackathon demo.</p>
+        <p><strong>The fix for tip reuse:</strong> <code>batched_dispense_mastermix</code> — one aspirate for N wells, dispensing continuously, ejecting once. This is the version that actually ran in the final hackathon demo.</p>
       </div>
     </div>
 
@@ -1143,7 +1165,7 @@
       <div class="obs-body">
         <div class="obs-quote">"Wireless cube ish button pusher."</div>
         <p><strong>What it is:</strong> A small wireless actuator for pressing physical buttons on lab instruments that lack a software API — e.g., a plate reader "start" button or sealer activation.</p>
-        <p><strong>Why it exists:</strong> Lab instruments often have physical controls that predate software integration. The 6-axis robot arm is a precision liquid handler — pressing a small button with it is awkward and collision-risky. A purpose-built BLE actuator fills the gap cheaply.</p>
+        <p><strong>Why it exists:</strong> Lab instruments often have physical controls that predate software integration. Pressing a small button with the robotic arm is awkward and collision-risky. A purpose-built BLE actuator fills the gap cheaply.</p>
         <p><strong>Integration pattern:</strong> Such a device is typically wrapped as a workflow step — similar to how the SiLA2 driver wraps the PreciseFlex400 arm as a callable device. The workflow calls it like any other skill node; the implementation handles the BLE connection.</p>
       </div>
     </div>
