@@ -1241,40 +1241,30 @@ tipbox_10ul_1:
   <!-- ── S11: Teaching movements ───────────────────────────────────────────── -->
   <section id="s11">
     <h2>Teaching the Robot New Movements</h2>
+    <p>To teach a robot a new movement, you need to know <strong>where to move</strong> (coordinates) and <strong>how to move</strong> (forces, speeds, approach strategies, failure handling).</p>
 
-    <div class="card-grid cols-3">
-      <div class="card">
-        <h4>⚡ A — World coordinate capture</h4>
-        <p><span class="pill pill-amber">Fast</span> <span class="pill pill-gray">Fragile</span></p>
-        <ol style="margin-top:8px;font-size:13px">
-          <li>Jog arm in the UI</li>
-          <li><code>get_arm_pose("right_arm")</code></li>
-          <li>Paste literal xyz into skill</li>
-          <li>Test in sim, iterate</li>
-          <li>Later promote to anchors</li>
-        </ol>
-      </div>
-      <div class="card">
-        <h4>🎓 B — Tacit-teacher interview</h4>
-        <p><span class="pill pill-green">Rigorous</span> <span class="pill pill-blue">Provenance-tracked</span></p>
-        <p style="margin-top:8px;font-size:13px">Structured interview with a human expert → transcript → extracted YAML (every parameter cites its source question) → validated Zeon skill.</p>
-      </div>
-      <div class="card">
-        <h4>🖱️ C — World Builder waypoints</h4>
-        <p><span class="pill pill-gray">Interactive</span></p>
-        <p style="margin-top:8px;font-size:13px">Jog arm in the World Builder UI, save as named waypoints. Promote to object model anchors when settled.</p>
-      </div>
+    <h3>Capturing coordinates — jog, record, promote</h3>
+    <ol>
+      <li><strong>Jog the arm</strong> to the desired position — on real hardware via the Zeon UI, or in the World Builder's 3D view for simulation.</li>
+      <li><strong>Record the pose</strong> — call <code>get_arm_pose("right_arm")</code>, which returns <code>[x, y, z, roll, pitch, yaw]</code> in world-frame coordinates, or read joint angles from the Dev Tools panel.</li>
+      <li><strong>Prototype</strong> — paste those coordinates into your skill code and test in simulation using the Skills Editor (which runs a single skill against a loaded world). Movements can fail: IK can't reach the target, the arm collides with something, or the coordinates have drifted from what you intended. Iterate until the movement works in sim, then verify on real hardware at reduced speed with someone at the stop control.</li>
+      <li><strong>Promote to an anchor</strong> — add the validated pose as a named anchor in the relevant object's <code>object_model.yaml</code> (the object the movement is relative to — e.g., the grasp point on a pipette, or a well position on a plate). Skills then use <code>load_object_anchor()</code> instead of hard-coded numbers, and the position survives if the object moves on the bench.</li>
+    </ol>
+
+    <div class="callout info">
+      <div class="callout-title">Promoting requires a coordinate transform</div>
+      <code>get_arm_pose()</code> returns world-frame coordinates, but anchors in <code>object_model.yaml</code> are relative to the object's own frame (<code>link_T_anchor</code>). To convert:
+      <pre style="margin:8px 0 0">anchor_local = inverse(object_world_pose) ∘ arm_world_pose</pre>
     </div>
 
-    <h3>The tacit-teacher session structure</h3>
-    <pre>tacit/sessions/peel_seal/
-├── 00-brief.md        <span class="cm"># task definition, why it's hard for a robot</span>
-├── 10-transcript.md   <span class="cm"># interview Q&A with the human expert</span>
-├── 15-observed.md     <span class="cm"># video analysis (VLM-driven, optional)</span>
-├── 20-extracted.yaml  <span class="cm"># parameters — each MUST cite Q&lt;n&gt; or V&lt;n&gt;@MM:SS</span>
-└── 30-outcome.md      <span class="cm"># what happened when the robot actually tried it</span></pre>
+    <h3>Example: teaching a new process with the tacit-teacher</h3>
+    <p>Beyond coordinates, a new movement needs design knowledge — forces, speeds, failure handling, verification criteria. The tacit-teacher process captures these by combining video analysis with expert interviews, producing a provenance-tracked parameter set. Coordinates still come from jogging (above).</p>
 
-    <h3>Interview taxonomy — 6 categories</h3>
+    <h4>Step 1: Video analysis (VLM-driven)</h4>
+    <p>Record the human expert performing the task. Run the footage through a vision-language model (e.g., Gemini) which extracts what it can observe: timing, phases, approximate angles, observable failure modes. Critically, it also flags what it <em>cannot</em> determine — forces, verification criteria, intent. These gaps become the interview agenda.</p>
+
+    <h4>Step 2: Structured interview</h4>
+    <p>Interview the expert, using the VLM's gaps as questions. Six categories:</p>
     <div class="interview-grid">
       <div class="int-card">
         <div class="int-label" style="color:#2563eb">📐 Geometry</div>
@@ -1302,20 +1292,46 @@ tipbox_10ul_1:
       </div>
     </div>
 
-    <div class="callout tip">
-      <div class="callout-title">Real example — peel_seal skill</div>
-      <ul style="margin:0">
-        <li><code>peel_angle_deg = 45</code> → cited to Q3 (expert corrected video's 45–90° estimate: "camera is a bit off")</li>
-        <li><code>grip as hard as possible</code> → Q2 ("the mat will not break; grip strength gives control")</li>
-        <li><code>peel_speed must not increase</code> → Q4 + V4@00:22 ("speed is what contaminates the wells")</li>
-        <li>Optional re-grip parameter is OFF by default — explicitly noted as "no expert source"</li>
-      </ul>
-    </div>
+    <h4>Step 3: Extracted YAML</h4>
+    <p>The video analysis and interview produce a structured YAML file that can inform the skill author. Each parameter captures a constraint (geometry, force, timing, failure handling) and cites which interview question or video timestamp it came from. Real examples from the peel_seal session:</p>
+    <pre><span class="cm"># geometry — video estimated 45-90°, expert corrected it</span>
+<span class="cm"># → skill author computes the orientation for move_arm() that</span>
+<span class="cm">#   achieves a 45° pull relative to the plate surface</span>
+peel_angle_deg:
+  value: 45
+  source: [Q3, V1, V2, V3]
+  method: stated
+  superseded:
+    was: {value_range: [45, 90], method: vlm_estimate}
+    corrected_by: Q3
 
-    <h3>Anchor promotion math</h3>
-    <p>To convert a world-frame pose captured by <code>get_arm_pose()</code> into an object-relative anchor:</p>
-    <pre>anchor_local = inverse(object_world_pose) ∘ arm_world_pose</pre>
-    <p>Compose the captured pose with the inverse of the object's current world pose. The result is the anchor expressed in the object's own frame — paste it into <code>object_model.yaml</code> as a new anchor entry.</p>
+<span class="cm"># force — no number, just a behavioral threshold</span>
+<span class="cm"># → set_gripper() to minimum width; only risk is too loose</span>
+grip_mat:
+  value: maximum
+  source: Q2
+  method: stated
+
+<span class="cm"># timing — measured from video frame timestamps</span>
+<span class="cm"># → calibrate move_arm() speed so the full peel takes ~15s</span>
+peel_duration_s:
+  observed_range: [13, 19]
+  per_clip: {V3: 13, V4: 17, V1: 18, V2: 19}
+  source: [V1, V2, V3, V4]
+  method: measured
+
+<span class="cm"># failure — recovery rules from the interview</span>
+<span class="cm"># → try/except in the skill: retry once if nothing spilled</span>
+mat_stays_sealed:
+  recovery: retry_peel
+  max_retries: 1
+  retry_precondition: "nothing spilled and plate has not moved"
+  source: [Q5, V7@00:15]
+  method: stated</pre>
+    <p style="font-size:13px;color:var(--ink-2)">The YAML captures what the expert knows; the skill author decides how to translate that into skill code (angle → orientation, duration → speed, recovery rule → try/except).</p>
+
+    <h4>Step 4: Coordinates still come from jogging</h4>
+    <p>The tacit-teacher process produces <em>design parameters</em> — angles, forces, speeds, failure modes, verification criteria. The actual robot coordinates for the skill are still captured by jogging the arm (the process described above).</p>
   </section>
 
   <!-- ── S12: Tech stack ───────────────────────────────────────────────────── -->
@@ -1381,11 +1397,11 @@ tipbox_10ul_1:
       </div>
       <div class="qa-item">
         <div class="qa-q">How does the robot know where to go?</div>
-        <p class="qa-a">Anchors — named poses relative to the equipment, defined in the object model YAML, resolved at runtime by composing the equipment's world pose with the anchor's local offset. If the equipment moves, the anchor moves with it. No code changes needed.</p>
+        <p class="qa-a">Anchors — named poses defined in the object model YAML, relative to the object. Resolved at runtime by <code>load_object_anchor()</code>, which composes the object's world pose (layer 1) with the anchor's local offset (layer 2) and any calibration deltas (layer 3). If the object moves, the anchor moves with it.</p>
       </div>
       <div class="qa-item">
         <div class="qa-q">What's live_state.yaml?</div>
-        <p class="qa-a">The mutable calibration layer: pipette TCP offsets, per-well XY dispensing deltas, tip counters, in_hand state. Skills read and write it explicitly. It bridges the gap between the nominal world model and physical reality.</p>
+        <p class="qa-a">Per-instance calibration and runtime state (layer 3): TCP offsets, per-well XY deltas, tip counters, in_hand state. Keyed by object UUID so two instances of the same type can have different calibration. Skills read/write it via <code>get_world_state()</code> / <code>set_world_state()</code>.</p>
       </div>
       <div class="qa-item">
         <div class="qa-q">Why did the tip stuck issue break state?</div>
@@ -1401,7 +1417,7 @@ tipbox_10ul_1:
       </div>
       <div class="qa-item">
         <div class="qa-q">How do you teach the robot a new movement?</div>
-        <p class="qa-a">Three options: (A) jog + <code>get_arm_pose()</code> capture (fast, fragile); (B) tacit-teacher structured interview with a human expert (rigorous, provenance-tracked); (C) World Builder waypoint panel. Promote captured poses to YAML anchors when settled.</p>
+        <p class="qa-a">For coordinates: jog the arm (Zeon UI or World Builder), record with <code>get_arm_pose()</code>, prototype in code, then promote to object model anchors via a coordinate transform. For design knowledge (forces, speeds, failure handling): the tacit-teacher process is one approach — video analysis + expert interview → structured YAML that informs the skill author.</p>
       </div>
     </div>
   </section>
